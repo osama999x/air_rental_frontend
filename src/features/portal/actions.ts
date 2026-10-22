@@ -80,11 +80,11 @@ export async function submitVerify(_previous: FormState, formData: FormData): Pr
 
 export async function submitResendCode(_previous: FormState, formData: FormData): Promise<FormState> {
   const email = text(formData, "email").toLowerCase();
-  const text = await messages();
-  if (!email) return { status: "error", message: text.forgotInvalid };
+  const copy = await messages();
+  if (!email) return { status: "error", message: copy.forgotInvalid };
   const result = await portalCall("/auth/resend-verification", { method: "POST", auth: false, body: { email } });
   if (!result.ok) return { status: "error", message: result.message };
-  return { status: "success", message: text.resendOk };
+  return { status: "success", message: copy.resendOk };
 }
 
 export async function submitLogin(_previous: FormState, formData: FormData): Promise<FormState> {
