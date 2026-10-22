@@ -1,0 +1,324 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f4f7fb;
+  --foreground: #12305c;
+  --muted: #6d7f98;
+  --card: #ffffff;
+  --accent: #2f6bff;
+  --accent-foreground: #ffffff;
+  --line: #e4ebf5;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-line: var(--line);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-navy: #12305c;
+}
+
+body {
+  background:
+    radial-gradient(980px 460px at -8% -12%, rgba(47, 107, 255, 0.16), transparent 58%),
+    radial-gradient(720px 380px at 110% -8%, rgba(18, 48, 92, 0.08), transparent 52%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), sans-serif;
+  color-scheme: light;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.7s ease both;
+}
+
+.delay-1 {
+  animation-delay: 90ms;
+}
+
+.delay-2 {
+  animation-delay: 180ms;
+}
+
+.delay-3 {
+  animation-delay: 270ms;
+}
+
+.delay-4 {
+  animation-delay: 360ms;
+}
+
+.float-card {
+  animation: float-y 6s ease-in-out infinite;
+}
+
+.hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(18, 48, 92, 0.12);
+}
+
+.surface-card {
+  border-radius: 1.5rem;
+  background: var(--card);
+  box-shadow: 0 10px 30px rgba(18, 48, 92, 0.06);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .float-card,
+  .hover-lift {
+    animation: none;
+    transition: none;
+  }
+}
+
+.portal-stage {
+  display: flex;
+  min-height: 100dvh;
+  flex: 1;
+  flex-direction: column;
+  background: var(--background);
+}
+
+.portal-device {
+  display: flex;
+  width: 100%;
+  min-height: 100dvh;
+  flex: 1;
+  flex-direction: column;
+  background: transparent;
+}
+
+.portal-shell {
+  display: flex;
+  min-height: 100dvh;
+  flex: 1;
+  flex-direction: column;
+}
+
+.portal-sidebar {
+  display: none;
+}
+
+.portal-main {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.portal-auth {
+  display: flex;
+  min-height: 100dvh;
+  flex: 1;
+  flex-direction: column;
+}
+
+.portal-auth-panel {
+  display: none;
+}
+
+.portal-auth-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 1.75rem 1.25rem 2.5rem;
+}
+
+.portal-auth-card {
+  display: flex;
+  width: 100%;
+  max-width: 34rem;
+  flex: 1;
+  flex-direction: column;
+  container-type: inline-size;
+}
+
+.name-grid {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@container (min-width: 520px) {
+  .name-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .portal-auth-main {
+    align-items: center;
+    padding-inline: 2rem;
+  }
+
+  .portal-auth-card {
+    width: min(100%, 34rem);
+    margin-inline: auto;
+  }
+
+  .portal-canvas form.grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .portal-canvas form.grid > :is(button, p, h2, h3) ,
+  .portal-canvas form.grid > label:has(textarea) {
+    grid-column: 1 / -1;
+  }
+
+  .portal-canvas dl.grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .portal-shell {
+    flex-direction: row;
+  }
+
+  .portal-sidebar {
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100dvh;
+    width: 17.5rem;
+    flex-direction: column;
+    border-right: 1px solid var(--line);
+    background: #fff;
+  }
+
+  .portal-auth {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.92fr) minmax(440px, 1.08fr);
+  }
+
+  .portal-auth-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 2.5rem;
+    color: white;
+    background:
+      linear-gradient(165deg, rgba(18, 48, 92, 0.28), rgba(13, 34, 72, 0.82)),
+      radial-gradient(420px 280px at 20% 20%, rgba(47, 107, 255, 0.55), transparent 70%),
+      #16356a;
+  }
+
+  .portal-auth-main {
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2.5rem;
+    background:
+      radial-gradient(640px 320px at 100% 0%, rgba(47, 107, 255, 0.12), transparent 60%),
+      var(--background);
+  }
+
+  .portal-auth-card {
+    flex: none;
+  }
+
+  .portal-canvas ul.grid.gap-3,
+  .portal-canvas ul.grid.gap-2:not(.grid-cols-3) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.choice {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-radius: 22px;
+  background: white;
+  padding: 16px;
+  text-align: start;
+  box-shadow: 0 8px 24px rgba(18, 48, 92, 0.05);
+}
+
+.choice {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, outline-color 0.2s ease;
+}
+
+.choice:hover,
+.choice:focus-visible {
+  outline: 2px solid #2f6bff;
+  outline-offset: 2px;
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise-in,
+  .float-card,
+  .hover-lift,
+  .choice,
+  .record-link {
+    animation: none;
+    transition: none;
+    transform: none;
+  }
+}
+
+.admin-shell {
+  --background: #f4f7fb;
+  --foreground: #12305c;
+  --muted: #6d7f98;
+  --card: #ffffff;
+  --accent: #2f6bff;
+  --accent-foreground: #ffffff;
+  --line: #e4ebf5;
+  color-scheme: light;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.admin-card {
+  border-radius: 1.5rem;
+  background: var(--card);
+  box-shadow: 0 10px 30px rgba(18, 48, 92, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #f4f7fb;
+    --foreground: #12305c;
+    --muted: #6d7f98;
+    --card: #ffffff;
+    --accent: #2f6bff;
+    --accent-foreground: #ffffff;
+    --line: #e4ebf5;
+  }
+}
