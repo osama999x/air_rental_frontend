@@ -19,6 +19,7 @@ import {
   transitionRepair,
 } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
+import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor } from "@/features/portal/nav";
 import type { NamedRecord, PortalProfile } from "@/features/portal/types";
 import {
@@ -475,9 +476,15 @@ export async function MoreScreen({ profile }: { profile: PortalProfile }) {
       <ul className="grid gap-2">
         {linksFor(profile.activeRole).map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="block rounded-[22px] bg-white px-4 py-4 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
-              <span className="block font-semibold text-navy">{link.label}</span>
-              <span className="mt-1 block text-sm text-muted">{link.hint}</span>
+            <Link href={link.href} className="flex items-center gap-3 rounded-[22px] bg-white px-4 py-3.5 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0ff] text-accent">
+                <PortalIcon name={link.icon} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold text-navy">{link.label}</span>
+                <span className="mt-0.5 block truncate text-sm text-muted">{link.hint}</span>
+              </span>
+              <PortalIcon name="chevron" className="h-4 w-4 shrink-0 text-muted" />
             </Link>
           </li>
         ))}

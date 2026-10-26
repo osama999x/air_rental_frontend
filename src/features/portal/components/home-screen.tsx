@@ -2,6 +2,7 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { asList, portalCall } from "@/features/portal/api";
 import type { NamedRecord, OwnerDashboard, PortalProfile } from "@/features/portal/types";
+import { PortalIcon, type IconName } from "./icons";
 import { Chip, MoneyCard, PageTitle, RecordLink, Screen, StatRow } from "./ui";
 
 export async function HomeScreen({ profile }: { profile: PortalProfile }) {
@@ -70,10 +71,10 @@ async function OwnerHome({ profile }: { profile: PortalProfile }) {
       />
       </div>
       <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <Quick href="/portal/properties/new" label="Add property" />
-        <Quick href="/portal/invitations" label="Invite tenant" />
-        <Quick href="/portal/managers" label="Assign manager" />
-        <Quick href="/portal/repairs" label="Repair requests" />
+        <Quick href="/portal/properties/new" label="Add property" icon="properties" />
+        <Quick href="/portal/invitations" label="Invite tenant" icon="invitations" />
+        <Quick href="/portal/managers" label="Assign manager" icon="managers" />
+        <Quick href="/portal/repairs" label="Repair requests" icon="repairs" />
       </div>
       <div className="mt-6 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-navy">Needs attention</h2>
@@ -119,10 +120,10 @@ async function TenantHome({ profile }: { profile: PortalProfile }) {
         detail={due ? `Due ${due.dueDate ?? "this period"} · ${label(String(due.status ?? "upcoming"))}` : "No rent obligation yet"}
       />
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <Quick href={due ? `/portal/rent/${due.id}` : "/portal/rent"} label="Upload proof" />
-        <Quick href="/portal/bills" label="Bills" />
-        <Quick href="/portal/repairs/new" label="Report an issue" />
-        <Quick href="/portal/agreements" label="View agreement" />
+        <Quick href={due ? `/portal/rent/${due.id}` : "/portal/rent"} label="Upload proof" icon="rent" />
+        <Quick href="/portal/bills" label="Bills" icon="bills" />
+        <Quick href="/portal/repairs/new" label="Report an issue" icon="repairs" />
+        <Quick href="/portal/agreements" label="View agreement" icon="agreements" />
       </div>
       <ul className="mt-5 grid gap-3">
         <li className="rounded-[22px] bg-white p-4 text-sm text-navy">
@@ -208,10 +209,13 @@ function Greeting({ profile }: { profile: PortalProfile }) {
   );
 }
 
-function Quick({ href, label }: { href: string; label: string }) {
+function Quick({ href, label, icon }: { href: string; label: string; icon: IconName }) {
   return (
-    <Link href={href} className="rounded-[20px] bg-white px-4 py-4 text-sm font-semibold text-navy shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
-      {label}
+    <Link href={href} className="flex min-h-[104px] flex-col justify-between rounded-[20px] bg-white px-4 py-4 text-sm font-semibold text-navy shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#e8f0ff] text-accent">
+        <PortalIcon name={icon} />
+      </span>
+      <span className="mt-3 leading-5">{label}</span>
     </Link>
   );
 }

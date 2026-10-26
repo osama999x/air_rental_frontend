@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { signOut, switchRole } from "@/features/portal/actions";
+import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor, roleMeta, tabs } from "@/features/portal/nav";
 import type { PortalProfile, PortalRole } from "@/features/portal/types";
 
@@ -37,7 +38,7 @@ function Sidebar({ profile }: { profile: PortalProfile }) {
         <ul className="grid gap-1">
           {primary.map((tab) => (
             <li key={tab.href}>
-              <NavLink href={tab.href} label={tab.label} active={isActive(pathname, tab.href, tab.exact)} />
+              <NavLink href={tab.href} label={tab.label} icon={tab.icon} active={isActive(pathname, tab.href, tab.exact)} />
             </li>
           ))}
         </ul>
@@ -45,7 +46,7 @@ function Sidebar({ profile }: { profile: PortalProfile }) {
         <ul className="grid gap-1">
           {extra.map((item) => (
             <li key={item.href}>
-              <NavLink href={item.href} label={item.label} active={isActive(pathname, item.href)} />
+              <NavLink href={item.href} label={item.label} icon={item.icon} active={isActive(pathname, item.href)} />
             </li>
           ))}
         </ul>
@@ -97,10 +98,11 @@ function TabBar({ role }: { role: PortalRole }) {
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-12 flex-col items-center justify-center rounded-2xl text-[11px] font-semibold transition ${
+                className={`flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold leading-none transition ${
                   active ? "bg-[#e8f0ff] text-accent" : "text-muted"
                 }`}
               >
+                <PortalIcon name={tab.icon} className="h-[22px] w-[22px]" />
                 {tab.label}
               </Link>
             </li>
@@ -111,16 +113,27 @@ function TabBar({ role }: { role: PortalRole }) {
   );
 }
 
-function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
+function NavLink({
+  href,
+  label,
+  icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: Parameters<typeof PortalIcon>[0]["name"];
+  active: boolean;
+}) {
   return (
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
-      className={`block rounded-2xl px-3 py-2.5 text-sm font-medium transition ${
+      className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition ${
         active ? "bg-accent text-white" : "text-navy hover:bg-[#f4f7fb]"
       }`}
     >
-      {label}
+      <PortalIcon name={icon} className="h-5 w-5 shrink-0" />
+      <span className="truncate">{label}</span>
     </Link>
   );
 }
