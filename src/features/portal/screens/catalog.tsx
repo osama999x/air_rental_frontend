@@ -21,6 +21,8 @@ import {
 import { asList, portalCall } from "@/features/portal/api";
 import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor } from "@/features/portal/nav";
+import { portalCopy } from "@/features/portal/portal-copy";
+import { readOnboarding } from "@/features/portal/session";
 import type { NamedRecord, PortalProfile } from "@/features/portal/types";
 import {
   AgreementCreateForm,
@@ -470,9 +472,11 @@ export async function RepairDetailScreen({ id, role }: { id: string; role: Porta
 }
 
 export async function MoreScreen({ profile }: { profile: PortalProfile }) {
+  const { language } = await readOnboarding();
+  const copy = portalCopy(language);
   return (
     <Screen>
-      <PageTitle kicker={profile.activeRole} title="More" />
+      <PageTitle kicker={profile.activeRole} title={copy.more} />
       <ul className="grid gap-2">
         {linksFor(profile.activeRole).map((link) => (
           <li key={link.href}>
@@ -481,8 +485,8 @@ export async function MoreScreen({ profile }: { profile: PortalProfile }) {
                 <PortalIcon name={link.icon} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-navy">{link.label}</span>
-                <span className="mt-0.5 block truncate text-sm text-muted">{link.hint}</span>
+                <span className="block font-semibold text-navy">{copy.links[link.href]?.label ?? link.label}</span>
+                <span className="mt-0.5 block truncate text-sm text-muted">{copy.links[link.href]?.hint ?? link.hint}</span>
               </span>
               <PortalIcon name="chevron" className="h-4 w-4 shrink-0 text-muted" />
             </Link>

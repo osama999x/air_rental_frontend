@@ -1,18 +1,22 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { asList, portalCall } from "@/features/portal/api";
+import { fillTemplate, portalCopy, type PortalCopy } from "@/features/portal/portal-copy";
+import { readOnboarding } from "@/features/portal/session";
 import type { NamedRecord, OwnerDashboard, PortalProfile } from "@/features/portal/types";
 import { PortalIcon, type IconName } from "./icons";
 import { Chip, MoneyCard, PageTitle, RecordLink, Screen, StatRow } from "./ui";
 
 export async function HomeScreen({ profile }: { profile: PortalProfile }) {
   await connection();
-  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} />;
-  if (profile.activeRole === "MANAGER") return <ManagerHome profile={profile} />;
-  return <OwnerHome profile={profile} />;
+  const { language } = await readOnboarding();
+  const copy = portalCopy(language);
+  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} copy={copy} language={language} />;
+  if (profile.activeRole === "MANAGER") return <ManagerHome profile={profile} copy={copy} language={language} />;
+  return <OwnerHome profile={profile} copy={copy} language={language} />;
 }
 
-async function OwnerHome({ profile }: { profile: PortalProfile }) {
+async function OwnerHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
   const [dashboard, properties, rent, bills] = await Promise.all([
     portalCall<OwnerDashboard>("/dashboards/owner"),
     portalCall<unknown>("/properties"),
@@ -33,8 +37,8 @@ async function OwnerHome({ profile }: { profile: PortalProfile }) {
       .map((row) => ({
         href: `/portal/rent/${row.id}`,
         mark: codeOf(propertyRows.find((item) => item.id === row.propertyId) ?? row),
-        title: propertyRows.find((item) => item.id === row.propertyId)?.name ?? "Rent",
-        subtitle: rentSubtitle(row),
+        title: propertyRows.find((item) => item.id === row.propertyId)?.name ?? copy.rent,
+        subtitle: rentSubtitle(row, copy),
         amount: money(row.amount),
         status: String(row.status ?? ""),
       })),
@@ -44,8 +48,8 @@ async function OwnerHome({ profile }: { profile: PortalProfile }) {
       .map((row) => ({
         href: `/portal/bills/${row.id}`,
         mark: String(row.category ?? "B").slice(0, 1),
-        title: label(String(row.category ?? "Bill")),
-        subtitle: row.dueDate ? `Due ${row.dueDate}` : "Bill",
+        title: label(String(row.category ?? copy.bills)),
+        subtitle: row.dueDate ? fillTemplate(copy.dueOn, { date: row.dueDate }) : copy.bills,
         amount: money(row.amount),
         status: String(row.status ?? "DUE"),
       })),
@@ -53,33 +57,33 @@ async function OwnerHome({ profile }: { profile: PortalProfile }) {
 
   return (
     <Screen>
-      <Greeting profile={profile} />
+      <Greeting profile={profile} copy={copy} language={language} />
       {!dashboard.ok ? <p className="mb-3 text-sm text-[#9f1239]">{dashboard.message}</p> : null}
       <div className="grid items-stretch gap-4 lg:grid-cols-[1.4fr_1fr]">
       <MoneyCard
-        label="Rent collection"
+        label={copy.rentCollection}
         amount={money(collected || billed)}
-        detail={billed ? `${money(collected)} of ${money(billed)} collected · ${money(Math.max(billed - collected, 0))} outstanding` : "Approved payments appear here"}
+        detail={billed ? fillTemplate(copy.collectedLine, { collected: money(collected), billed: money(billed), outstanding: money(Math.max(billed - collected, 0)) }) : copy.approvedAppear}
       />
       <StatRow
         className="lg:mt-0 lg:content-center"
         items={[
-          { label: "Total units", value: stats.properties },
-          { label: "Rented", value: stats.rented },
-          { label: "Vacant", value: stats.vacant },
+          { label: copy.totalUnits, value: stats.properties },
+          { label: copy.rented, value: stats.rented },
+          { label: copy.vacant, value: stats.vacant },
         ]}
       />
       </div>
       <div className="mt-5 grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <Quick href="/portal/properties/new" label="Add property" icon="properties" />
-        <Quick href="/portal/invitations" label="Invite tenant" icon="invitations" />
-        <Quick href="/portal/managers" label="Assign manager" icon="managers" />
-        <Quick href="/portal/repairs" label="Repair requests" icon="repairs" />
+        <Quick href="/portal/properties/new" label={copy.addProperty} icon="properties" />
+        <Quick href="/portal/invitations" label={copy.inviteTenant} icon="invitations" />
+        <Quick href="/portal/managers" label={copy.assignManager} icon="managers" />
+        <Quick href="/portal/repairs" label={copy.repairRequests} icon="repairs" />
       </div>
       <div className="mt-6 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-navy">Needs attention</h2>
+        <h2 className="text-lg font-semibold text-navy">{copy.needsAttention}</h2>
         <Link href="/portal/rent" className="text-sm font-medium text-accent">
-          See all
+          {copy.seeAll}
         </Link>
       </div>
       <ul className="mt-3 grid gap-3">
@@ -90,20 +94,20 @@ async function OwnerHome({ profile }: { profile: PortalProfile }) {
             </li>
           ))
         ) : (
-          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">Nothing is waiting on you.</li>
+          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">{copy.nothingWaiting}</li>
         )}
       </ul>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm lg:grid-cols-4">
-        <Mini label="Rent proofs" value={`${stats.pendingProofs} to approve`} href="/portal/rent" />
-        <Mini label="Repairs" value={`${stats.openMaintenance} open`} href="/portal/repairs" />
-        <Mini label="Agreements" value={`${stats.activeTenancies} active`} href="/portal/agreements" />
-        <Mini label="Bills" value="Review and pay" href="/portal/bills" />
+        <Mini label={copy.rentProofs} value={fillTemplate(copy.toApprove, { n: stats.pendingProofs })} href="/portal/rent" />
+        <Mini label={copy.repairs} value={fillTemplate(copy.openCount, { n: stats.openMaintenance })} href="/portal/repairs" />
+        <Mini label={copy.agreements} value={fillTemplate(copy.activeCount, { n: stats.activeTenancies })} href="/portal/agreements" />
+        <Mini label={copy.bills} value={copy.reviewAndPay} href="/portal/bills" />
       </div>
     </Screen>
   );
 }
 
-async function TenantHome({ profile }: { profile: PortalProfile }) {
+async function TenantHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
   const [dashboard, rent, bills] = await Promise.all([
     portalCall<{ rentedProperties: number; tenancies: number; unreadMessages: number; unreadNotifications: number }>("/dashboards/tenant"),
     portalCall<unknown>("/rent/obligations"),
@@ -113,22 +117,26 @@ async function TenantHome({ profile }: { profile: PortalProfile }) {
   const due = rentRows.find((row) => row.status !== "PAID") ?? rentRows[0];
   return (
     <Screen>
-      <Greeting profile={profile} />
+      <Greeting profile={profile} copy={copy} language={language} />
       <MoneyCard
-        label="Rent due"
+        label={copy.rentDue}
         amount={due ? money(due.remaining || due.amount) : money(0)}
-        detail={due ? `Due ${due.dueDate ?? "this period"} · ${label(String(due.status ?? "upcoming"))}` : "No rent obligation yet"}
+        detail={due ? fillTemplate(copy.dueLine, { date: due.dueDate ?? "", status: label(String(due.status ?? "")) }) : copy.noRent}
       />
       <div className="mt-4 grid grid-cols-2 gap-2 lg:grid-cols-4">
-        <Quick href={due ? `/portal/rent/${due.id}` : "/portal/rent"} label="Upload proof" icon="rent" />
-        <Quick href="/portal/bills" label="Bills" icon="bills" />
-        <Quick href="/portal/repairs/new" label="Report an issue" icon="repairs" />
-        <Quick href="/portal/agreements" label="View agreement" icon="agreements" />
+        <Quick href={due ? `/portal/rent/${due.id}` : "/portal/rent"} label={copy.uploadProof} icon="rent" />
+        <Quick href="/portal/bills" label={copy.bills} icon="bills" />
+        <Quick href="/portal/repairs/new" label={copy.reportIssue} icon="repairs" />
+        <Quick href="/portal/agreements" label={copy.viewAgreement} icon="agreements" />
       </div>
       <ul className="mt-5 grid gap-3">
         <li className="rounded-[22px] bg-white p-4 text-sm text-navy">
           {dashboard.ok
-            ? `${dashboard.data.tenancies} tenancies · ${dashboard.data.unreadMessages} unread messages · ${dashboard.data.unreadNotifications} alerts`
+            ? fillTemplate(copy.tenantSummary, {
+                tenancies: dashboard.data.tenancies,
+                messages: dashboard.data.unreadMessages,
+                alerts: dashboard.data.unreadNotifications,
+              })
             : dashboard.message}
         </li>
         {asList<NamedRecord>(bills.ok ? bills.data : []).slice(0, 3).map((bill) => (
@@ -136,8 +144,8 @@ async function TenantHome({ profile }: { profile: PortalProfile }) {
             <RecordLink
               href={`/portal/bills/${bill.id}`}
               mark={String(bill.category ?? "B")}
-              title={label(String(bill.category ?? "Bill"))}
-              subtitle={bill.dueDate ? `Due ${bill.dueDate}` : undefined}
+              title={label(String(bill.category ?? copy.bills))}
+              subtitle={bill.dueDate ? fillTemplate(copy.dueOn, { date: bill.dueDate }) : undefined}
               amount={money(bill.amount)}
               status={String(bill.status ?? "")}
             />
@@ -148,7 +156,7 @@ async function TenantHome({ profile }: { profile: PortalProfile }) {
   );
 }
 
-async function ManagerHome({ profile }: { profile: PortalProfile }) {
+async function ManagerHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
   const [dashboard, repairs] = await Promise.all([
     portalCall<{ assignedProperties: number; activeAssignments: number; unreadNotifications: number }>("/dashboards/manager"),
     portalCall<unknown>("/maintenance"),
@@ -156,15 +164,15 @@ async function ManagerHome({ profile }: { profile: PortalProfile }) {
   const tasks = asList<NamedRecord>(repairs.ok ? repairs.data : []);
   return (
     <Screen>
-      <Greeting profile={profile} />
+      <Greeting profile={profile} copy={copy} language={language} />
       <StatRow
         items={[
-          { label: "Assigned", value: dashboard.ok ? dashboard.data.assignedProperties : 0 },
-          { label: "Active", value: dashboard.ok ? dashboard.data.activeAssignments : 0 },
-          { label: "Alerts", value: dashboard.ok ? dashboard.data.unreadNotifications : 0 },
+          { label: copy.assigned, value: dashboard.ok ? dashboard.data.assignedProperties : 0 },
+          { label: copy.active, value: dashboard.ok ? dashboard.data.activeAssignments : 0 },
+          { label: copy.alerts, value: dashboard.ok ? dashboard.data.unreadNotifications : 0 },
         ]}
       />
-      <PageTitle title="Tasks" />
+      <PageTitle title={copy.tasks} />
       <ul className="grid gap-3">
         {tasks.length ? (
           tasks.map((task) => (
@@ -172,25 +180,25 @@ async function ManagerHome({ profile }: { profile: PortalProfile }) {
               <RecordLink
                 href={`/portal/repairs/${task.id}`}
                 mark={String(task.category ?? "T")}
-                title={task.description?.slice(0, 48) || "Repair"}
+                title={task.description?.slice(0, 48) || copy.repairs}
                 subtitle={label(String(task.status ?? "NEW"))}
                 status={String(task.status ?? "NEW")}
               />
             </li>
           ))
         ) : (
-          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">No assigned tasks yet.</li>
+          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">{copy.noTasks}</li>
         )}
       </ul>
     </Screen>
   );
 }
 
-function Greeting({ profile }: { profile: PortalProfile }) {
+function Greeting({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
   const now = new Date();
   const hour = now.getHours();
-  const hello = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
-  const month = now.toLocaleString("en", { month: "short" }).toUpperCase();
+  const hello = hour < 12 ? copy.morning : hour < 17 ? copy.afternoon : copy.evening;
+  const month = now.toLocaleString(language === "ur-Latn" ? "ur" : language, { month: "short" }).toUpperCase();
   return (
     <header className="mb-5 flex items-start justify-between">
       <div>
@@ -245,11 +253,11 @@ function codeOf(row: NamedRecord) {
   return String(row.visibleCode ?? row.propertyType ?? row.name ?? "P");
 }
 
-function rentSubtitle(row: NamedRecord) {
-  if (row.status === "OVERDUE") return `Rent overdue · due ${row.dueDate ?? ""}`.trim();
-  if (row.status === "PROOF_SUBMITTED" || row.status === "UNDER_REVIEW") return "Payment proof to review";
-  if (row.status === "DUE") return `Due ${row.dueDate ?? ""}`.trim();
-  return label(String(row.status ?? "Rent"));
+function rentSubtitle(row: NamedRecord, copy: PortalCopy) {
+  if (row.status === "OVERDUE") return fillTemplate(copy.rentOverdue, { date: row.dueDate ?? "" }).trim();
+  if (row.status === "PROOF_SUBMITTED" || row.status === "UNDER_REVIEW") return copy.proofToReview;
+  if (row.status === "DUE") return fillTemplate(copy.dueOn, { date: row.dueDate ?? "" }).trim();
+  return label(String(row.status ?? copy.rent));
 }
 
 function label(value: string) {

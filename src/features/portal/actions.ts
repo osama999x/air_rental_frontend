@@ -11,7 +11,7 @@ import {
   storePreference,
   updatePortalProfile,
 } from "./session";
-import { authCopy } from "./i18n";
+import { authCopy, normalizeLanguage } from "./i18n";
 import type { FormState, PortalRole, SessionPayload } from "./types";
 import { idleForm } from "./types";
 
@@ -821,6 +821,8 @@ export async function deactivateAccount(_previous: FormState, formData: FormData
 }
 
 async function finishSignIn(session: SessionPayload) {
+  const savedLanguage = normalizeLanguage(session.user.preferredLanguage);
+  if (savedLanguage) await storePreference("language", savedLanguage);
   const onboarding = await readOnboarding();
   const roles = session.roles ?? [];
   await storePortalSession({

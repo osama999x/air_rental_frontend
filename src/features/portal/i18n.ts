@@ -851,3 +851,7 @@ export function isRtl(code: string) {
 export function authCopy(code: string | undefined): AuthCopy {
   return packs[code || "en"] ?? en;
 }
+
+export function normalizeLanguage(code: string | null | undefined) {
+  return portalLanguages.some((item) => item.code === code) ? code : undefined;
+}
