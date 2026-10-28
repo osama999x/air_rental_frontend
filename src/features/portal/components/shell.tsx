@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { signOut, switchRole } from "@/features/portal/actions";
 import { PortalIcon } from "@/features/portal/components/icons";
+import { ProfilePhoto } from "@/features/portal/components/loader";
 import { linksFor, tabs } from "@/features/portal/nav";
 import { portalCopy, roleTitle, type PortalCopy } from "@/features/portal/portal-copy";
 import type { PortalProfile, PortalRole } from "@/features/portal/types";
@@ -41,7 +42,13 @@ function Sidebar({ profile, language, copy }: { profile: PortalProfile; language
         <Link href="/portal/home" className="text-sm font-bold tracking-[0.18em] text-navy">
           AIR RENTAL
         </Link>
-        <p className="mt-1 text-xs text-muted">{roleTitle(language, profile.activeRole)}</p>
+        <div className="mt-4 flex items-center gap-3">
+          <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc(profile)} />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-navy">{profile.firstName} {profile.lastName}</p>
+            <p className="text-xs text-muted">{roleTitle(language, profile.activeRole)}</p>
+          </div>
+        </div>
       </div>
       <nav aria-label="Portal" className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
         <p className="px-3 pb-2 text-[11px] font-semibold tracking-[0.14em] text-muted">{copy.menu}</p>
@@ -85,9 +92,12 @@ function MobileBar({ profile, language, copy }: { profile: PortalProfile; langua
             {roleTitle(language, profile.activeRole)}
           </summary>
           <div className="absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
-            <p className="px-1 text-sm font-semibold text-navy">
-              {profile.firstName} {profile.lastName}
-            </p>
+            <div className="mb-2 flex items-center gap-2 px-1">
+              <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc(profile)} />
+              <p className="text-sm font-semibold text-navy">
+                {profile.firstName} {profile.lastName}
+              </p>
+            </div>
             <RoleSwitch profile={profile} language={language} copy={copy} />
           </div>
         </details>
@@ -146,6 +156,10 @@ function NavLink({
       <span className="truncate">{label}</span>
     </Link>
   );
+}
+
+function avatarSrc(profile: PortalProfile) {
+  return profile.avatarStamp ? `/portal/files/users/me/avatar?v=${profile.avatarStamp}` : "/portal/files/users/me/avatar";
 }
 
 function tabLabel(href: string, role: PortalRole, copy: PortalCopy) {

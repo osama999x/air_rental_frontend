@@ -5,6 +5,7 @@ import { fillTemplate, portalCopy, type PortalCopy } from "@/features/portal/por
 import { readOnboarding } from "@/features/portal/session";
 import type { NamedRecord, OwnerDashboard, PortalProfile } from "@/features/portal/types";
 import { PortalIcon, type IconName } from "./icons";
+import { ProfilePhoto } from "./loader";
 import { Chip, MoneyCard, PageTitle, RecordLink, Screen, StatRow } from "./ui";
 
 export async function HomeScreen({ profile }: { profile: PortalProfile }) {
@@ -201,11 +202,14 @@ function Greeting({ profile, copy, language }: { profile: PortalProfile; copy: P
   const month = now.toLocaleString(language === "ur-Latn" ? "ur" : language, { month: "short" }).toUpperCase();
   return (
     <header className="mb-5 flex items-start justify-between">
-      <div>
-        <p className="text-sm text-muted">{hello}</p>
-        <h1 className="text-2xl font-semibold tracking-tight text-navy">
-          {profile.firstName} {profile.lastName}
-        </h1>
+      <div className="flex items-center gap-3">
+        <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={profile.avatarStamp ? `/portal/files/users/me/avatar?v=${profile.avatarStamp}` : "/portal/files/users/me/avatar"} large />
+        <div>
+          <p className="text-sm text-muted">{hello}</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-navy">
+            {profile.firstName} {profile.lastName}
+          </h1>
+        </div>
       </div>
       <div className="text-right">
         <Chip tone="due">PAK · PKR</Chip>

@@ -153,28 +153,40 @@ export async function signOut() {
 }
 
 export async function updateSettings(_previous: FormState, formData: FormData): Promise<FormState> {
-  const result = await portalCall("/users/me", {
-    method: "PATCH",
-    body: {
-      firstName: text(formData, "firstName"),
-      lastName: text(formData, "lastName"),
-      phone: text(formData, "phone") || undefined,
-      preferredLanguage: text(formData, "preferredLanguage") || undefined,
-      timezone: "Asia/Karachi",
-    },
-  });
+  const profile = await readPortalProfile();
+  const body = new FormData();
+  body.set("firstName", text(formData, "firstName"));
+  body.set("lastName", text(formData, "lastName"));
+  body.set("phone", text(formData, "phone"));
+  body.set("preferredLanguage", text(formData, "preferredLanguage") || "en");
+  body.set("timezone", "Asia/Karachi");
+  const displayName = text(formData, "displayName");
+  if (displayName) body.set("displayName", displayName);
+  if (profile?.activeRole === "TENANT") {
+    const address = text(formData, "currentAddress");
+    const contact = text(formData, "emergencyContactName");
+    const contactPhone = text(formData, "emergencyContactPhone");
+    if (address) body.set("currentAddress", address);
+    if (contact) body.set("emergencyContactName", contact);
+    if (contactPhone) body.set("emergencyContactPhone", contactPhone);
+  }
+  const file = formData.get("file");
+  const hasPhoto = file instanceof File && file.size > 0;
+  if (hasPhoto) body.set("file", file);
+  const result = await portalCall("/users/me", { method: "PATCH", form: body });
   if (!result.ok) return { status: "error", message: result.message };
   const language = text(formData, "preferredLanguage");
   if (language) await storePreference("language", language);
-  const profile = await readPortalProfile();
   if (profile) {
     await updatePortalProfile({
       ...profile,
       firstName: text(formData, "firstName") || profile.firstName,
       lastName: text(formData, "lastName") || profile.lastName,
+      avatarStamp: hasPhoto ? String(Date.now()) : profile.avatarStamp,
     });
   }
   revalidatePath("/portal/settings");
+  revalidatePath("/portal/home");
   return { status: "success", message: "Settings saved." };
 }
 

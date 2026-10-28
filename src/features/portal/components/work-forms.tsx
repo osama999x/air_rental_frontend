@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FilePicker, ProfilePhoto } from "@/features/portal/components/loader";
 import { portalLanguages } from "@/features/portal/i18n";
 import {
   addExpense,
@@ -284,15 +285,37 @@ export function SettingsForm({
   profile,
   phone,
   language = "en",
+  avatarSrc,
+  displayName = "",
+  currentAddress = "",
+  emergencyContactName = "",
+  emergencyContactPhone = "",
 }: {
   profile: PortalProfile;
   phone?: string;
   language?: string;
+  avatarSrc?: string | null;
+  displayName?: string;
+  currentAddress?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
 }) {
   const [state, action, pending] = useActionState(updateSettings, idleForm);
+  const name = `${profile.firstName} ${profile.lastName}`.trim();
   return (
     <form action={action} className="grid gap-4">
+      <input type="hidden" name="activeRole" value={profile.activeRole} />
       <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
+      <div className="flex items-center gap-4">
+        <ProfilePhoto name={name} src={avatarSrc} large />
+        <div>
+          <p className="font-semibold text-navy">{name}</p>
+          <p className="text-sm text-muted">{profile.email}</p>
+        </div>
+      </div>
+      <Field label="Profile photo">
+        <FilePicker name="file" accept="image/jpeg,image/png,image/webp" />
+      </Field>
       <Field label="First name">
         <input name="firstName" defaultValue={profile.firstName} required className={fieldClass} />
       </Field>
@@ -302,6 +325,22 @@ export function SettingsForm({
       <Field label="Phone">
         <input name="phone" defaultValue={phone} className={fieldClass} />
       </Field>
+      <Field label="Display name">
+        <input name="displayName" defaultValue={displayName} className={fieldClass} />
+      </Field>
+      {profile.activeRole === "TENANT" ? (
+        <>
+          <Field label="Current address">
+            <input name="currentAddress" defaultValue={currentAddress} className={fieldClass} />
+          </Field>
+          <Field label="Emergency contact">
+            <input name="emergencyContactName" defaultValue={emergencyContactName} className={fieldClass} />
+          </Field>
+          <Field label="Emergency phone">
+            <input name="emergencyContactPhone" defaultValue={emergencyContactPhone} className={fieldClass} />
+          </Field>
+        </>
+      ) : null}
       <Field label="Language">
         <select name="preferredLanguage" defaultValue={language} className={fieldClass}>
           {portalLanguages.map((item) => (

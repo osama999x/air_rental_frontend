@@ -642,11 +642,25 @@ export async function ChatScreen() {
 
 export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
   const [me, sessions] = await Promise.all([
-    portalCall<{ user?: NamedRecord }>("/users/me"),
+    portalCall<{
+      user?: NamedRecord & { phone?: string; preferredLanguage?: string; updatedAt?: string; avatar?: { url?: string } | null };
+      ownerProfile?: NamedRecord & { displayName?: string };
+      tenantProfile?: NamedRecord & { displayName?: string; currentAddress?: string; emergencyContactName?: string; emergencyContactPhone?: string };
+      managerProfile?: NamedRecord & { displayName?: string };
+    }>("/users/me"),
     portalCall<unknown>("/auth/sessions"),
   ]);
-  const phone = me.ok ? String(me.data.user?.phone ?? "") : "";
-  const language = me.ok ? String(me.data.user?.preferredLanguage ?? "en") : "en";
+  const user = me.ok ? me.data.user : undefined;
+  const roleProfile = me.ok
+    ? profile.activeRole === "TENANT"
+      ? me.data.tenantProfile
+      : profile.activeRole === "MANAGER"
+        ? me.data.managerProfile
+        : me.data.ownerProfile
+    : undefined;
+  const phone = String(user?.phone ?? "");
+  const language = String(user?.preferredLanguage ?? "en");
+  const updated = user?.updatedAt ? `?v=${encodeURIComponent(String(user.updatedAt))}` : "";
   return (
     <Screen>
       <PageTitle title="Settings" />
@@ -654,7 +668,12 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
       <SettingsForm
         phone={phone}
         language={language}
-        profile={{ ...profile, firstName: String(me.ok ? me.data.user?.firstName ?? profile.firstName : profile.firstName), lastName: String(me.ok ? me.data.user?.lastName ?? profile.lastName : profile.lastName) }}
+        avatarSrc={user?.avatar ? `/portal/files/users/me/avatar${updated}` : null}
+        displayName={String(roleProfile?.displayName ?? "")}
+        currentAddress={String(roleProfile?.currentAddress ?? "")}
+        emergencyContactName={String(roleProfile?.emergencyContactName ?? "")}
+        emergencyContactPhone={String(roleProfile?.emergencyContactPhone ?? "")}
+        profile={{ ...profile, firstName: String(user?.firstName ?? profile.firstName), lastName: String(user?.lastName ?? profile.lastName) }}
       />
       {phone ? <p className="mt-3 text-sm text-muted">Phone on file: {phone}</p> : null}
       <PhoneForms />

@@ -7,6 +7,7 @@ export type PortalProfile = {
   lastName: string;
   roles: PortalRole[];
   activeRole: PortalRole;
+  avatarStamp?: string;
 };
 
 export type PortalUser = {

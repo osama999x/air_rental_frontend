@@ -66,6 +66,36 @@ export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
   return <PhotoFrame key={src} src={src} alt={alt} />;
 }
 
+export function ProfilePhoto({ name, src, large = false }: { name: string; src?: string | null; large?: boolean }) {
+  const imageRef = useRef<HTMLImageElement>(null);
+  const [ready, setReady] = useState(false);
+  const initials = name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("") || "A";
+  const size = large ? "h-20 w-20 text-lg" : "h-10 w-10 text-xs";
+
+  useEffect(() => {
+    setReady(false);
+    const node = imageRef.current;
+    if (!node || !src) return;
+    if (node.complete) setReady(node.naturalWidth > 0);
+  }, [src]);
+
+  return (
+    <span className={`relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e7efff] font-semibold text-accent ${size}`}>
+      {ready ? null : initials}
+      {src ? (
+        <img
+          ref={imageRef}
+          src={src}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-cover ${ready ? "" : "opacity-0"}`}
+          onLoad={(event) => setReady(event.currentTarget.naturalWidth > 0)}
+          onError={() => setReady(false)}
+        />
+      ) : null}
+    </span>
+  );
+}
+
 export function FilePicker({ name, accept, required = false }: { name: string; accept: string; required?: boolean }) {
   const [fileName, setFileName] = useState("");
   return (

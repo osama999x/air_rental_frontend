@@ -2,7 +2,7 @@ import { readAccessToken, readPortalProfile } from "@/features/portal/session";
 
 const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
 const allowed =
-  /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download)$/i;
+  /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
 
 export async function GET(_request: Request, context: { params: Promise<{ path: string[] }> }) {
   const token = await readAccessToken();
@@ -41,7 +41,7 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
       "Content-Type": type,
       "Content-Length": String(bytes.byteLength),
       "Content-Disposition": "inline",
-      "Cache-Control": "private, max-age=86400",
+      "Cache-Control": path === "users/me/avatar" ? "private, no-cache" : "private, max-age=86400",
     },
   });
 }
