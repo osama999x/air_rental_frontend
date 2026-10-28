@@ -192,9 +192,19 @@ body {
     align-items: start;
   }
 
-  .portal-canvas form.grid > :is(button, p, h2, h3) ,
-  .portal-canvas form.grid > label:has(textarea) {
+  .portal-canvas form.grid > * {
+    min-width: 0;
+  }
+
+  .portal-canvas form.grid > :is(button, p, h2, h3, .form-wide),
+  .portal-canvas form.grid > label:has(textarea),
+  .portal-canvas form.grid > label:has(input[type="file"]),
+  .portal-canvas form.grid > label:has(input[type="checkbox"]) {
     grid-column: 1 / -1;
+  }
+
+  .portal-canvas form.form-stack {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .portal-canvas dl.grid {
@@ -250,8 +260,8 @@ body {
     flex: none;
   }
 
-  .portal-canvas ul.grid.gap-3,
-  .portal-canvas ul.grid.gap-2:not(.grid-cols-3) {
+  .portal-canvas ul.grid.gap-3:not(.photo-grid):not(:has(img)):has(> :nth-child(2)),
+  .portal-canvas ul.grid.gap-2:not(.grid-cols-3):not(.photo-grid):not(:has(img)):has(> :nth-child(2)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

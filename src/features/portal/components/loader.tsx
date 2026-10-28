@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export function Loader({ label }: { label: string }) {
   return (
@@ -24,15 +24,18 @@ export function BusyOverlay({ show, label }: { show: boolean; label: string }) {
 }
 
 export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
+  const imageRef = useRef<HTMLImageElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
+
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setState((current) => (current === "loading" ? "failed" : current));
-    }, 12000);
-    return () => window.clearTimeout(timer);
+    setState("loading");
+    const node = imageRef.current;
+    if (!node) return;
+    if (node.complete) setState(node.naturalWidth > 0 ? "ready" : "failed");
   }, [src]);
+
   return (
-    <div className="relative h-36 overflow-hidden bg-[#eef3fb]">
+    <div className="relative aspect-[4/3] overflow-hidden bg-[#eef3fb]">
       {state === "loading" ? (
         <span className="absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
       ) : null}
@@ -40,14 +43,11 @@ export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
         <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-muted">Photo unavailable</span>
       ) : (
         <img
+          ref={imageRef}
           src={src}
           alt={alt}
-          className="h-36 w-full object-cover"
-          ref={(node) => {
-            if (!node?.complete) return;
-            setState(node.naturalWidth > 0 ? "ready" : "failed");
-          }}
-          onLoad={() => setState("ready")}
+          className="h-full w-full object-cover"
+          onLoad={(event) => setState(event.currentTarget.naturalWidth > 0 ? "ready" : "failed")}
           onError={() => setState("failed")}
         />
       )}
@@ -58,7 +58,7 @@ export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
 export function FilePicker({ name, accept, required = false }: { name: string; accept: string; required?: boolean }) {
   const [fileName, setFileName] = useState("");
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c5d4ea] bg-white px-4 py-3 text-sm">
+    <label className="form-wide flex h-12 cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c5d4ea] bg-white px-4 text-sm">
       <span className="min-w-0 truncate font-medium text-navy">{fileName || "Choose a file"}</span>
       <span className="shrink-0 rounded-full bg-[#e7efff] px-3 py-1 text-xs font-semibold text-accent">Browse</span>
       <input

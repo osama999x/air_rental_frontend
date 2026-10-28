@@ -26,14 +26,17 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
   } catch {
     return new Response("The file took too long to load.", { status: 504 });
   }
-  if (!response.ok || !response.body) {
-    return new Response("Photo unavailable.", { status: response.status || 404 });
+  const bytes = await response.arrayBuffer();
+  if (!response.ok || bytes.byteLength === 0) {
+    return new Response("Photo unavailable.", { status: response.ok ? 404 : response.status });
   }
-  const headers = new Headers();
-  headers.set("Content-Type", response.headers.get("content-type") ?? "application/octet-stream");
-  headers.set("Content-Disposition", "inline");
-  headers.set("Cache-Control", "private, max-age=86400");
-  const length = response.headers.get("content-length");
-  if (length) headers.set("Content-Length", length);
-  return new Response(response.body, { status: 200, headers });
+  return new Response(bytes, {
+    status: 200,
+    headers: {
+      "Content-Type": response.headers.get("content-type") ?? "application/octet-stream",
+      "Content-Length": String(bytes.byteLength),
+      "Content-Disposition": "inline",
+      "Cache-Control": "private, max-age=86400",
+    },
+  });
 }

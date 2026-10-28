@@ -121,7 +121,7 @@ export function DocumentForm({ properties }: { properties: NamedRecord[] }) {
 export function PropertyMediaForm({ id }: { id: string }) {
   const [state, action, pending] = useActionState(uploadPropertyMedia, idleForm);
   return (
-    <form action={action} className="mt-4 grid gap-3">
+    <form action={action} className="form-stack mt-4 grid gap-3">
       <input type="hidden" name="id" value={id} />
       <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
       <Field label="Kind">

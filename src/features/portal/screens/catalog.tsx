@@ -168,10 +168,10 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
         <Fact label="Insurance required" value={item.tenantInsuranceRequired ? "On" : "Off"} />
       </dl>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm font-semibold lg:grid-cols-4">
-        <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/invitations">Invite tenant</Link>
-        <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/rent">Rent</Link>
-        <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/bills">Bills</Link>
-        <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/repairs/new">Report a repair</Link>
+        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/invitations">Invite tenant</Link>
+        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/rent">Rent</Link>
+        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/bills">Bills</Link>
+        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/repairs/new">Report a repair</Link>
       </div>
       <PropertyPhotos media={item.media} />
       <PropertyMediaForm id={id} />
@@ -957,7 +957,7 @@ function PropertyPhotos({ media }: { media: unknown }) {
   const files = Array.isArray(media) ? media : [];
   if (!files.length) return null;
   return (
-    <ul className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <ul className={files.length === 1 ? "photo-grid mt-4 max-w-md" : "photo-grid mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4"}>
       {files.map((file) => {
         const row = file as { id?: string; mimeType?: string; originalName?: string; kind?: string };
         if (!row.id) return null;
@@ -985,7 +985,7 @@ function Fact({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start justify-between gap-3">
       <dt className="text-muted">{label}</dt>
-      <dd className="text-right font-medium text-navy">{value}</dd>
+      <dd className="min-w-0 text-right font-medium break-words text-navy">{value}</dd>
     </div>
   );
 }
