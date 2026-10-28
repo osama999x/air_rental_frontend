@@ -13,18 +13,20 @@ import type { PortalProfile, PortalRole } from "@/features/portal/types";
 export function PortalShell({
   profile,
   language,
+  avatarSrc = null,
   children,
 }: {
   profile: PortalProfile;
   language: string;
+  avatarSrc?: string | null;
   children: ReactNode;
 }) {
   const copy = portalCopy(language);
   return (
     <div className="portal-shell">
-      <Sidebar profile={profile} language={language} copy={copy} />
+      <Sidebar profile={profile} language={language} copy={copy} avatarSrc={avatarSrc} />
       <div className="portal-main">
-        <MobileBar profile={profile} language={language} copy={copy} />
+        <MobileBar profile={profile} language={language} copy={copy} avatarSrc={avatarSrc} />
         <div className="min-h-0 flex-1">{children}</div>
         <TabBar role={profile.activeRole} copy={copy} />
       </div>
@@ -32,7 +34,7 @@ export function PortalShell({
   );
 }
 
-function Sidebar({ profile, language, copy }: { profile: PortalProfile; language: string; copy: PortalCopy }) {
+function Sidebar({ profile, language, copy, avatarSrc }: { profile: PortalProfile; language: string; copy: PortalCopy; avatarSrc: string | null }) {
   const pathname = usePathname();
   const primary = tabs[profile.activeRole];
   const extra = linksFor(profile.activeRole).filter((item) => !primary.some((tab) => tab.href === item.href));
@@ -43,7 +45,7 @@ function Sidebar({ profile, language, copy }: { profile: PortalProfile; language
           AIR RENTAL
         </Link>
         <div className="mt-4 flex items-center gap-3">
-          <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc(profile)} />
+          <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-navy">{profile.firstName} {profile.lastName}</p>
             <p className="text-xs text-muted">{roleTitle(language, profile.activeRole)}</p>
@@ -80,7 +82,7 @@ function Sidebar({ profile, language, copy }: { profile: PortalProfile; language
   );
 }
 
-function MobileBar({ profile, language, copy }: { profile: PortalProfile; language: string; copy: PortalCopy }) {
+function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProfile; language: string; copy: PortalCopy; avatarSrc: string | null }) {
   return (
     <header className="sticky top-0 z-20 border-b border-line bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
       <div className="flex items-center justify-between gap-3">
@@ -93,7 +95,7 @@ function MobileBar({ profile, language, copy }: { profile: PortalProfile; langua
           </summary>
           <div className="absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
             <div className="mb-2 flex items-center gap-2 px-1">
-              <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc(profile)} />
+              <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} />
               <p className="text-sm font-semibold text-navy">
                 {profile.firstName} {profile.lastName}
               </p>
@@ -156,10 +158,6 @@ function NavLink({
       <span className="truncate">{label}</span>
     </Link>
   );
-}
-
-function avatarSrc(profile: PortalProfile) {
-  return profile.avatarStamp ? `/portal/files/users/me/avatar?v=${profile.avatarStamp}` : "/portal/files/users/me/avatar";
 }
 
 function tabLabel(href: string, role: PortalRole, copy: PortalCopy) {

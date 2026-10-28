@@ -19,6 +19,7 @@ import {
   transitionRepair,
 } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
+import { readAvatarDataUrl } from "@/features/portal/avatar";
 import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor } from "@/features/portal/nav";
 import { portalCopy } from "@/features/portal/portal-copy";
@@ -660,7 +661,7 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
     : undefined;
   const phone = String(user?.phone ?? "");
   const language = String(user?.preferredLanguage ?? "en");
-  const updated = user?.updatedAt ? `?v=${encodeURIComponent(String(user.updatedAt))}` : "";
+  const avatarSrc = user?.avatar ? await readAvatarDataUrl() : null;
   return (
     <Screen>
       <PageTitle title="Settings" />
@@ -668,7 +669,7 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
       <SettingsForm
         phone={phone}
         language={language}
-        avatarSrc={user?.avatar ? `/portal/files/users/me/avatar${updated}` : null}
+        avatarSrc={avatarSrc}
         displayName={String(roleProfile?.displayName ?? "")}
         currentAddress={String(roleProfile?.currentAddress ?? "")}
         emergencyContactName={String(roleProfile?.emergencyContactName ?? "")}

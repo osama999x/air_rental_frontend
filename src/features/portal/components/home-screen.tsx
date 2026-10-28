@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { asList, portalCall } from "@/features/portal/api";
+import { readAvatarDataUrl } from "@/features/portal/avatar";
 import { fillTemplate, portalCopy, type PortalCopy } from "@/features/portal/portal-copy";
 import { readOnboarding } from "@/features/portal/session";
 import type { NamedRecord, OwnerDashboard, PortalProfile } from "@/features/portal/types";
@@ -12,12 +13,13 @@ export async function HomeScreen({ profile }: { profile: PortalProfile }) {
   await connection();
   const { language } = await readOnboarding();
   const copy = portalCopy(language);
-  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} copy={copy} language={language} />;
-  if (profile.activeRole === "MANAGER") return <ManagerHome profile={profile} copy={copy} language={language} />;
-  return <OwnerHome profile={profile} copy={copy} language={language} />;
+  const avatarSrc = await readAvatarDataUrl();
+  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
+  if (profile.activeRole === "MANAGER") return <ManagerHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
+  return <OwnerHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
 }
 
-async function OwnerHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
+async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
   const [dashboard, properties, rent, bills] = await Promise.all([
     portalCall<OwnerDashboard>("/dashboards/owner"),
     portalCall<unknown>("/properties"),
@@ -58,7 +60,7 @@ async function OwnerHome({ profile, copy, language }: { profile: PortalProfile; 
 
   return (
     <Screen>
-      <Greeting profile={profile} copy={copy} language={language} />
+      <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
       {!dashboard.ok ? <p className="mb-3 text-sm text-[#9f1239]">{dashboard.message}</p> : null}
       <div className="grid items-stretch gap-4 lg:grid-cols-[1.4fr_1fr]">
       <MoneyCard
@@ -108,7 +110,7 @@ async function OwnerHome({ profile, copy, language }: { profile: PortalProfile; 
   );
 }
 
-async function TenantHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
+async function TenantHome({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
   const [dashboard, rent, bills] = await Promise.all([
     portalCall<{ rentedProperties: number; tenancies: number; unreadMessages: number; unreadNotifications: number }>("/dashboards/tenant"),
     portalCall<unknown>("/rent/obligations"),
@@ -118,7 +120,7 @@ async function TenantHome({ profile, copy, language }: { profile: PortalProfile;
   const due = rentRows.find((row) => row.status !== "PAID") ?? rentRows[0];
   return (
     <Screen>
-      <Greeting profile={profile} copy={copy} language={language} />
+      <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
       <MoneyCard
         label={copy.rentDue}
         amount={due ? money(due.remaining || due.amount) : money(0)}
@@ -157,7 +159,7 @@ async function TenantHome({ profile, copy, language }: { profile: PortalProfile;
   );
 }
 
-async function ManagerHome({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
+async function ManagerHome({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
   const [dashboard, repairs] = await Promise.all([
     portalCall<{ assignedProperties: number; activeAssignments: number; unreadNotifications: number }>("/dashboards/manager"),
     portalCall<unknown>("/maintenance"),
@@ -165,7 +167,7 @@ async function ManagerHome({ profile, copy, language }: { profile: PortalProfile
   const tasks = asList<NamedRecord>(repairs.ok ? repairs.data : []);
   return (
     <Screen>
-      <Greeting profile={profile} copy={copy} language={language} />
+      <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
       <StatRow
         items={[
           { label: copy.assigned, value: dashboard.ok ? dashboard.data.assignedProperties : 0 },
@@ -195,7 +197,7 @@ async function ManagerHome({ profile, copy, language }: { profile: PortalProfile
   );
 }
 
-function Greeting({ profile, copy, language }: { profile: PortalProfile; copy: PortalCopy; language: string }) {
+function Greeting({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
   const now = new Date();
   const hour = now.getHours();
   const hello = hour < 12 ? copy.morning : hour < 17 ? copy.afternoon : copy.evening;
@@ -203,7 +205,7 @@ function Greeting({ profile, copy, language }: { profile: PortalProfile; copy: P
   return (
     <header className="mb-5 flex items-start justify-between">
       <div className="flex items-center gap-3">
-        <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={profile.avatarStamp ? `/portal/files/users/me/avatar?v=${profile.avatarStamp}` : "/portal/files/users/me/avatar"} large />
+        <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} large />
         <div>
           <p className="text-sm text-muted">{hello}</p>
           <h1 className="text-2xl font-semibold tracking-tight text-navy">

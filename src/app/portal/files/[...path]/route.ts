@@ -1,13 +1,17 @@
-import { readAccessToken, readPortalProfile } from "@/features/portal/session";
+import { connection, type NextRequest } from "next/server";
+import { ACCESS_COOKIE, readAccessToken, readPortalProfile } from "@/features/portal/session";
 
 const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
 const allowed =
   /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
 
-export async function GET(_request: Request, context: { params: Promise<{ path: string[] }> }) {
-  const token = await readAccessToken();
+export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
+  await connection();
+  const token = request.cookies.get(ACCESS_COOKIE)?.value || (await readAccessToken());
   const profile = await readPortalProfile();
-  if (!token || !profile) return new Response("Sign in required.", { status: 401 });
+  if (!token || !profile) {
+    return new Response("Sign in required.", { status: 401, headers: { "Cache-Control": "no-store" } });
+  }
   const path = (await context.params).path.join("/");
   if (!allowed.test(path)) return new Response("Unknown file.", { status: 404 });
 
@@ -41,7 +45,7 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
       "Content-Type": type,
       "Content-Length": String(bytes.byteLength),
       "Content-Disposition": "inline",
-      "Cache-Control": path === "users/me/avatar" ? "private, no-cache" : "private, max-age=86400",
+      "Cache-Control": path === "users/me/avatar" ? "private, no-store" : "private, max-age=86400",
     },
   });
 }

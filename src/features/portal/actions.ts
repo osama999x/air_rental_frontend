@@ -171,8 +171,8 @@ export async function updateSettings(_previous: FormState, formData: FormData): 
     if (contactPhone) body.set("emergencyContactPhone", contactPhone);
   }
   const file = formData.get("file");
-  const hasPhoto = file instanceof File && file.size > 0;
-  if (hasPhoto) body.set("file", file);
+  const hasPhoto = file instanceof Blob && file.size > 0;
+  if (hasPhoto) body.set("file", file, file instanceof File && file.name ? file.name : "profile.jpg");
   const result = await portalCall("/users/me", { method: "PATCH", form: body });
   if (!result.ok) return { status: "error", message: result.message };
   const language = text(formData, "preferredLanguage");
@@ -185,6 +185,7 @@ export async function updateSettings(_previous: FormState, formData: FormData): 
       avatarStamp: hasPhoto ? String(Date.now()) : profile.avatarStamp,
     });
   }
+  revalidatePath("/portal", "layout");
   revalidatePath("/portal/settings");
   revalidatePath("/portal/home");
   return { status: "success", message: "Settings saved." };
