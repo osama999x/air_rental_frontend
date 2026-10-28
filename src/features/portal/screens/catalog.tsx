@@ -63,6 +63,7 @@ import {
   SettingsForm,
 } from "../components/work-forms";
 import { money } from "../components/home-screen";
+import { PropertyPhoto } from "../components/loader";
 import { BackLink, Chip, EmptyState, Notice, PageTitle, RecordLink, Screen, labelize, statusTone } from "../components/ui";
 
 export async function PropertiesScreen() {
@@ -966,7 +967,7 @@ function PropertyPhotos({ media }: { media: unknown }) {
           <li key={row.id} className="overflow-hidden rounded-[22px] bg-white">
             {image ? (
               <a href={href}>
-                <img src={href} alt={row.originalName || "Property photo"} className="h-36 w-full object-cover" />
+                <PropertyPhoto src={href} alt={row.originalName || "Property photo"} />
               </a>
             ) : (
               <a href={href} className="block px-4 py-4 text-sm font-semibold text-navy">

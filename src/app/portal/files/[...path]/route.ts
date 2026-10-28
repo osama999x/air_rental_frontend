@@ -12,14 +12,20 @@ export async function GET(_request: Request, context: { params: Promise<{ path: 
   const path = (await context.params).path.join("/");
   if (!allowed.test(path)) return new Response("Unknown file.", { status: 404 });
 
-  const response = await fetch(`${API_URL}/${path}`, {
-    headers: {
-      Accept: "*/*",
-      Authorization: `Bearer ${token}`,
-      "X-Portal-Role": profile.activeRole,
-    },
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/${path}`, {
+      headers: {
+        Accept: "*/*",
+        Authorization: `Bearer ${token}`,
+        "X-Portal-Role": profile.activeRole,
+      },
+      cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+  } catch {
+    return new Response("The file took too long to load.", { status: 504 });
+  }
   const body = await response.arrayBuffer();
   return new Response(body, {
     status: response.status,

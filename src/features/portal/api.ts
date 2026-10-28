@@ -32,12 +32,16 @@ export async function portalCall<T>(path: string, options: CallOptions = {}): Pr
       headers,
       body: options.form ?? (options.body === undefined ? undefined : JSON.stringify(options.body)),
       cache: "no-store",
+      signal: AbortSignal.timeout(20000),
     });
-  } catch {
+  } catch (error) {
+    const timedOut = error instanceof Error && (error.name === "TimeoutError" || error.name === "AbortError");
     return {
       ok: false,
       status: 0,
-      message: "The Air Rental API is unreachable. Start it on port 3000, or set API_URL.",
+      message: timedOut
+        ? "The Air Rental API took too long to answer. Try again."
+        : "The Air Rental API is unreachable. Start it on port 3000, or set API_URL.",
     };
   }
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import { Loader } from "@/features/portal/components/loader";
 import { PortalShell } from "@/features/portal/components/shell";
 import { readOnboarding, readPortalProfile } from "@/features/portal/session";
 
@@ -8,7 +9,7 @@ export const instant = false;
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <Suspense fallback={<p className="p-6 text-sm text-muted">Opening your portal…</p>}>
+    <Suspense fallback={<Loader label="Opening your portal…" />}>
       <Gate>{children}</Gate>
     </Suspense>
   );

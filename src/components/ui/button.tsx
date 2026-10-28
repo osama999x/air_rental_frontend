@@ -26,9 +26,22 @@ export function ButtonLink({
 export function Button({
   variant = "primary",
   className = "",
+  type,
+  disabled,
+  children,
   ...props
 }: ComponentProps<"button"> & { variant?: Variant }) {
+  const busy = Boolean(disabled) && type === "submit";
   return (
-    <button className={`${base} ${variants[variant]} ${className}`} {...props} />
+    <button
+      type={type}
+      disabled={disabled}
+      aria-busy={busy || undefined}
+      className={`${base} ${variants[variant]} ${className}`}
+      {...props}
+    >
+      {busy ? <span className="mr-2 inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
+      {children}
+    </button>
   );
 }
