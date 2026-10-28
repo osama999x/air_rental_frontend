@@ -15,7 +15,6 @@ import {
   remindRent,
   respondAssignment,
   revokeSession,
-  signOut,
   transitionRepair,
 } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
@@ -695,9 +694,9 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
       <form action={logoutAll} className="mt-4">
         <button className="h-11 rounded-full border border-line bg-white px-5 text-sm font-medium text-navy">Sign out of every device</button>
       </form>
-      <form action={signOut} className="mt-3">
-        <button className="h-11 rounded-full border border-line bg-white px-5 text-sm font-medium text-navy">Sign out</button>
-      </form>
+      <a href="/portal/session/logout" className="mt-3 inline-flex h-11 items-center rounded-full border border-line bg-white px-5 text-sm font-medium text-navy">
+        Sign out
+      </a>
       <DeactivateForm />
     </Screen>
   );

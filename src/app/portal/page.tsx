@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-import { readPortalProfile } from "@/features/portal/session";
+import { readAccessToken, readPortalProfile } from "@/features/portal/session";
 
 export const instant = false;
 
 export default async function PortalIndex() {
-  const profile = await readPortalProfile();
-  redirect(profile ? "/portal/home" : "/portal/welcome");
+  const [profile, token] = await Promise.all([readPortalProfile(), readAccessToken()]);
+  redirect(profile && token ? "/portal/home" : profile || token ? "/portal/session/end" : "/portal/welcome");
 }

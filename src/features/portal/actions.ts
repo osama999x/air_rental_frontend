@@ -147,7 +147,7 @@ export async function switchRole(formData: FormData) {
 }
 
 export async function signOut() {
-  await portalCall("/auth/logout", { method: "POST", body: {} });
+  await portalCall("/auth/logout", { method: "POST", body: {}, onUnauthorized: "return" });
   await clearPortalSession();
   redirect("/portal/login");
 }
@@ -829,7 +829,7 @@ export async function revokeSession(formData: FormData) {
 }
 
 export async function logoutAll() {
-  await portalCall("/auth/logout-all", { method: "POST", body: {} });
+  await portalCall("/auth/logout-all", { method: "POST", body: {}, onUnauthorized: "return" });
   await clearPortalSession();
   redirect("/portal/login");
 }

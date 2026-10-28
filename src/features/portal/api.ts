@@ -12,6 +12,7 @@ type CallOptions = {
   body?: unknown;
   auth?: boolean;
   form?: FormData;
+  onUnauthorized?: "refresh" | "return";
 };
 
 export async function portalCall<T>(path: string, options: CallOptions = {}): Promise<PortalResult<T>> {
@@ -19,7 +20,12 @@ export async function portalCall<T>(path: string, options: CallOptions = {}): Pr
   if (options.body !== undefined) headers.set("Content-Type", "application/json");
   if (options.auth !== false) {
     const token = await readAccessToken();
-    if (!token) redirect("/portal/login");
+    if (!token) {
+      if (options.onUnauthorized === "return") {
+        return { ok: false, status: 401, message: "You are not logged in" };
+      }
+      redirect("/portal/session/end");
+    }
     headers.set("Authorization", `Bearer ${token}`);
     const profile = await readPortalProfile();
     if (profile) headers.set("X-Portal-Role", profile.activeRole);
@@ -46,6 +52,10 @@ export async function portalCall<T>(path: string, options: CallOptions = {}): Pr
   }
 
   if (response.status === 401 && options.auth !== false) {
+    if (options.onUnauthorized === "return") {
+      const denied = await readPayload(response);
+      return { ok: false, status: 401, message: messageFrom(denied) };
+    }
     redirect("/portal/session/end");
   }
 

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { signOut, switchRole } from "@/features/portal/actions";
+import { switchRole } from "@/features/portal/actions";
 import { PortalIcon } from "@/features/portal/components/icons";
 import { ProfilePhoto } from "@/features/portal/components/loader";
 import { linksFor, tabs } from "@/features/portal/nav";
@@ -72,11 +72,9 @@ function Sidebar({ profile, language, copy, avatarSrc }: { profile: PortalProfil
       </nav>
       <div className="border-t border-line px-3 py-4">
         <RoleSwitch profile={profile} language={language} copy={copy} />
-        <form action={signOut} className="mt-3">
-          <button type="submit" className="w-full rounded-2xl px-3 py-2 text-left text-sm font-medium text-muted hover:bg-[#f4f7fb] hover:text-navy">
-            {copy.signOut}
-          </button>
-        </form>
+        <a href="/portal/session/logout" className="mt-3 block w-full rounded-2xl px-3 py-2 text-left text-sm font-medium text-muted hover:bg-[#f4f7fb] hover:text-navy">
+          {copy.signOut}
+        </a>
       </div>
     </aside>
   );

@@ -12,11 +12,13 @@ const ACCESS_MAX_AGE = 60 * 15;
 const REFRESH_MAX_AGE = 60 * 60 * 24 * 30;
 const PREFERENCE_MAX_AGE = 60 * 60 * 24 * 30;
 
-function cookieBase(maxAge: number) {
+export const REFRESH_GUARD_COOKIE = "portal_session_refreshed";
+
+export function cookieBase(maxAge: number) {
   return {
     httpOnly: true,
     sameSite: "lax" as const,
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.COOKIE_SECURE === "true",
     path: "/",
     maxAge,
   };
@@ -30,8 +32,7 @@ export async function readRefreshToken() {
   return (await cookies()).get(REFRESH_COOKIE)?.value;
 }
 
-export async function readPortalProfile(): Promise<PortalProfile | null> {
-  const raw = (await cookies()).get(PROFILE_COOKIE)?.value;
+export function parsePortalProfile(raw: string | undefined): PortalProfile | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw) as Partial<PortalProfile>;
@@ -49,6 +50,10 @@ export async function readPortalProfile(): Promise<PortalProfile | null> {
   } catch {
     return null;
   }
+}
+
+export async function readPortalProfile(): Promise<PortalProfile | null> {
+  return parsePortalProfile((await cookies()).get(PROFILE_COOKIE)?.value);
 }
 
 export async function readOnboarding() {
@@ -97,9 +102,11 @@ export async function updatePortalProfile(profile: PortalProfile) {
 
 export async function clearPortalSession() {
   const store = await cookies();
-  store.delete(ACCESS_COOKIE);
-  store.delete(REFRESH_COOKIE);
-  store.delete(PROFILE_COOKIE);
+  const expired = cookieBase(0);
+  store.set(ACCESS_COOKIE, "", expired);
+  store.set(REFRESH_COOKIE, "", expired);
+  store.set(PROFILE_COOKIE, "", expired);
+  store.set(REFRESH_GUARD_COOKIE, "", expired);
 }
 
 function isRole(value: unknown): value is PortalRole {
