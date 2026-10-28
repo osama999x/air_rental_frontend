@@ -35,6 +35,7 @@ import {
   InspectionExtraForms,
   OrganizationForms,
   PhoneForms,
+  DeletePropertyForm,
   PropertyEditForm,
   PropertyMediaForm,
   RentGenerateForm,
@@ -87,7 +88,7 @@ export async function PropertiesScreen() {
                 href={`/portal/properties/${property.id}`}
                 mark={String(property.propertyType ?? property.visibleCode ?? "P")}
                 title={`${property.visibleCode ?? ""} ${property.name ?? "Property"}`.trim()}
-                subtitle={[property.area, property.addressLine].filter(Boolean).join(" · ")}
+                subtitle={[placeName(property.city), placeName(property.country), property.area, property.addressLine].filter(Boolean).join(" · ")}
                 status={String(property.status ?? "")}
               />
             </li>
@@ -158,6 +159,8 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
         <Chip tone={statusTone(String(item.status ?? ""))}>{labelize(String(item.status ?? "vacant"))}</Chip>
       </div>
       <dl className="mt-5 grid gap-3 rounded-[24px] bg-white p-4 text-sm">
+        <Fact label="Country" value={placeName(item.country) || "—"} />
+        <Fact label="City" value={placeName(item.city) || "—"} />
         <Fact label="Address" value={String(item.addressLine ?? "")} />
         <Fact label="Area" value={String(item.area ?? item.region ?? "—")} />
         <Fact label="Size" value={[item.sizeValue, item.measurementUnitCode].filter(Boolean).join(" ") || "—"} />
@@ -169,9 +172,11 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
         <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/bills">Bills</Link>
         <Link className="rounded-2xl bg-white px-4 py-3 text-navy" href="/portal/repairs/new">Report a repair</Link>
       </div>
+      <PropertyPhotos media={item.media} />
       <PropertyMediaForm id={id} />
       <PropertyEditForm property={item} />
       <TransferForm id={id} />
+      <DeletePropertyForm id={id} />
       <h2 className="mt-6 text-lg font-semibold text-navy">Tenancies</h2>
       <ul className="mt-3 grid gap-2">
         {related.length ? related.map((tenancy) => (
@@ -939,6 +944,39 @@ function TenancyButtons({ id }: { id: string }) {
       <button name="intent" value="terminate" className="rounded-full bg-white px-3 py-2 text-navy">Terminate</button>
       <button name="intent" value="complete" className="rounded-full bg-white px-3 py-2 text-navy">Complete</button>
     </form>
+  );
+}
+
+function placeName(value: unknown) {
+  if (value && typeof value === "object" && "name" in value) return String((value as { name?: unknown }).name ?? "");
+  return "";
+}
+
+function PropertyPhotos({ media }: { media: unknown }) {
+  const files = Array.isArray(media) ? media : [];
+  if (!files.length) return null;
+  return (
+    <ul className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {files.map((file) => {
+        const row = file as { id?: string; mimeType?: string; originalName?: string; kind?: string };
+        if (!row.id) return null;
+        const href = `/portal/files/properties/media/${row.id}/download`;
+        const image = String(row.mimeType ?? "").startsWith("image/");
+        return (
+          <li key={row.id} className="overflow-hidden rounded-[22px] bg-white">
+            {image ? (
+              <a href={href}>
+                <img src={href} alt={row.originalName || "Property photo"} className="h-36 w-full object-cover" />
+              </a>
+            ) : (
+              <a href={href} className="block px-4 py-4 text-sm font-semibold text-navy">
+                {row.originalName || row.kind || "Document"}
+              </a>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 

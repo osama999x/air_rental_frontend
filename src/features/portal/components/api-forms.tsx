@@ -17,6 +17,7 @@ import {
   sendPhoneCode,
   submitBillProof,
   submitRentProof,
+  deleteProperty,
   transferProperty,
   updateProperty,
   uploadDocument,
@@ -151,6 +152,22 @@ export function PropertyEditForm({ property }: { property: NamedRecord }) {
       <Field label="Address"><input name="addressLine" required defaultValue={String(property.addressLine ?? "")} className={fieldClass} /></Field>
       <Field label="Area"><input name="area" defaultValue={String(property.area ?? "")} className={fieldClass} /></Field>
       <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Save property"}</Button>
+    </form>
+  );
+}
+
+export function DeletePropertyForm({ id }: { id: string }) {
+  const [state, action, pending] = useActionState(deleteProperty, idleForm);
+  return (
+    <form action={action} className="mt-6 grid gap-3">
+      <h2 className="text-lg font-semibold text-navy">Delete property</h2>
+      <p className="text-sm text-muted">The property leaves your list. An active tenancy must be ended first. Type DELETE to confirm.</p>
+      <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
+      <input type="hidden" name="id" value={id} />
+      <Field label="Confirm">
+        <input name="confirm" required className={fieldClass} placeholder="DELETE" />
+      </Field>
+      <Button type="submit" variant="secondary" disabled={pending}>{pending ? "Deleting…" : "Delete property"}</Button>
     </form>
   );
 }

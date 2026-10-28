@@ -3,7 +3,7 @@ import { readAccessToken, readPortalProfile } from "@/features/portal/session";
 
 const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
 const allowed =
-  /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download)$/i;
+  /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download)$/i;
 
 export async function GET(_request: Request, context: { params: Promise<{ path: string[] }> }) {
   const token = await readAccessToken();

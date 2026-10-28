@@ -590,6 +590,17 @@ export async function updateProperty(_previous: FormState, formData: FormData): 
   return { status: "success", message: "Property updated." };
 }
 
+export async function deleteProperty(_previous: FormState, formData: FormData): Promise<FormState> {
+  const id = text(formData, "id");
+  if (text(formData, "confirm") !== "DELETE") {
+    return { status: "error", message: "Type DELETE to remove this property." };
+  }
+  const result = await portalCall(`/properties/${id}`, { method: "DELETE" });
+  if (!result.ok) return { status: "error", message: result.message };
+  revalidatePath("/portal/properties");
+  redirect("/portal/properties");
+}
+
 export async function transferProperty(_previous: FormState, formData: FormData): Promise<FormState> {
   const id = text(formData, "id");
   const result = await portalCall(`/properties/${id}/transfer`, {
