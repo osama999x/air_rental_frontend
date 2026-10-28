@@ -16,6 +16,7 @@ import {
 } from "@/features/portal/actions";
 import { authCopy, type AuthCopy } from "@/features/portal/i18n";
 import { idleForm } from "@/features/portal/types";
+import { BusyOverlay } from "./loader";
 import { Field, Notice, fieldClass } from "./ui";
 
 export function AuthFrame({
@@ -88,6 +89,7 @@ export function LanguageForm({
   const [state, action, pending] = useActionState(chooseLanguage, idleForm);
   return (
     <form action={action} className="grid gap-3">
+      <BusyOverlay show={pending} label="Saving language…" />
       <Notice message={state.message} />
       <div className="grid gap-3 sm:grid-cols-2">
       {languages.map((language) => {
@@ -115,6 +117,7 @@ export function RoleForm({ copy }: { copy: AuthCopy }) {
   const [state, action, pending] = useActionState(chooseRole, idleForm);
   return (
     <form action={action} className="grid gap-3">
+      <BusyOverlay show={pending} label="Saving role…" />
       <Notice message={state.message} />
       {(["OWNER", "TENANT", "MANAGER"] as const).map((role) => (
         <button key={role} name="role" value={role} disabled={pending} className="choice items-start">
@@ -136,6 +139,7 @@ export function AccountForm({ copy }: { copy: AuthCopy }) {
   ];
   return (
     <form action={action} className="grid gap-3">
+      <BusyOverlay show={pending} label="Saving account…" />
       <Notice message={state.message} />
       {options.map((option) => (
         <button key={option.value} name="account" value={option.value} disabled={pending} className="choice items-start">

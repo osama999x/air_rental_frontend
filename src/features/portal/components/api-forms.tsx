@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { FilePicker } from "./loader";
 import { Button } from "@/components/ui/button";
 import {
   addHandoverItem,
@@ -41,7 +42,7 @@ export function RentProofForm({ id, remaining }: { id: string; remaining?: strin
         <input name="amount" defaultValue={remaining} required className={fieldClass} />
       </Field>
       <Field label="Receipt photo, PDF, or clip">
-        <input name="file" type="file" required accept={fileAccept} className="text-sm text-navy" />
+        <FilePicker name="file" accept={fileAccept} required />
       </Field>
       <Button type="submit" disabled={pending}>{pending ? "Uploading…" : "Submit proof"}</Button>
     </form>
@@ -57,7 +58,7 @@ export function BillProofForm({ id, amount }: { id: string; amount?: string }) {
       <Field label="Amount">
         <input name="amount" defaultValue={amount} required className={fieldClass} />
       </Field>
-      <input name="file" type="file" required accept={fileAccept} className="text-sm text-navy" />
+      <FilePicker name="file" accept={fileAccept} required />
       <Button type="submit" disabled={pending}>{pending ? "Uploading…" : "Upload bill proof"}</Button>
     </form>
   );
@@ -82,7 +83,7 @@ export function RepairFileForm({ id }: { id: string }) {
       <input type="hidden" name="id" value={id} />
       <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
       <Field label="Photo, video, or voice note">
-        <input name="file" type="file" required accept={fileAccept} className="text-sm text-navy" />
+        <FilePicker name="file" accept={fileAccept} required />
       </Field>
       <Button type="submit" disabled={pending}>{pending ? "Uploading…" : "Add attachment"}</Button>
     </form>
@@ -111,7 +112,7 @@ export function DocumentForm({ properties }: { properties: NamedRecord[] }) {
       <Field label="Expires">
         <input name="expiresAt" type="date" className={fieldClass} />
       </Field>
-      <input name="file" type="file" required accept={fileAccept} className="text-sm text-navy" />
+      <FilePicker name="file" accept={fileAccept} required />
       <Button type="submit" disabled={pending}>{pending ? "Uploading…" : "Upload document"}</Button>
     </form>
   );
@@ -129,7 +130,7 @@ export function PropertyMediaForm({ id }: { id: string }) {
           <option value="DOCUMENT">Document</option>
         </select>
       </Field>
-      <input name="file" type="file" required accept={fileAccept} className="text-sm text-navy" />
+      <FilePicker name="file" accept={fileAccept} required />
       <Button type="submit" disabled={pending}>{pending ? "Uploading…" : "Add media"}</Button>
     </form>
   );

@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import type { ComponentProps } from "react";
+import { BusyOverlay, overlayLabel } from "@/features/portal/components/loader";
 
 type Variant = "primary" | "secondary";
 
@@ -33,15 +36,18 @@ export function Button({
 }: ComponentProps<"button"> & { variant?: Variant }) {
   const busy = Boolean(disabled) && type === "submit";
   return (
-    <button
-      type={type}
-      disabled={disabled}
-      aria-busy={busy || undefined}
-      className={`${base} ${variants[variant]} ${className}`}
-      {...props}
-    >
-      {busy ? <span className="mr-2 inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
-      {children}
-    </button>
+    <>
+      <BusyOverlay show={busy} label={overlayLabel(children)} />
+      <button
+        type={type}
+        disabled={disabled}
+        aria-busy={busy || undefined}
+        className={`${base} ${variants[variant]} ${className}`}
+        {...props}
+      >
+        {busy ? <span className="mr-2 inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-t-transparent" /> : null}
+        {children}
+      </button>
+    </>
   );
 }
