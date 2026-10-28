@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 export function Loader({ label }: { label: string }) {
   return (
@@ -23,36 +23,60 @@ export function BusyOverlay({ show, label }: { show: boolean; label: string }) {
   );
 }
 
-export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
-  const imageRef = useRef<HTMLImageElement>(null);
-  const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
-
-  useEffect(() => {
-    setState("loading");
-    const node = imageRef.current;
+function PhotoFrame({ src, alt }: { src: string; alt: string }) {
+  const [state, setState] = useState<"loading" | "ready" | "failed">(src ? "loading" : "failed");
+  const attach = useCallback((node: HTMLImageElement | null) => {
     if (!node) return;
-    if (node.complete) setState(node.naturalWidth > 0 ? "ready" : "failed");
-  }, [src]);
+    let frame = 0;
+    let settled = false;
+    const settle = (next: "ready" | "failed") => {
+      if (settled) return;
+      settled = true;
+      cancelAnimationFrame(frame);
+      setState(next);
+    };
+    const look = () => {
+      if (!node.isConnected || settled) return;
+      if (node.naturalWidth > 0) {
+        settle("ready");
+        return;
+      }
+      if (node.complete) {
+        settle("failed");
+        return;
+      }
+      frame = requestAnimationFrame(look);
+    };
+    const onError = () => settle("failed");
+    node.addEventListener("error", onError);
+    look();
+    return () => {
+      settled = true;
+      cancelAnimationFrame(frame);
+      node.removeEventListener("error", onError);
+    };
+  }, []);
+
+  if (!src || state === "failed") {
+    return (
+      <div className="flex aspect-[4/3] items-center justify-center bg-[#eef3fb] px-3 text-center text-xs text-muted">
+        Photo unavailable
+      </div>
+    );
+  }
 
   return (
     <div className="relative aspect-[4/3] overflow-hidden bg-[#eef3fb]">
       {state === "loading" ? (
-        <span className="absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
+        <span className="pointer-events-none absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
       ) : null}
-      {state === "failed" ? (
-        <span className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-muted">Photo unavailable</span>
-      ) : (
-        <img
-          ref={imageRef}
-          src={src}
-          alt={alt}
-          className="h-full w-full object-cover"
-          onLoad={(event) => setState(event.currentTarget.naturalWidth > 0 ? "ready" : "failed")}
-          onError={() => setState("failed")}
-        />
-      )}
+      <img ref={attach} src={src} alt={alt} className="h-full w-full object-cover" />
     </div>
   );
+}
+
+export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
+  return <PhotoFrame key={src} src={src} alt={alt} />;
 }
 
 export function FilePicker({ name, accept, required = false }: { name: string; accept: string; required?: boolean }) {
