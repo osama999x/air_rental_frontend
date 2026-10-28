@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 export function Loader({ label }: { label: string }) {
   return (
@@ -24,38 +24,25 @@ export function BusyOverlay({ show, label }: { show: boolean; label: string }) {
 }
 
 function PhotoFrame({ src, alt }: { src: string; alt: string }) {
+  const imageRef = useRef<HTMLImageElement>(null);
   const [state, setState] = useState<"loading" | "ready" | "failed">(src ? "loading" : "failed");
-  const attach = useCallback((node: HTMLImageElement | null) => {
+
+  useEffect(() => {
+    const node = imageRef.current;
     if (!node) return;
-    let frame = 0;
-    let settled = false;
-    const settle = (next: "ready" | "failed") => {
-      if (settled) return;
-      settled = true;
-      cancelAnimationFrame(frame);
-      setState(next);
+    const settle = () => {
+      if (node.naturalWidth > 0) setState("ready");
+      else if (node.complete) setState("failed");
     };
-    const look = () => {
-      if (!node.isConnected || settled) return;
-      if (node.naturalWidth > 0) {
-        settle("ready");
-        return;
-      }
-      if (node.complete) {
-        settle("failed");
-        return;
-      }
-      frame = requestAnimationFrame(look);
-    };
-    const onError = () => settle("failed");
-    node.addEventListener("error", onError);
-    look();
+    const fail = () => setState("failed");
+    node.addEventListener("load", settle);
+    node.addEventListener("error", fail);
+    settle();
     return () => {
-      settled = true;
-      cancelAnimationFrame(frame);
-      node.removeEventListener("error", onError);
+      node.removeEventListener("load", settle);
+      node.removeEventListener("error", fail);
     };
-  }, []);
+  }, [src]);
 
   if (!src || state === "failed") {
     return (
@@ -70,7 +57,7 @@ function PhotoFrame({ src, alt }: { src: string; alt: string }) {
       {state === "loading" ? (
         <span className="pointer-events-none absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
       ) : null}
-      <img ref={attach} src={src} alt={alt} className="h-full w-full object-cover" />
+      <img ref={imageRef} src={src} alt={alt} className="h-full w-full object-cover" />
     </div>
   );
 }
