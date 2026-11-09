@@ -92,11 +92,17 @@ export async function submitResendCode(_previous: FormState, formData: FormData)
 
 export async function submitGoogle(_previous: FormState, formData: FormData): Promise<FormState> {
   const idToken = text(formData, "idToken");
-  if (!idToken) return { status: "error", message: (await messages()).googleError };
+  const accessToken = text(formData, "accessToken");
+  if (!idToken && !accessToken) return { status: "error", message: (await messages()).googleError };
   const result = await portalCall<SessionPayload>("/auth/google", {
     method: "POST",
     auth: false,
-    body: { idToken, deviceName: "Web portal", platform: "web" },
+    body: {
+      ...(idToken ? { idToken } : {}),
+      ...(accessToken ? { accessToken } : {}),
+      deviceName: "Web portal",
+      platform: "web",
+    },
   });
   if (!result.ok) return { status: "error", message: result.message };
   await finishSignIn(result.data);
