@@ -43,6 +43,7 @@ export const moreLinks: MoreLink[] = [
   { href: "/portal/handover", label: "Handover", hint: "Move-in and move-out record", icon: "handover", roles: ["OWNER", "TENANT", "MANAGER"] },
   { href: "/portal/deposit", label: "Deposit", hint: "Settle the security deposit", icon: "deposit", roles: ["OWNER", "TENANT"] },
   { href: "/portal/documents", label: "Documents", hint: "Uploads and expiry alerts", icon: "documents", roles: ["OWNER", "TENANT", "MANAGER"] },
+  { href: "/portal/identity", label: "My identity", hint: "ID document and emergency contact", icon: "documents", roles: ["TENANT"] },
   { href: "/portal/insurance", label: "Insurance", hint: "Add a policy and the requirement", icon: "insurance", roles: ["OWNER", "TENANT"] },
   { href: "/portal/managers", label: "Managers", hint: "Assign someone to a property", icon: "managers", roles: ["OWNER", "TENANT"] },
   { href: "/portal/invitations", label: "Invitations", hint: "Invite a new or existing tenant", icon: "invitations", roles: ["OWNER"] },
@@ -71,9 +72,9 @@ export const tabs: Record<PortalRole, { href: string; label: string; icon: IconN
   ],
   TENANT: [
     { href: "/portal/home", label: "Home", icon: "home", exact: true },
+    { href: "/portal/properties", label: "Properties", icon: "properties" },
     { href: "/portal/rent", label: "Pay", icon: "rent" },
     { href: "/portal/bills", label: "Bills", icon: "bills" },
-    { href: "/portal/repairs", label: "Repairs", icon: "repairs" },
     { href: "/portal/more", label: "More", icon: "more", exact: true },
   ],
   MANAGER: [

@@ -16,6 +16,7 @@ import {
 } from "@/features/portal/actions";
 import { authCopy, type AuthCopy } from "@/features/portal/i18n";
 import { idleForm } from "@/features/portal/types";
+import { GoogleSignIn } from "./google-sign-in";
 import { BusyOverlay } from "./loader";
 import { Field, Notice, fieldClass } from "./ui";
 
@@ -153,67 +154,77 @@ export function AccountForm({ copy }: { copy: AuthCopy }) {
   );
 }
 
-export function LoginForm({ reset, copy }: { reset?: boolean; copy: AuthCopy }) {
+export function LoginForm({ reset, copy, invite }: { reset?: boolean; copy: AuthCopy; invite?: string }) {
   const [state, action, pending] = useActionState(submitLogin, idleForm);
+  const signup = invite ? `/portal/signup?invite=${encodeURIComponent(invite)}` : "/portal/language";
   return (
-    <form action={action} className="grid gap-4">
-      {reset ? <Notice message={copy.passwordUpdated} tone="ok" /> : null}
-      <Notice message={state.message} />
-      <Field label={copy.email}>
-        <input name="email" type="email" autoComplete="username" required className={fieldClass} />
-      </Field>
-      <Field label={copy.password}>
-        <input name="password" type="password" autoComplete="current-password" required className={fieldClass} />
-      </Field>
-      <Link href="/portal/forgot" className="text-sm font-medium text-accent">
-        {copy.forgot}
-      </Link>
-      <Button type="submit" disabled={pending}>
-        {pending ? copy.signingIn : copy.signIn}
-      </Button>
-      <p className="text-center text-sm text-muted">
-        {copy.newHere}{" "}
-        <Link href="/portal/language" className="font-medium text-accent">
-          {copy.createAccount}
+    <div className="grid gap-4">
+      <GoogleSignIn copy={copy} />
+      <form action={action} className="grid gap-4">
+        {invite ? <input type="hidden" name="invite" value={invite} /> : null}
+        {reset ? <Notice message={copy.passwordUpdated} tone="ok" /> : null}
+        <Notice message={state.message} />
+        <Field label={copy.email}>
+          <input name="email" type="email" autoComplete="username" required className={fieldClass} />
+        </Field>
+        <Field label={copy.password}>
+          <input name="password" type="password" autoComplete="current-password" required className={fieldClass} />
+        </Field>
+        <Link href="/portal/forgot" className="text-sm font-medium text-accent">
+          {copy.forgot}
         </Link>
-      </p>
-    </form>
+        <Button type="submit" disabled={pending}>
+          {pending ? copy.signingIn : copy.signIn}
+        </Button>
+        <p className="text-center text-sm text-muted">
+          {copy.newHere}{" "}
+          <Link href={signup} className="font-medium text-accent">
+            {copy.createAccount}
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }
 
-export function SignupForm({ copy }: { copy: AuthCopy }) {
+export function SignupForm({ copy, invite }: { copy: AuthCopy; invite?: string }) {
   const [state, action, pending] = useActionState(submitSignup, idleForm);
+  const login = invite ? `/portal/login?invite=${encodeURIComponent(invite)}` : "/portal/login";
   return (
-    <form action={action} className="grid gap-4">
-      <Notice message={state.message} />
-      <div className="name-grid">
-        <Field label={copy.firstName}>
-          <input name="firstName" required className={fieldClass} />
+    <div className="grid gap-4">
+      <GoogleSignIn copy={copy} />
+      <form action={action} className="grid gap-4">
+        {invite ? <input type="hidden" name="invite" value={invite} /> : null}
+        <Notice message={state.message} />
+        <div className="name-grid">
+          <Field label={copy.firstName}>
+            <input name="firstName" required className={fieldClass} />
+          </Field>
+          <Field label={copy.lastName}>
+            <input name="lastName" required className={fieldClass} />
+          </Field>
+        </div>
+        <Field label={copy.email}>
+          <input name="email" type="email" required className={fieldClass} />
         </Field>
-        <Field label={copy.lastName}>
-          <input name="lastName" required className={fieldClass} />
+        <Field label={copy.phone}>
+          <input name="phone" className={fieldClass} />
         </Field>
-      </div>
-      <Field label={copy.email}>
-        <input name="email" type="email" required className={fieldClass} />
-      </Field>
-      <Field label={copy.phone}>
-        <input name="phone" className={fieldClass} />
-      </Field>
-      <Field label={copy.password}>
-        <input name="password" type="password" minLength={10} required className={fieldClass} />
-      </Field>
-      <Button type="submit" disabled={pending}>
-        {pending ? copy.creating : copy.createAccount}
-      </Button>
-      <Link href="/portal/login" className="text-center text-sm font-medium text-accent">
-        {copy.alreadyAccount}
-      </Link>
-    </form>
+        <Field label={copy.password}>
+          <input name="password" type="password" minLength={10} required className={fieldClass} />
+        </Field>
+        <Button type="submit" disabled={pending}>
+          {pending ? copy.creating : copy.createAccount}
+        </Button>
+        <Link href={login} className="text-center text-sm font-medium text-accent">
+          {copy.alreadyAccount}
+        </Link>
+      </form>
+    </div>
   );
 }
 
-export function VerifyForm({ email, resent = false, copy }: { email: string; resent?: boolean; copy: AuthCopy }) {
+export function VerifyForm({ email, resent = false, copy, invite }: { email: string; resent?: boolean; copy: AuthCopy; invite?: string }) {
   const [state, action, pending] = useActionState(submitVerify, idleForm);
   const [resend, resendAction, resending] = useActionState(submitResendCode, idleForm);
   const [emailValue, setEmailValue] = useState(email);
@@ -221,6 +232,7 @@ export function VerifyForm({ email, resent = false, copy }: { email: string; res
     <div className="grid gap-4">
       {resent ? <Notice message={copy.resentNotice} tone="ok" /> : null}
       <form action={action} className="grid gap-4">
+        {invite ? <input type="hidden" name="invite" value={invite} /> : null}
         <Notice message={state.message} />
         <Field label={copy.email}>
           <input

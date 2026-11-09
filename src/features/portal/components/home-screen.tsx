@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { connection } from "next/server";
+import { respondToInvite } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
+import { OpenInviteForm } from "@/features/portal/components/invite-tools";
 import { readAvatarDataUrl } from "@/features/portal/avatar";
 import { fillTemplate, portalCopy, type PortalCopy } from "@/features/portal/portal-copy";
 import { readOnboarding } from "@/features/portal/session";
@@ -111,16 +113,34 @@ async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: Port
 }
 
 async function TenantHome({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
-  const [dashboard, rent, bills] = await Promise.all([
+  const [dashboard, rent, bills, invitations] = await Promise.all([
     portalCall<{ rentedProperties: number; tenancies: number; unreadMessages: number; unreadNotifications: number }>("/dashboards/tenant"),
     portalCall<unknown>("/rent/obligations"),
     portalCall<unknown>("/bills"),
+    portalCall<unknown>("/tenancies/invitations"),
   ]);
   const rentRows = asList<NamedRecord>(rent.ok ? rent.data : []);
   const due = rentRows.find((row) => row.status !== "PAID") ?? rentRows[0];
+  const incoming = asList<NamedRecord>(invitations.ok ? invitations.data : []).filter((row) => row.direction === "incoming");
   return (
     <Screen>
       <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
+      {incoming.length ? (
+        <ul className="mb-4 grid gap-3">
+          {incoming.map((invite) => (
+            <li key={invite.id} className="rounded-[22px] bg-white p-4 text-sm">
+              <p className="font-semibold text-navy">{String(invite.propertyName || "Tenancy invitation")}</p>
+              <p className="mt-1 text-muted">{[invite.tenantName, invite.expiresAt].filter(Boolean).join(" · ")}</p>
+              <form action={respondToInvite} className="mt-3 flex gap-2">
+                <input type="hidden" name="id" value={String(invite.id)} />
+                <button name="intent" value="accept" className="h-10 rounded-full bg-accent px-4 text-sm font-medium text-white">Accept</button>
+                <button name="intent" value="decline" className="h-10 rounded-full border border-line px-4 text-sm font-medium text-navy">Decline</button>
+              </form>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <div className="mb-4"><OpenInviteForm compact /></div>
       <MoneyCard
         label={copy.rentDue}
         amount={due ? money(due.remaining || due.amount) : money(0)}

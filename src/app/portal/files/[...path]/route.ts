@@ -1,9 +1,9 @@
 import { connection, type NextRequest } from "next/server";
 import { ACCESS_COOKIE, readAccessToken, readPortalProfile } from "@/features/portal/session";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 const allowed =
-  /^(documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
+  /^(documents\/[0-9a-f-]{36}\/download|identity-documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   await connection();

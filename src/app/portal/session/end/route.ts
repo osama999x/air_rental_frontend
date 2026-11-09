@@ -9,7 +9,7 @@ import {
 } from "@/features/portal/session";
 import type { PortalRole, PortalUser } from "@/features/portal/types";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export async function GET(request: NextRequest) {
   const login = new URL("/portal/login?expired=1", request.url);

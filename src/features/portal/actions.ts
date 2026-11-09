@@ -61,7 +61,9 @@ export async function submitSignup(_previous: FormState, formData: FormData): Pr
     },
   });
   if (!result.ok) return { status: "error", message: result.message };
-  redirect(`/portal/verify?email=${encodeURIComponent(email)}`);
+  const invite = text(formData, "invite");
+  const next = invite ? `&invite=${encodeURIComponent(invite)}` : "";
+  redirect(`/portal/verify?email=${encodeURIComponent(email)}${next}`);
 }
 
 export async function submitVerify(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -75,7 +77,8 @@ export async function submitVerify(_previous: FormState, formData: FormData): Pr
   });
   if (!result.ok) return { status: "error", message: result.message };
   await finishSignIn(result.data);
-  redirect("/portal/home");
+  const invite = text(formData, "invite");
+  redirect(invite ? `/portal/invite/${encodeURIComponent(invite)}` : "/portal/home");
 }
 
 export async function submitResendCode(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -87,6 +90,19 @@ export async function submitResendCode(_previous: FormState, formData: FormData)
   return { status: "success", message: copy.resendOk };
 }
 
+export async function submitGoogle(_previous: FormState, formData: FormData): Promise<FormState> {
+  const idToken = text(formData, "idToken");
+  if (!idToken) return { status: "error", message: (await messages()).googleError };
+  const result = await portalCall<SessionPayload>("/auth/google", {
+    method: "POST",
+    auth: false,
+    body: { idToken, deviceName: "Web portal", platform: "web" },
+  });
+  if (!result.ok) return { status: "error", message: result.message };
+  await finishSignIn(result.data);
+  redirect("/portal/home");
+}
+
 export async function submitLogin(_previous: FormState, formData: FormData): Promise<FormState> {
   const email = text(formData, "email").toLowerCase();
   const password = String(formData.get("password") ?? "");
@@ -96,14 +112,16 @@ export async function submitLogin(_previous: FormState, formData: FormData): Pro
     auth: false,
     body: { email, password, deviceName: "Web portal", platform: "web" },
   });
+  const invite = text(formData, "invite");
   if (!result.ok) {
     if (/verify your email/i.test(result.message)) {
-      redirect(`/portal/verify?email=${encodeURIComponent(email)}&resent=1`);
+      const next = invite ? `&invite=${encodeURIComponent(invite)}` : "";
+      redirect(`/portal/verify?email=${encodeURIComponent(email)}&resent=1${next}`);
     }
     return { status: "error", message: result.message };
   }
   await finishSignIn(result.data);
-  redirect("/portal/home");
+  redirect(invite ? `/portal/invite/${encodeURIComponent(invite)}` : "/portal/home");
 }
 
 export async function submitForgot(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -121,6 +139,12 @@ export async function submitReset(_previous: FormState, formData: FormData): Pro
   if (!email || code.length !== 6 || password.length < 10) {
     return { status: "error", message: (await messages()).resetInvalid };
   }
+  const checked = await portalCall("/auth/verify-reset-code", {
+    method: "POST",
+    auth: false,
+    body: { email, code },
+  });
+  if (!checked.ok) return { status: "error", message: checked.message };
   const result = await portalCall("/auth/reset-password", {
     method: "POST",
     auth: false,
@@ -169,6 +193,8 @@ export async function updateSettings(_previous: FormState, formData: FormData): 
     if (address) body.set("currentAddress", address);
     if (contact) body.set("emergencyContactName", contact);
     if (contactPhone) body.set("emergencyContactPhone", contactPhone);
+    const relationship = text(formData, "emergencyContactRelationship");
+    if (relationship) body.set("emergencyContactRelationship", relationship);
   }
   const file = formData.get("file");
   const hasPhoto = file instanceof Blob && file.size > 0;
@@ -243,31 +269,85 @@ export async function createTenancyInvite(_previous: FormState, formData: FormDa
     },
   });
   if (!created.ok) return { status: "error", message: created.message };
-  const invite = await portalCall<{ url?: string }>(`/tenancies/${created.data.id}/invitations`, {
+  const channel = text(formData, "channel") || "CONTACT";
+  const invite = await portalCall<{ url?: string; expiresAt?: string; delivery?: { sent?: boolean; reason?: string | null } }>(`/tenancies/${created.data.id}/invitations`, {
     method: "POST",
-    body: { email: text(formData, "email") || undefined, phone: text(formData, "phone") || undefined },
+    body: {
+      email: text(formData, "email") || undefined,
+      phone: text(formData, "phone") || undefined,
+      tenantName: text(formData, "tenantName") || undefined,
+      channel,
+    },
   });
   if (!invite.ok) return { status: "error", message: invite.message };
   revalidatePath("/portal/invitations");
-  const token = invite.data.url?.split("/").filter(Boolean).pop();
-  const link = token ? `/portal/invite/${token}` : "";
+  revalidatePath("/portal/properties");
+  const delivery = invite.data.delivery;
+  const sent = delivery?.sent ? "The server sent the contact invite." : delivery?.reason === "SMS_NOT_CONFIGURED"
+    ? "SMS is not configured. Share the link or QR below."
+    : delivery?.reason === "EMAIL_NOT_CONFIGURED"
+      ? "Email is not configured. Share the link or QR below."
+      : "Share the link or QR below.";
   return {
     status: "success",
-    message: link
-      ? `Invitation ready. Share ${link}. An expired or used invite cannot be accepted again.`
-      : "Invitation sent. The tenant accepts before the agreement becomes active.",
+    message: sent,
+    link: invite.data.url,
+    expiresAt: invite.data.expiresAt,
   };
+}
+
+export async function openInvite(formData: FormData) {
+  const raw = text(formData, "invite").trim();
+  const token = raw.includes("/") ? raw.split("/").filter(Boolean).pop() || "" : raw;
+  if (token.length < 8) redirect("/portal/home?invite=invalid");
+  redirect(`/portal/invite/${encodeURIComponent(token)}`);
+}
+
+export async function revokeInvitation(formData: FormData) {
+  const id = text(formData, "id");
+  await portalCall(`/tenancies/invitations/${id}/revoke`, { method: "POST", body: {} });
+  revalidatePath("/portal/invitations");
+  revalidatePath("/portal/properties");
+}
+
+export async function uploadIdentity(_previous: FormState, formData: FormData): Promise<FormState> {
+  const body = new FormData();
+  body.set("documentType", text(formData, "documentType"));
+  body.set("side", text(formData, "side"));
+  body.set("documentNumber", text(formData, "documentNumber"));
+  const file = formData.get("file");
+  if (!(file instanceof Blob) || file.size === 0) return { status: "error", message: "Choose the front or back file." };
+  body.set("file", file, file instanceof File && file.name ? file.name : "identity");
+  const result = await portalCall("/users/me/identity-documents", { method: "POST", form: body });
+  if (!result.ok) return { status: "error", message: result.message };
+  revalidatePath("/portal/identity");
+  return { status: "success", message: "Identity document saved. Status stays unverified until it is reviewed." };
 }
 
 export async function respondToInvite(formData: FormData) {
   const token = text(formData, "token");
+  const id = text(formData, "id");
   const accept = formData.get("intent") !== "decline";
-  const result = await portalCall(accept ? "/invitations/accept" : "/invitations/decline", {
+  const path = token
+    ? accept ? "/invitations/accept" : "/invitations/decline"
+    : `/tenancies/invitations/${id}/${accept ? "accept" : "decline"}`;
+  const result = await portalCall(path, {
     method: "POST",
-    body: { token },
+    body: token ? { token } : {},
   });
-  if (!result.ok) redirect(`/portal/invite/${encodeURIComponent(token)}?error=${encodeURIComponent(result.message)}`);
-  redirect(accept ? "/portal/home" : "/portal/invitations");
+  if (!result.ok) {
+    const back = token ? `/portal/invite/${encodeURIComponent(token)}` : "/portal/home";
+    redirect(`${back}?error=${encodeURIComponent(result.message)}`);
+  }
+  const me = await portalCall<{ roles?: string[] }>("/users/me");
+  const profile = await readPortalProfile();
+  if (me.ok && profile && Array.isArray(me.data.roles)) {
+    const roles = me.data.roles.filter(isRole);
+    if (roles.length) await updatePortalProfile({ ...profile, roles: roles.includes(profile.activeRole) ? roles : [...roles, profile.activeRole] });
+  }
+  revalidatePath("/portal/home");
+  revalidatePath("/portal/properties");
+  redirect("/portal/home");
 }
 
 export async function remindRent(formData: FormData) {

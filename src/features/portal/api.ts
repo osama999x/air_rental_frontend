@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { readAccessToken, readPortalProfile } from "./session";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export type PortalResult<T> =
   | { ok: true; data: T }
@@ -47,7 +47,7 @@ export async function portalCall<T>(path: string, options: CallOptions = {}): Pr
       status: 0,
       message: timedOut
         ? "The Air Rental API took too long to answer. Try again."
-        : "The Air Rental API is unreachable. Start it on port 3000, or set API_URL.",
+        : "The Air Rental API is unreachable. Start it on port 3009, or set API_URL.",
     };
   }
 

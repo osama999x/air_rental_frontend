@@ -1,4 +1,4 @@
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export async function GET(request: Request) {
   const countryId = new URL(request.url).searchParams.get("countryId") ?? "";

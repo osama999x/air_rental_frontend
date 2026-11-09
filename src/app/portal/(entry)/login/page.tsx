@@ -8,7 +8,7 @@ import { readParam } from "@/lib/format";
 
 export const metadata: Metadata = { title: "Sign in" };
 
-export default function LoginPage({ searchParams }: { searchParams: Promise<{ reset?: string | string[]; expired?: string | string[] }> }) {
+export default function LoginPage({ searchParams }: { searchParams: Promise<{ reset?: string | string[]; expired?: string | string[]; invite?: string | string[] }> }) {
   return (
     <Suspense fallback={<p className="p-6 text-sm text-muted">Loading…</p>}>
       <LoginScreen searchParams={searchParams} />
@@ -16,16 +16,19 @@ export default function LoginPage({ searchParams }: { searchParams: Promise<{ re
   );
 }
 
-async function LoginScreen({ searchParams }: { searchParams: Promise<{ reset?: string | string[]; expired?: string | string[] }> }) {
+async function LoginScreen({ searchParams }: { searchParams: Promise<{ reset?: string | string[]; expired?: string | string[]; invite?: string | string[] }> }) {
   const params = await searchParams;
+  const invite = readParam(params.invite);
   const [profile, token] = await Promise.all([readPortalProfile(), readAccessToken()]);
-  if (profile && token && readParam(params.expired) !== "1") redirect("/portal/home");
+  if (profile && token && readParam(params.expired) !== "1") {
+    redirect(invite ? `/portal/invite/${encodeURIComponent(invite)}` : "/portal/home");
+  }
   const reset = readParam(params.reset) === "1";
   const { language } = await readOnboarding();
   const copy = authCopy(language);
   return (
-    <AuthFrame title={copy.loginTitle} lede={copy.loginLede} copy={copy}>
-      <LoginForm reset={reset} copy={copy} />
+    <AuthFrame title={copy.loginTitle} lede={invite ? "Sign in to open the tenancy invitation." : copy.loginLede} copy={copy}>
+      <LoginForm reset={reset} copy={copy} invite={invite} />
     </AuthFrame>
   );
 }

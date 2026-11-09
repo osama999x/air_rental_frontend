@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FilePicker, ProfilePhoto } from "@/features/portal/components/loader";
+import { InviteShare } from "@/features/portal/components/invite-tools";
 import { portalLanguages } from "@/features/portal/i18n";
 import {
   addExpense,
@@ -22,6 +23,7 @@ import {
   settleDeposit,
   updateReminders,
   updateSettings,
+  uploadIdentity,
 } from "@/features/portal/actions";
 import { propertyTypeOptions } from "@/features/portal/nav";
 import { idleForm, type NamedRecord, type PortalProfile } from "@/features/portal/types";
@@ -158,6 +160,16 @@ export function InviteForm({ properties }: { properties: NamedRecord[] }) {
     <form action={action} className="grid gap-4">
       <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
       <PropertySelect properties={properties} />
+      <Field label="How to invite">
+        <select name="channel" className={fieldClass} defaultValue="CONTACT">
+          <option value="CONTACT">Name and email or phone</option>
+          <option value="LINK">Secure link</option>
+          <option value="QR">QR code</option>
+        </select>
+      </Field>
+      <Field label="Tenant name">
+        <input name="tenantName" className={fieldClass} />
+      </Field>
       <Field label="Start date">
         <input name="startDate" type="date" required className={fieldClass} />
       </Field>
@@ -165,13 +177,45 @@ export function InviteForm({ properties }: { properties: NamedRecord[] }) {
         <input name="endDate" type="date" className={fieldClass} />
       </Field>
       <Field label="Tenant email">
-        <input name="email" type="email" className={fieldClass} placeholder="Existing or new tenant" />
+        <input name="email" type="email" className={fieldClass} placeholder="Required for a contact invite by email" />
       </Field>
       <Field label="Or phone">
         <input name="phone" className={fieldClass} />
       </Field>
       <Button type="submit" disabled={pending}>
         {pending ? "Sending…" : "Send invitation"}
+      </Button>
+      {state.link ? <InviteShare url={state.link} expiresAt={state.expiresAt} /> : null}
+    </form>
+  );
+}
+
+export function IdentityForm({ documentNumber = "" }: { documentNumber?: string }) {
+  const [state, action, pending] = useActionState(uploadIdentity, idleForm);
+  return (
+    <form action={action} className="grid gap-4">
+      <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
+      <Field label="Document">
+        <select name="documentType" className={fieldClass} defaultValue="CNIC">
+          <option value="CNIC">CNIC</option>
+          <option value="NATIONAL_ID">National ID</option>
+          <option value="DRIVING_LICENSE">Driving license</option>
+        </select>
+      </Field>
+      <Field label="Document number">
+        <input name="documentNumber" required minLength={4} defaultValue={documentNumber} className={fieldClass} />
+      </Field>
+      <Field label="Side">
+        <select name="side" className={fieldClass} defaultValue="FRONT">
+          <option value="FRONT">Front</option>
+          <option value="BACK">Back</option>
+        </select>
+      </Field>
+      <Field label="Photo or PDF">
+        <FilePicker name="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
+      </Field>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Saving…" : "Save this side"}
       </Button>
     </form>
   );
@@ -290,6 +334,7 @@ export function SettingsForm({
   currentAddress = "",
   emergencyContactName = "",
   emergencyContactPhone = "",
+  emergencyContactRelationship = "",
 }: {
   profile: PortalProfile;
   phone?: string;
@@ -299,6 +344,7 @@ export function SettingsForm({
   currentAddress?: string;
   emergencyContactName?: string;
   emergencyContactPhone?: string;
+  emergencyContactRelationship?: string;
 }) {
   const [state, action, pending] = useActionState(updateSettings, idleForm);
   const name = `${profile.firstName} ${profile.lastName}`.trim();
@@ -338,6 +384,9 @@ export function SettingsForm({
           </Field>
           <Field label="Emergency phone">
             <input name="emergencyContactPhone" defaultValue={emergencyContactPhone} className={fieldClass} />
+          </Field>
+          <Field label="Relationship">
+            <input name="emergencyContactRelationship" defaultValue={emergencyContactRelationship} className={fieldClass} placeholder="Sister, parent, friend" />
           </Field>
         </>
       ) : null}

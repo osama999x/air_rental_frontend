@@ -29,6 +29,8 @@ export type SessionPayload = {
 export type FormState = {
   status: "idle" | "error" | "success";
   message: string;
+  link?: string;
+  expiresAt?: string;
 };
 
 export const idleForm: FormState = { status: "idle", message: "" };

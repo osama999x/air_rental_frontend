@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { readAccessToken } from "./session";
 import type { AdminResult } from "./types";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 type CallOptions = {
   method?: "GET" | "POST" | "PATCH";

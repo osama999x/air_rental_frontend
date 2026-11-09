@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ACCESS_COOKIE, cookieBase, PROFILE_COOKIE, REFRESH_COOKIE, REFRESH_GUARD_COOKIE } from "@/features/portal/session";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export async function GET(request: NextRequest) {
   const token = request.cookies.get(ACCESS_COOKIE)?.value;

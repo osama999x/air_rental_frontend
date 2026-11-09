@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Verify email" };
 export default function VerifyPage({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string | string[]; resent?: string | string[] }>;
+  searchParams: Promise<{ email?: string | string[]; resent?: string | string[]; invite?: string | string[] }>;
 }) {
   return (
     <Suspense fallback={<p className="p-6 text-sm text-muted">Loading…</p>}>
@@ -22,16 +22,17 @@ export default function VerifyPage({
 async function VerifyScreen({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string | string[]; resent?: string | string[] }>;
+  searchParams: Promise<{ email?: string | string[]; resent?: string | string[]; invite?: string | string[] }>;
 }) {
   const params = await searchParams;
   const email = readParam(params.email) ?? "";
   const resent = readParam(params.resent) === "1";
+  const invite = readParam(params.invite);
   const { language } = await readOnboarding();
   const copy = authCopy(language);
   return (
-    <AuthFrame title={copy.verifyTitle} lede={copy.verifyLede} copy={copy}>
-      <VerifyForm email={email} resent={resent} copy={copy} />
+    <AuthFrame title={copy.verifyTitle} lede={invite ? "After verification the invitation opens again." : copy.verifyLede} copy={copy}>
+      <VerifyForm email={email} resent={resent} copy={copy} invite={invite} />
     </AuthFrame>
   );
 }

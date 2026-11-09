@@ -14,6 +14,7 @@ import {
   recalculateSubscription,
   remindRent,
   respondAssignment,
+  revokeInvitation,
   revokeSession,
   transitionRepair,
 } from "@/features/portal/actions";
@@ -22,7 +23,8 @@ import { readAvatarDataUrl } from "@/features/portal/avatar";
 import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor } from "@/features/portal/nav";
 import { portalCopy } from "@/features/portal/portal-copy";
-import { readOnboarding } from "@/features/portal/session";
+import { OpenInviteForm } from "@/features/portal/components/invite-tools";
+import { readOnboarding, readPortalProfile } from "@/features/portal/session";
 import type { NamedRecord, PortalProfile } from "@/features/portal/types";
 import {
   AgreementCreateForm,
@@ -53,6 +55,7 @@ import {
   ExpenseForm,
   HandoverForm,
   InspectionForm,
+  IdentityForm,
   InsuranceForm,
   InviteForm,
   ManagerForm,
@@ -67,17 +70,28 @@ import { PropertyPhoto } from "../components/loader";
 import { BackLink, Chip, EmptyState, Notice, PageTitle, RecordLink, Screen, labelize, statusTone } from "../components/ui";
 
 export async function PropertiesScreen() {
+  const profile = await readPortalProfile();
   const result = await portalCall<unknown>("/properties");
   const rows = asList<NamedRecord>(result.ok ? result.data : []);
+  const tenant = profile?.activeRole === "TENANT";
+  const me = tenant ? await portalCall<{ tenantProfile?: { category?: string } }>("/users/me") : null;
+  const category = me && me.ok ? me.data.tenantProfile?.category : undefined;
+  const title = tenant
+    ? category === "BUSINESS"
+      ? `My rented locations (${rows.length})`
+      : "Your rented properties"
+    : "Your properties";
   return (
     <Screen>
       <PageTitle
         kicker="PROPERTIES"
-        title="Your properties"
+        title={title}
         action={
-          <Link href="/portal/properties/new" className="text-sm font-semibold text-accent">
-            Add
-          </Link>
+          tenant ? undefined : (
+            <Link href="/portal/properties/new" className="text-sm font-semibold text-accent">
+              Add
+            </Link>
+          )
         }
       />
       {!result.ok ? <Notice message={result.message} /> : null}
@@ -137,9 +151,11 @@ export async function NewPropertyScreen() {
 }
 
 export async function PropertyDetailScreen({ id }: { id: string }) {
-  const [property, tenancies] = await Promise.all([
+  const profile = await readPortalProfile();
+  const [property, tenancies, invitations] = await Promise.all([
     portalCall<NamedRecord>(`/properties/${id}`),
-    portalCall<unknown>("/tenancies"),
+    portalCall<unknown>(`/tenancies?propertyId=${id}`),
+    portalCall<unknown>(`/tenancies/invitations?propertyId=${id}`),
   ]);
   if (!property.ok) {
     return (
@@ -150,7 +166,14 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
     );
   }
   const item = property.data;
-  const related = asList<NamedRecord>(tenancies.ok ? tenancies.data : []).filter((row) => row.propertyId === id);
+  const related = asList<NamedRecord>(tenancies.ok ? tenancies.data : []);
+  const pendingInvites = asList<NamedRecord>(invitations.ok ? invitations.data : []).filter((row) => row.direction !== "incoming");
+  const ownerView = profile?.activeRole !== "TENANT";
+  const details: NamedRecord[] = [];
+  for (const row of related.slice(0, 6)) {
+    const detail = await portalCall<NamedRecord>(`/tenancies/${row.id}`);
+    if (detail.ok) details.push(detail.data);
+  }
   return (
     <Screen>
       <BackLink href="/portal/properties" />
@@ -168,25 +191,52 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
         <Fact label="Insurance required" value={item.tenantInsuranceRequired ? "On" : "Off"} />
       </dl>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm font-semibold lg:grid-cols-4">
-        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/invitations">Invite tenant</Link>
+        {ownerView ? <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/invitations">Invite tenant</Link> : null}
         <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/rent">Rent</Link>
         <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/bills">Bills</Link>
         <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/repairs/new">Report a repair</Link>
       </div>
       <PropertyPhotos media={item.media} />
-      <PropertyMediaForm id={id} />
-      <PropertyEditForm property={item} />
-      <TransferForm id={id} />
-      <DeletePropertyForm id={id} />
-      <h2 className="mt-6 text-lg font-semibold text-navy">Tenancies</h2>
-      <ul className="mt-3 grid gap-2">
-        {related.length ? related.map((tenancy) => (
-          <li key={tenancy.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
-            <RecordLink href="/portal/agreements" mark="T" title={String(tenancy.status ?? "Tenancy")} subtitle={String(tenancy.startDate ?? tenancy.id)} status={String(tenancy.status ?? "")} />
-            <TenancyButtons id={tenancy.id} />
+      {ownerView ? (
+        <>
+          <PropertyMediaForm id={id} />
+          <PropertyEditForm property={item} />
+          <TransferForm id={id} />
+          <DeletePropertyForm id={id} />
+        </>
+      ) : null}
+      <h2 className="mt-6 text-lg font-semibold text-navy">{ownerView ? "Tenancies" : "Your tenancy"}</h2>
+      <ul className="mt-3 grid gap-3">
+        {details.length ? details.map((tenancy) => (
+          <li key={tenancy.id} className="rounded-[22px] bg-white px-4 py-4 text-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-semibold text-navy">{labelize(String(tenancy.status ?? "Tenancy"))}</p>
+              <Chip tone={statusTone(String(tenancy.status ?? ""))}>{labelize(String(tenancy.status ?? ""))}</Chip>
+            </div>
+            <TenancyFacts tenancy={tenancy} ownerView={ownerView} />
+            {ownerView ? <TenancyButtons id={String(tenancy.id)} /> : null}
           </li>
         )) : <li className="text-sm text-muted">No tenancy on this property yet.</li>}
       </ul>
+      {ownerView && pendingInvites.length ? (
+        <>
+          <h2 className="mt-6 text-lg font-semibold text-navy">Pending invitations</h2>
+          <ul className="mt-3 grid gap-2">
+            {pendingInvites.map((invite) => (
+              <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm">
+                <span>
+                  <span className="block font-semibold text-navy">{String(invite.tenantName || invite.channel || "Invite")}</span>
+                  <span className="text-muted">{String(invite.expiresAt ?? "")}</span>
+                </span>
+                <form action={revokeInvitation}>
+                  <input type="hidden" name="id" value={String(invite.id)} />
+                  <button className="font-semibold text-[#9f1239]">Revoke</button>
+                </form>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : null}
     </Screen>
   );
 }
@@ -483,6 +533,7 @@ export async function MoreScreen({ profile }: { profile: PortalProfile }) {
   return (
     <Screen>
       <PageTitle kicker={profile.activeRole} title={copy.more} />
+      <div className="mb-5"><OpenInviteForm compact /></div>
       <ul className="grid gap-2">
         {linksFor(profile.activeRole).map((link) => (
           <li key={link.href}>
@@ -542,22 +593,65 @@ export async function SimpleListScreen({
 }
 
 export async function InvitationsScreen() {
-  const [tenancies, properties] = await Promise.all([portalCall<unknown>("/tenancies"), portalCall<unknown>("/properties")]);
+  const [invitations, properties] = await Promise.all([
+    portalCall<unknown>("/tenancies/invitations"),
+    portalCall<unknown>("/properties"),
+  ]);
+  const outgoing = asList<NamedRecord>(invitations.ok ? invitations.data : []).filter((row) => row.direction !== "incoming");
   return (
     <Screen>
-      <PageTitle kicker="TENANT" title="Invitations" />
-      <p className="mb-4 text-sm leading-6 text-muted">An existing tenant and a new tenant both receive an invite. An expired or used invite cannot be accepted again.</p>
-      {!tenancies.ok ? <Notice message={tenancies.message} /> : null}
+      <PageTitle kicker="INVITE" title="Invitations" />
+      <p className="mb-4 text-sm leading-6 text-muted">Send a contact invite, or share a secure link and its QR code. A pending invite can be revoked. Accept marks the tenancy accepted. The property becomes rented when you activate it.</p>
+      {!invitations.ok ? <Notice message={invitations.message} /> : null}
       <InviteForm properties={asList(properties.ok ? properties.data : [])} />
-      <ul className="mt-6 grid gap-2">
-        {asList<NamedRecord>(tenancies.ok ? tenancies.data : []).map((tenancy) => (
-          <li key={tenancy.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
-            <span className="font-semibold text-navy">{labelize(String(tenancy.status ?? "proposed"))}</span>
-            <span className="mt-1 block text-muted">{String(tenancy.startDate ?? tenancy.id)}</span>
-            <TenancyButtons id={tenancy.id} />
+      <h2 className="mt-6 text-lg font-semibold text-navy">Pending</h2>
+      <ul className="mt-3 grid gap-2">
+        {outgoing.length ? outgoing.map((invite) => (
+          <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm">
+            <span>
+              <span className="block font-semibold text-navy">{String(invite.propertyName || invite.tenantName || "Invitation")}</span>
+              <span className="text-muted">{labelize(String(invite.channel ?? ""))} · {String(invite.expiresAt ?? "")}</span>
+            </span>
+            <form action={revokeInvitation}>
+              <input type="hidden" name="id" value={String(invite.id)} />
+              <button className="font-semibold text-[#9f1239]">Revoke</button>
+            </form>
           </li>
-        ))}
+        )) : <li className="text-sm text-muted">No pending invitations.</li>}
       </ul>
+    </Screen>
+  );
+}
+
+export async function IdentityScreen() {
+  const [documents, me] = await Promise.all([
+    portalCall<unknown>("/users/me/identity-documents"),
+    portalCall<{ tenantProfile?: NamedRecord }>("/users/me"),
+  ]);
+  const rows = asList<NamedRecord>(documents.ok ? documents.data : []);
+  const profile = me.ok ? me.data.tenantProfile : undefined;
+  return (
+    <Screen>
+      <PageTitle kicker="IDENTITY" title="My identity" />
+      <p className="mb-4 text-sm leading-6 text-muted">Add the number and a photo or PDF for each side. The file is stored encrypted. Your landlord can see the type, side, and verification status.</p>
+      {!documents.ok ? <Notice message={documents.message} /> : null}
+      <ul className="mb-6 grid gap-2">
+        {rows.length ? rows.map((row) => (
+          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
+            <span className="font-semibold text-navy">{labelize(String(row.documentType ?? ""))} · {labelize(String(row.side ?? ""))}</span>
+            <span className="mt-1 block text-muted">{row.documentNumber ? String(row.documentNumber) : "Number hidden"} · {labelize(String(row.verificationStatus ?? "UNVERIFIED"))}</span>
+            <a className="mt-2 inline-block font-semibold text-accent" href={`/portal/files/identity-documents/${row.id}/download`}>Open file</a>
+          </li>
+        )) : <li className="text-sm text-muted">No identity document yet.</li>}
+      </ul>
+      <IdentityForm documentNumber={String(rows.find((row) => row.documentNumber)?.documentNumber ?? "")} />
+      <h2 className="mt-8 text-lg font-semibold text-navy">Emergency contact</h2>
+      <p className="mb-3 text-sm text-muted">
+        {profile?.emergencyContactName
+          ? `${profile.emergencyContactName} · ${profile.emergencyContactRelationship ?? ""} · ${profile.emergencyContactPhone ?? ""}`
+          : "Add the contact from Settings."}
+      </p>
+      <Link href="/portal/settings" className="text-sm font-semibold text-accent">Edit in settings</Link>
     </Screen>
   );
 }
@@ -673,6 +767,7 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
         currentAddress={String(roleProfile?.currentAddress ?? "")}
         emergencyContactName={String(roleProfile?.emergencyContactName ?? "")}
         emergencyContactPhone={String(roleProfile?.emergencyContactPhone ?? "")}
+        emergencyContactRelationship={String(roleProfile?.emergencyContactRelationship ?? "")}
         profile={{ ...profile, firstName: String(user?.firstName ?? profile.firstName), lastName: String(user?.lastName ?? profile.lastName) }}
       />
       {phone ? <p className="mt-3 text-sm text-muted">Phone on file: {phone}</p> : null}
@@ -953,6 +1048,43 @@ export async function OrganizationScreen() {
       </ul>
       <OrganizationForms organizations={rows} />
     </Screen>
+  );
+}
+
+function shownMoney(value: unknown, empty = "No active agreement") {
+  return typeof value === "string" || typeof value === "number" ? money(value) : empty;
+}
+
+function textOf(value: unknown) {
+  return typeof value === "string" || typeof value === "number" ? String(value) : "";
+}
+
+function TenancyFacts({ tenancy, ownerView }: { tenancy: NamedRecord; ownerView: boolean }) {
+  const person = (ownerView ? tenancy.tenant : tenancy.owner) as NamedRecord | null | undefined;
+  const emergency = [person?.emergencyContactName, person?.emergencyContactRelationship, person?.emergencyContactPhone].filter(Boolean).join(" · ");
+  const documents = Array.isArray(tenancy.identityDocuments) ? tenancy.identityDocuments as NamedRecord[] : [];
+  return (
+    <dl className="mt-3 grid gap-2">
+      <Fact label={ownerView ? "Tenant" : "Owner"} value={String(person?.name || "Waiting for acceptance")} />
+      {ownerView && person?.email ? <Fact label="Email" value={String(person.email)} /> : null}
+      {ownerView && person?.phone ? <Fact label="Phone" value={String(person.phone)} /> : null}
+      {ownerView && emergency ? <Fact label="Emergency" value={emergency} /> : null}
+      <Fact label="Rent" value={shownMoney(tenancy.rent)} />
+      <Fact label="Deposit" value={shownMoney(tenancy.deposit, "—")} />
+      <Fact label="Dates" value={[textOf(tenancy.agreementStart || tenancy.startDate), textOf(tenancy.agreementEnd || tenancy.endDate)].filter(Boolean).join(" → ") || "—"} />
+      {ownerView && documents.length ? (
+        <div>
+          <dt className="text-muted">Identity</dt>
+          {documents.map((document) => (
+            <dd key={String(document.id)} className="text-navy">
+              {labelize(String(document.documentType ?? ""))} {labelize(String(document.side ?? ""))} · {labelize(String(document.verificationStatus ?? ""))}
+              {" "}
+              <a className="font-semibold text-accent" href={`/portal/files/identity-documents/${document.id}/download`}>View</a>
+            </dd>
+          ))}
+        </div>
+      ) : null}
+    </dl>
   );
 }
 

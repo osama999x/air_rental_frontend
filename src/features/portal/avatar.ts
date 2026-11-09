@@ -1,7 +1,7 @@
 import { cache } from "react";
 import { readAccessToken } from "@/features/portal/session";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export const readAvatarDataUrl = cache(async (): Promise<string | null> => {
   const token = await readAccessToken();

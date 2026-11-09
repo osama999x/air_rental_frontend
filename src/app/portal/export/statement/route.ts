@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { readAccessToken, readPortalProfile } from "@/features/portal/session";
 
-const API_URL = process.env.API_URL ?? "http://localhost:3000/api/v1";
+const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export async function GET(request: Request) {
   const token = await readAccessToken();
