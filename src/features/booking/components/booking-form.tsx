@@ -34,7 +34,7 @@ export function BookingForm({
   return (
     <form action={formAction} className="surface-card grid gap-5 p-6" noValidate>
       {state.status === "error" ? (
-        <p className="text-sm text-red-700" role="alert">
+        <p className="text-sm text-alert" role="alert">
           {state.message}
         </p>
       ) : null}
@@ -129,7 +129,7 @@ export function BookingForm({
 }
 
 const inputClass =
-  "field-control w-full rounded-2xl border border-line bg-[#f4f7fb] px-3 py-3 text-sm font-normal text-foreground outline-none focus:border-accent";
+  "field-control w-full rounded-2xl border border-line bg-background px-3 py-3 text-sm font-normal text-foreground outline-none focus:border-accent";
 
 function Field({
   label,
@@ -164,7 +164,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   }
 
   return (
-    <span id={id} className="field-error text-sm font-normal text-red-700">
+    <span id={id} className="field-error text-sm font-normal text-alert">
       {message}
     </span>
   );

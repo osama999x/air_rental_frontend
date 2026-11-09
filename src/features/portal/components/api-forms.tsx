@@ -282,7 +282,7 @@ export function ChatEditForm({ id, body }: { id: string; body: string }) {
     <form action={action} className="mt-2 flex gap-2">
       <input type="hidden" name="id" value={id} />
       <input name="body" defaultValue={body} className="h-10 flex-1 rounded-2xl border border-line px-3 text-sm" />
-      <button className="text-sm font-semibold text-accent" disabled={pending}>{pending ? "…" : "Edit"}</button>
+      <button className="text-sm font-semibold text-accent-ink" disabled={pending}>{pending ? "…" : "Edit"}</button>
       {state.message ? <span className="sr-only">{state.message}</span> : null}
     </form>
   );

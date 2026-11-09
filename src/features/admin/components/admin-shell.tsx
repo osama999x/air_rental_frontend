@@ -39,7 +39,7 @@ export function AdminShell({
                 key={item.href}
                 href={item.href}
                 className={`rounded-2xl px-3 py-2.5 text-sm font-medium whitespace-nowrap ${
-                  active ? "bg-accent text-accent-foreground" : "text-navy hover:bg-[#eef3fb]"
+                  active ? "bg-accent text-accent-foreground" : "text-navy hover:bg-wash"
                 }`}
               >
                 {item.label}
@@ -48,7 +48,7 @@ export function AdminShell({
           })}
         </nav>
         <div className="hidden items-center gap-3 border-t border-line px-4 py-4 lg:flex">
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#e8f0ff] text-sm font-semibold text-accent">
+          <span className="grid h-10 w-10 place-items-center rounded-full bg-accent-soft text-sm font-semibold text-accent-ink">
             {profile.displayName.slice(0, 1).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1">

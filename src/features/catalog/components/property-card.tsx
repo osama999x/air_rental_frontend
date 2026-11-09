@@ -18,7 +18,7 @@ export function PropertyCard({ property }: { property: RentalProperty }) {
             <p className="text-xs text-muted">Monthly rent</p>
             <p className="text-xl font-semibold text-navy">{formatPkr(property.monthlyRent)}</p>
           </div>
-          <p className="rounded-full bg-[#eef3fb] px-3 py-1 text-sm font-medium whitespace-nowrap text-navy">{property.sizeLabel}</p>
+          <p className="rounded-full bg-wash px-3 py-1 text-sm font-medium whitespace-nowrap text-navy">{property.sizeLabel}</p>
         </div>
         <ButtonLink href={`/properties/${property.slug}`} className="mt-5">
           View property

@@ -12,7 +12,7 @@ export default async function AccountPage() {
   return (
     <AuthFrame step={{ label: formatStep(copy.step, 3, 4), current: 3, total: 4 }} title={copy.accountTitle} lede={copy.accountLede} copy={copy}>
       <AccountForm copy={copy} />
-      <Link href="/portal/language" className="mt-4 text-sm font-medium text-accent">
+      <Link href="/portal/language" className="mt-4 text-sm font-medium text-accent-ink">
         {copy.changeLanguage}
       </Link>
     </AuthFrame>

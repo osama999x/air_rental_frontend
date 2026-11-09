@@ -17,7 +17,7 @@ export function SiteFooter() {
           <p className="text-xs font-semibold tracking-[0.16em] text-muted">CITIES</p>
           <ul className="mt-3 flex flex-wrap gap-2">
             {site.serviceAreas.map((city) => (
-              <li key={city} className="rounded-full bg-[#eef3fb] px-3 py-1.5 text-sm font-medium text-navy">
+              <li key={city} className="rounded-full bg-wash px-3 py-1.5 text-sm font-medium text-navy">
                 {city}
               </li>
             ))}
@@ -28,7 +28,7 @@ export function SiteFooter() {
           <ul className="mt-3 grid gap-2 text-sm font-medium">
             {navItems.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="text-navy hover:text-accent">
+                <Link href={item.href} className="text-navy hover:text-accent-ink">
                   {item.label}
                 </Link>
               </li>

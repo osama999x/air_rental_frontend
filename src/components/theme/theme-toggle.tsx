@@ -1,27 +1,58 @@
 "use client";
 
-import { useLayoutEffect, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { parseTheme, themeCookie, type ThemeChoice } from "@/lib/theme";
 
-const storageKey = "air-theme";
-const themeEvent = "air-theme";
+const themeEvent = "air-theme-change";
+const ThemeContext = createContext<ThemeChoice>("system");
 
-export function ThemeBoot() {
-  useLayoutEffect(() => {
-    applyTheme(storedTheme());
+export function ThemeProvider({
+  initial,
+  children,
+}: {
+  initial: ThemeChoice;
+  children: ReactNode;
+}) {
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const notify = () => window.dispatchEvent(new Event(themeEvent));
+    media.addEventListener("change", notify);
+    return () => media.removeEventListener("change", notify);
   }, []);
-  return null;
+
+  return <ThemeContext.Provider value={initial}>{children}</ThemeContext.Provider>;
+}
+
+export function ThemeChoiceControl() {
+  const choice = useThemeChoice();
+  return (
+    <div className="flex flex-wrap gap-2" role="group" aria-label="Theme">
+      {(["light", "dark", "system"] as const).map((option) => (
+        <button
+          key={option}
+          type="button"
+          aria-pressed={choice === option}
+          onClick={() => applyTheme(option)}
+          className={`h-10 rounded-full border px-4 text-sm font-medium ${
+            choice === option ? "border-accent bg-accent text-accent-foreground" : "border-line bg-card text-navy"
+          }`}
+        >
+          {option === "light" ? "Light" : option === "dark" ? "Dark" : "System"}
+        </button>
+      ))}
+    </div>
+  );
 }
 
 export function ThemeToggle({ className = "" }: { className?: string }) {
-  const dark = useSyncExternalStore(subscribe, themeIsDark, () => false);
-  const nextDark = !dark;
-
+  const dark = useResolvedDark();
+  const next = dark ? "light" : "dark";
   return (
     <button
       type="button"
       aria-pressed={dark}
-      aria-label={nextDark ? "Use dark theme" : "Use light theme"}
-      onClick={() => applyTheme(nextDark ? "dark" : "light")}
+      aria-label={dark ? "Use light theme" : "Use dark theme"}
+      onClick={() => applyTheme(next)}
       className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line bg-card text-navy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${className}`}
     >
       {dark ? <SunIcon /> : <MoonIcon />}
@@ -29,32 +60,58 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
   );
 }
 
+function useThemeChoice() {
+  const initial = useContext(ThemeContext);
+  return useSyncExternalStore(subscribe, readChoice, () => initial);
+}
+
+function useResolvedDark() {
+  const initial = useContext(ThemeContext);
+  return useSyncExternalStore(subscribe, resolvedDark, () => initial === "dark");
+}
+
+let systemSettled = false;
+
 function subscribe(onStoreChange: () => void) {
-  window.addEventListener(themeEvent, onStoreChange);
-  return () => window.removeEventListener(themeEvent, onStoreChange);
+  const notify = () => {
+    systemSettled = true;
+    onStoreChange();
+  };
+  window.addEventListener(themeEvent, notify);
+  const media = window.matchMedia("(prefers-color-scheme: dark)");
+  media.addEventListener("change", notify);
+  const frame = window.setTimeout(notify, 0);
+  return () => {
+    window.clearTimeout(frame);
+    window.removeEventListener(themeEvent, notify);
+    media.removeEventListener("change", notify);
+  };
 }
 
-function themeIsDark() {
-  return document.documentElement.dataset.theme === "dark";
+function readChoice(): ThemeChoice {
+  return parseTheme(document.documentElement.dataset.theme);
 }
 
-function applyTheme(theme: "light" | "dark") {
-  if (theme === "dark") document.documentElement.setAttribute("data-theme", "dark");
-  else document.documentElement.removeAttribute("data-theme");
-  try {
-    localStorage.setItem(storageKey, theme);
-  } catch {
-    /* private browsing can block storage */
+function resolvedDark() {
+  const choice = readChoice();
+  if (choice === "dark") return true;
+  if (choice === "light") return false;
+  if (!systemSettled) return false;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+export function applyTheme(choice: ThemeChoice) {
+  const run = () => {
+    document.documentElement.dataset.theme = choice;
+    document.cookie = `${themeCookie}=${choice}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    window.dispatchEvent(new Event(themeEvent));
+  };
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || typeof document.startViewTransition !== "function") {
+    run();
+    return;
   }
-  window.dispatchEvent(new Event(themeEvent));
-}
-
-function storedTheme() {
-  try {
-    return localStorage.getItem(storageKey) === "dark" ? "dark" : "light";
-  } catch {
-    return "light";
-  }
+  document.startViewTransition(run);
 }
 
 function MoonIcon() {

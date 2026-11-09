@@ -4,11 +4,11 @@ import { AnimatedNumber } from "@/components/motion/animated-number";
 import { TiltCard } from "@/components/motion/primitives";
 
 const chipTones = {
-  overdue: "bg-[#ffe8ea] text-[#d1264a]",
-  pending: "bg-[#f3e8ff] text-[#7a3ff2]",
-  due: "bg-[#e7efff] text-[#2f6bff]",
-  paid: "bg-[#e5f8ee] text-[#15803d]",
-  neutral: "bg-[#eef2f7] text-[#5c6b82]",
+  overdue: "chip-overdue",
+  pending: "chip-pending",
+  due: "chip-due",
+  paid: "chip-paid",
+  neutral: "chip-neutral",
 } as const;
 
 export type ChipTone = keyof typeof chipTones;
@@ -49,7 +49,7 @@ export function PageTitle({
   return (
     <div className="mb-4 flex items-end justify-between gap-3">
       <div>
-        {kicker ? <p className="text-xs font-semibold tracking-[0.16em] text-accent">{kicker}</p> : null}
+        {kicker ? <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">{kicker}</p> : null}
         <h1 className="text-2xl font-semibold tracking-tight text-navy sm:text-3xl">{title}</h1>
       </div>
       {action}
@@ -60,7 +60,7 @@ export function PageTitle({
 export function Notice({ message, tone = "error" }: { message: string; tone?: "error" | "ok" }) {
   if (!message) return null;
   return (
-    <p className={`notice-in mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "bg-[#e5f8ee] text-[#166534]" : "bg-[#ffe8ea] text-[#9f1239]"}`} role="status">
+    <p className={`notice-in mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "notice-ok" : "notice-err"}`} role="status">
       {tone === "ok" ? (
         <svg viewBox="0 0 16 16" className="me-2 inline h-4 w-4 align-text-bottom" aria-hidden="true">
           <path className="check-draw" d="M3 8.5 6.2 11.5 13 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -73,7 +73,7 @@ export function Notice({ message, tone = "error" }: { message: string; tone?: "e
 
 export function EmptyState({ title, body, href, label }: { title: string; body: string; href?: string; label?: string }) {
   return (
-    <TiltCard className="rounded-[24px] bg-white px-5 py-8 text-center">
+    <TiltCard className="rounded-[24px] bg-card px-5 py-8 text-center">
       <h2 className="text-lg font-semibold text-navy">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
       {href && label ? (
@@ -113,7 +113,7 @@ export function StatRow({
   return (
     <ul className={`mt-4 grid grid-cols-3 gap-2 sm:gap-3 ${className}`}>
       {items.map((item) => (
-        <li key={item.label} className="tilt-surface rounded-[22px] bg-white px-3 py-3 text-center">
+        <li key={item.label} className="tilt-surface rounded-[22px] bg-card px-3 py-3 text-center">
           <p className="text-xl font-semibold text-navy">{typeof item.value === "number" ? <AnimatedNumber value={item.value} /> : item.value}</p>
           <p className="mt-1 text-xs text-muted">{item.label}</p>
         </li>
@@ -138,8 +138,8 @@ export function RecordLink({
   status?: string;
 }) {
   return (
-    <Link href={href} className="record-link hover-lift flex items-center gap-3 rounded-[22px] bg-white p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0ff] text-sm font-semibold text-accent">
+    <Link href={href} className="record-link hover-lift flex items-center gap-3 rounded-[22px] bg-card p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-sm font-semibold text-accent-ink">
         {mark.slice(0, 1)}
       </span>
       <span className="min-w-0 flex-1">
@@ -178,11 +178,11 @@ export function Field({
 }
 
 export const fieldClass =
-  "field-control h-12 w-full rounded-2xl border border-line bg-white px-4 text-sm font-normal text-navy outline-none focus:border-accent";
+  "field-control h-12 w-full rounded-2xl border border-line bg-card px-4 text-sm font-normal text-navy outline-none focus:border-accent";
 
 export function BackLink({ href, label = "Back" }: { href: string; label?: string }) {
   return (
-    <Link href={href} className="mb-3 inline-flex text-sm font-medium text-accent">
+    <Link href={href} className="mb-3 inline-flex text-sm font-medium text-accent-ink">
       {label}
     </Link>
   );

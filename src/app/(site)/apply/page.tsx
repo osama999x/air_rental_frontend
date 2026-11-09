@@ -28,9 +28,9 @@ export default function ApplyPage({
             date before the tenancy is active.
           </p>
           <ul className="grid gap-2">
-            <li className="rounded-2xl bg-[#f4f7fb] px-4 py-3 font-medium text-navy">Property and city</li>
-            <li className="rounded-2xl bg-[#f4f7fb] px-4 py-3 font-medium text-navy">Move-in date and months</li>
-            <li className="rounded-2xl bg-[#f4f7fb] px-4 py-3 font-medium text-navy">Owner confirms the agreement</li>
+            <li className="rounded-2xl bg-background px-4 py-3 font-medium text-navy">Property and city</li>
+            <li className="rounded-2xl bg-background px-4 py-3 font-medium text-navy">Move-in date and months</li>
+            <li className="rounded-2xl bg-background px-4 py-3 font-medium text-navy">Owner confirms the agreement</li>
           </ul>
         </div>
       </div>

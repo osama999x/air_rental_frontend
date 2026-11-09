@@ -76,7 +76,7 @@ function Sidebar({ profile, language, copy, avatarSrc }: { profile: PortalProfil
       <div className="border-t border-line px-3 py-4">
         <div className="mb-3"><OpenInviteForm compact /></div>
         <RoleSwitch profile={profile} language={language} copy={copy} />
-        <a href="/portal/session/logout" className="mt-3 block w-full rounded-2xl px-3 py-2 text-left text-sm font-medium text-muted hover:bg-[#f4f7fb] hover:text-navy">
+        <a href="/portal/session/logout" className="mt-3 block w-full rounded-2xl px-3 py-2 text-left text-sm font-medium text-muted hover:bg-background hover:text-navy">
           {copy.signOut}
         </a>
       </div>
@@ -86,7 +86,7 @@ function Sidebar({ profile, language, copy, avatarSrc }: { profile: PortalProfil
 
 function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProfile; language: string; copy: PortalCopy; avatarSrc: string | null }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-line bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
+    <header className="sticky top-0 z-20 border-b border-line bg-raised/95 px-4 py-3 backdrop-blur lg:hidden">
       <div className="flex items-center justify-between gap-3">
         <Link href="/portal/home" className="text-xs font-bold tracking-[0.16em] text-navy">
           AIR RENTAL
@@ -94,10 +94,10 @@ function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProf
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <details className="relative">
-          <summary className="cursor-pointer list-none rounded-full bg-[#e8f0ff] px-3 py-1.5 text-xs font-semibold text-accent">
+          <summary className="cursor-pointer list-none rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent-ink">
             {roleTitle(language, profile.activeRole)}
           </summary>
-          <div className="absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-white p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
+          <div className="absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-raised p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
             <div className="mb-2 flex items-center gap-2 px-1">
               <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} />
               <p className="text-sm font-semibold text-navy">
@@ -117,7 +117,7 @@ function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProf
 function TabBar({ role, copy }: { role: PortalRole; copy: PortalCopy }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Portal" className="sticky bottom-0 z-20 border-t border-line bg-white/95 px-2 py-2 backdrop-blur lg:hidden">
+    <nav aria-label="Portal" className="sticky bottom-0 z-20 border-t border-line bg-raised/95 px-2 py-2 backdrop-blur lg:hidden">
       <ul className={`grid gap-1 ${tabs[role].length === 5 ? "grid-cols-5" : "grid-cols-4"}`}>
         {tabs[role].map((tab) => {
           const active = isActive(pathname, tab.href, tab.exact);
@@ -127,7 +127,7 @@ function TabBar({ role, copy }: { role: PortalRole; copy: PortalCopy }) {
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
                 className={`flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold leading-none transition ${
-                  active ? "bg-[#e8f0ff] text-accent" : "text-muted"
+                  active ? "bg-accent-soft text-accent-ink" : "text-muted"
                 }`}
               >
                 <PortalIcon name={tab.icon} className="h-[22px] w-[22px]" />
@@ -157,7 +157,7 @@ function NavLink({
       href={href}
       aria-current={active ? "page" : undefined}
       className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition ${
-        active ? "bg-accent text-white" : "text-navy hover:bg-[#f4f7fb]"
+        active ? "bg-accent text-white" : "text-navy hover:bg-background"
       }`}
     >
       <PortalIcon name={icon} className="h-5 w-5 shrink-0" />
@@ -186,7 +186,7 @@ function RoleSwitch({ profile, language, copy }: { profile: PortalProfile; langu
           name="role"
           value={role}
           className={`rounded-xl px-3 py-2 text-left text-sm ${
-            profile.activeRole === role ? "bg-accent text-white" : "text-navy hover:bg-[#f4f7fb]"
+            profile.activeRole === role ? "bg-accent text-white" : "text-navy hover:bg-background"
           }`}
         >
           <span className="block font-semibold">{roleTitle(language, role)}</span>

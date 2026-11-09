@@ -20,6 +20,7 @@ import {
 } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
 import { readAvatarDataUrl } from "@/features/portal/avatar";
+import { ThemeChoiceControl } from "@/components/theme/theme-toggle";
 import { PortalIcon } from "@/features/portal/components/icons";
 import { linksFor } from "@/features/portal/nav";
 import { portalCopy } from "@/features/portal/portal-copy";
@@ -88,7 +89,7 @@ export async function PropertiesScreen() {
         title={title}
         action={
           tenant ? undefined : (
-            <Link href="/portal/properties/new" className="text-sm font-semibold text-accent">
+            <Link href="/portal/properties/new" className="text-sm font-semibold text-accent-ink">
               Add
             </Link>
           )
@@ -178,12 +179,12 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
     <Screen>
       <BackLink href="/portal/properties" />
       {notice ? <Notice message={notice} /> : null}
-      <p className="text-xs font-semibold tracking-[0.16em] text-accent">{String(item.visibleCode ?? item.propertyType ?? "")}</p>
+      <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">{String(item.visibleCode ?? item.propertyType ?? "")}</p>
       <h1 className="mt-1 text-2xl font-semibold text-navy">{String(item.name ?? "Property")}</h1>
       <div className="mt-3">
         <Chip tone={statusTone(String(item.status ?? ""))}>{labelize(String(item.status ?? "vacant"))}</Chip>
       </div>
-      <dl className="mt-5 grid gap-3 rounded-[24px] bg-white p-4 text-sm">
+      <dl className="mt-5 grid gap-3 rounded-[24px] bg-card p-4 text-sm">
         <Fact label="Country" value={placeName(item.country) || "—"} />
         <Fact label="City" value={placeName(item.city) || "—"} />
         <Fact label="Address" value={String(item.addressLine ?? "")} />
@@ -192,10 +193,10 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
         <Fact label="Insurance required" value={item.tenantInsuranceRequired ? "On" : "Off"} />
       </dl>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm font-semibold lg:grid-cols-4">
-        {ownerView ? <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/invitations">Invite tenant</Link> : null}
-        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/rent">Rent</Link>
-        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/bills">Bills</Link>
-        <Link className="rounded-2xl bg-white px-4 py-3 text-center leading-5 text-navy" href="/portal/repairs/new">Report a repair</Link>
+        {ownerView ? <Link className="rounded-2xl bg-card px-4 py-3 text-center leading-5 text-navy" href="/portal/invitations">Invite tenant</Link> : null}
+        <Link className="rounded-2xl bg-card px-4 py-3 text-center leading-5 text-navy" href="/portal/rent">Rent</Link>
+        <Link className="rounded-2xl bg-card px-4 py-3 text-center leading-5 text-navy" href="/portal/bills">Bills</Link>
+        <Link className="rounded-2xl bg-card px-4 py-3 text-center leading-5 text-navy" href="/portal/repairs/new">Report a repair</Link>
       </div>
       <PropertyPhotos media={item.media} />
       {ownerView ? (
@@ -209,7 +210,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
       <h2 className="mt-6 text-lg font-semibold text-navy">{ownerView ? "Tenancies" : "Your tenancy"}</h2>
       <ul className="mt-3 grid gap-3">
         {details.length ? details.map((tenancy) => (
-          <li key={tenancy.id} className="rounded-[22px] bg-white px-4 py-4 text-sm">
+          <li key={tenancy.id} className="rounded-[22px] bg-card px-4 py-4 text-sm">
             <div className="flex items-center justify-between gap-3">
               <p className="font-semibold text-navy">{labelize(String(tenancy.status ?? "Tenancy"))}</p>
               <Chip tone={statusTone(String(tenancy.status ?? ""))}>{labelize(String(tenancy.status ?? ""))}</Chip>
@@ -224,7 +225,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
           <h2 className="mt-6 text-lg font-semibold text-navy">Pending invitations</h2>
           <ul className="mt-3 grid gap-2">
             {pendingInvites.map((invite) => (
-              <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm">
+              <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3 text-sm">
                 <span>
                   <span className="block font-semibold text-navy">{String(invite.tenantName || invite.channel || "Invite")}</span>
                   <span className="text-muted">{String(invite.expiresAt ?? "")}</span>
@@ -232,7 +233,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
                 <form action={revokeInvitation}>
                   <input type="hidden" name="id" value={String(invite.id)} />
                   <input type="hidden" name="returnTo" value={`/portal/properties/${id}`} />
-                  <button className="font-semibold text-[#9f1239]">Revoke</button>
+                  <button className="font-semibold text-notice-err">Revoke</button>
                 </form>
               </li>
             ))}
@@ -260,7 +261,7 @@ export async function RentScreen() {
         kicker="RENT"
         title="Rent"
         action={
-          <a className="text-sm font-semibold text-accent" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=csv`}>
+          <a className="text-sm font-semibold text-accent-ink" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=csv`}>
             Export
           </a>
         }
@@ -268,9 +269,9 @@ export async function RentScreen() {
       {!rent.ok ? <Notice message={rent.message} /> : null}
       <RentGenerateForm tenancies={asList(tenancies.ok ? tenancies.data : [])} />
       <div className="mb-4 flex gap-2 text-xs font-semibold">
-        <a className="rounded-full bg-white px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=pdf`}>PDF</a>
-        <a className="rounded-full bg-white px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=xls`}>Excel</a>
-        <a className="rounded-full bg-white px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=csv`}>CSV</a>
+        <a className="rounded-full bg-card px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=pdf`}>PDF</a>
+        <a className="rounded-full bg-card px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=xls`}>Excel</a>
+        <a className="rounded-full bg-card px-3 py-2 text-navy" href={`/portal/export/statement?from=${monthStart}&to=${today}&format=csv`}>CSV</a>
       </div>
       {rows.length ? (
         <ul className="grid gap-3">
@@ -314,7 +315,7 @@ export async function RentDetailScreen({ id, role, notice }: { id: string; role:
       <BackLink href="/portal/rent" />
       {notice ? <Notice message={notice} /> : null}
       <PageTitle title="Rent transaction" kicker={`${monthName(row.periodMonth)} ${row.periodYear ?? ""}`} />
-      <div className="rounded-[24px] bg-white p-4">
+      <div className="rounded-[24px] bg-card p-4">
         <p className="text-3xl font-semibold text-navy">{money(row.amount)}</p>
         <p className="mt-1 text-sm text-muted">Remaining {money(row.remaining)} · due {String(row.dueDate ?? "")}</p>
         <div className="mt-3">
@@ -332,7 +333,7 @@ export async function RentDetailScreen({ id, role, notice }: { id: string; role:
         {transactions.length ? transactions.map((transaction) => {
           const proof = transaction.proof && typeof transaction.proof === "object" ? (transaction.proof as NamedRecord) : null;
           return (
-            <li key={String(transaction.id)} className="rounded-[22px] bg-white p-4 text-sm">
+            <li key={String(transaction.id)} className="rounded-[22px] bg-card p-4 text-sm">
               <p className="font-semibold text-navy">{money(String(transaction.amount ?? ""))} · {String(transaction.method ?? "")}</p>
               <p className="mt-1 text-muted">{labelize(String(transaction.status ?? ""))}</p>
               {proof && role === "OWNER" ? (
@@ -342,7 +343,7 @@ export async function RentDetailScreen({ id, role, notice }: { id: string; role:
                   <input name="notes" placeholder="Note for the tenant" className="h-11 rounded-2xl border border-line px-3" />
                   <div className="flex gap-2">
                     <button name="intent" value="approve" className="h-10 rounded-full bg-accent px-4 text-white">Approve</button>
-                    <button name="intent" value="reject" className="h-10 rounded-full bg-[#ffe8ea] px-4 text-[#9f1239]">Reject</button>
+                    <button name="intent" value="reject" className="h-10 rounded-full bg-alert-soft px-4 text-notice-err">Reject</button>
                   </div>
                 </form>
               ) : null}
@@ -371,7 +372,7 @@ export async function BillsScreen() {
   const rows = asList<NamedRecord>(result.ok ? result.data : []);
   return (
     <Screen>
-      <PageTitle kicker="BILLS" title="Bills" action={<Link href="/portal/bills/new" className="text-sm font-semibold text-accent">Add</Link>} />
+      <PageTitle kicker="BILLS" title="Bills" action={<Link href="/portal/bills/new" className="text-sm font-semibold text-accent-ink">Add</Link>} />
       {!result.ok ? <Notice message={result.message} /> : null}
       {rows.length ? (
         <ul className="grid gap-3">
@@ -424,7 +425,7 @@ export async function BillDetailScreen({ id, role, notice }: { id: string; role:
       <BackLink href="/portal/bills" />
       {notice ? <Notice message={notice} /> : null}
       <PageTitle title={labelize(String(bill.category ?? "Bill"))} />
-      <div className="rounded-[24px] bg-white p-4">
+      <div className="rounded-[24px] bg-card p-4">
         <p className="text-3xl font-semibold text-navy">{money(bill.amount)}</p>
         <p className="mt-2 text-sm text-muted">Due {String(bill.dueDate ?? "—")} · {String(bill.consumerNumber ?? "No consumer number")}</p>
         <div className="mt-3"><Chip tone={statusTone(String(bill.status ?? ""))}>{labelize(String(bill.status ?? "issued"))}</Chip></div>
@@ -434,8 +435,8 @@ export async function BillDetailScreen({ id, role, notice }: { id: string; role:
       <h2 className="mt-6 text-lg font-semibold text-navy">Proofs</h2>
       <ul className="mt-3 grid gap-3">
         {proofs.map((proof) => (
-          <li key={proof.id} className="rounded-[22px] bg-white p-4 text-sm">
-            <a className="font-semibold text-accent" href={`/portal/files/bills/proofs/${proof.id}/download`}>Download proof</a>
+          <li key={proof.id} className="rounded-[22px] bg-card p-4 text-sm">
+            <a className="font-semibold text-accent-ink" href={`/portal/files/bills/proofs/${proof.id}/download`}>Download proof</a>
             <p className="mt-1 text-muted">{labelize(String(proof.status ?? ""))}</p>
             {role === "OWNER" ? (
               <form action={decideBillProof} className="mt-3 grid gap-2">
@@ -444,7 +445,7 @@ export async function BillDetailScreen({ id, role, notice }: { id: string; role:
                 <input name="notes" placeholder="Required when rejecting" className="h-11 rounded-2xl border border-line px-3" />
                 <div className="flex gap-2">
                   <button name="intent" value="approve" className="h-10 rounded-full bg-accent px-4 text-white">Approve</button>
-                  <button name="intent" value="reject" className="h-10 rounded-full bg-[#ffe8ea] px-4 text-[#9f1239]">Reject</button>
+                  <button name="intent" value="reject" className="h-10 rounded-full bg-alert-soft px-4 text-notice-err">Reject</button>
                 </div>
               </form>
             ) : null}
@@ -461,7 +462,7 @@ export async function RepairsScreen() {
   const rows = asList<NamedRecord>(result.ok ? result.data : []);
   return (
     <Screen>
-      <PageTitle kicker="REPAIRS" title="Repairs" action={<Link href="/portal/repairs/new" className="text-sm font-semibold text-accent">Report</Link>} />
+      <PageTitle kicker="REPAIRS" title="Repairs" action={<Link href="/portal/repairs/new" className="text-sm font-semibold text-accent-ink">Report</Link>} />
       {!result.ok ? <Notice message={result.message} /> : null}
       {rows.length ? (
         <ul className="grid gap-3">
@@ -505,7 +506,7 @@ export async function RepairDetailScreen({ id, role, notice }: { id: string; rol
         <ul className="mt-4 grid gap-2">
           {(item.attachments as NamedRecord[]).map((file) => (
             <li key={file.id}>
-              <a className="text-sm font-semibold text-accent" href={`/portal/files/maintenance/attachments/${file.id}/download`}>
+              <a className="text-sm font-semibold text-accent-ink" href={`/portal/files/maintenance/attachments/${file.id}/download`}>
                 {String(file.originalName ?? "Attachment")}
               </a>
             </li>
@@ -518,13 +519,13 @@ export async function RepairDetailScreen({ id, role, notice }: { id: string; rol
           <input type="hidden" name="id" value={id} />
           <label className="grid gap-1 text-sm font-medium text-navy">
             Move to
-            <select name="status" className="h-12 rounded-2xl border border-line bg-white px-3" defaultValue={String(item.status ?? "NEW")}>
+            <select name="status" className="h-12 rounded-2xl border border-line bg-card px-3" defaultValue={String(item.status ?? "NEW")}>
               {next.map((status) => <option key={status} value={status}>{labelize(status)}</option>)}
               <option value="REJECTED">Rejected</option>
               <option value="CANCELLED">Cancelled</option>
             </select>
           </label>
-          <input name="note" placeholder="Note" className="h-12 rounded-2xl border border-line bg-white px-3" />
+          <input name="note" placeholder="Note" className="h-12 rounded-2xl border border-line bg-card px-3" />
           <button className="h-11 rounded-full bg-accent text-sm font-medium text-white">Update status</button>
         </form>
       ) : null}
@@ -538,12 +539,13 @@ export async function MoreScreen({ profile }: { profile: PortalProfile }) {
   return (
     <Screen>
       <PageTitle kicker={profile.activeRole} title={copy.more} />
+      <div className="mb-5"><ThemeChoiceControl /></div>
       <div className="mb-5"><OpenInviteForm compact /></div>
       <ul className="grid gap-2">
         {linksFor(profile.activeRole).map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="flex items-center gap-3 rounded-[22px] bg-white px-4 py-3.5 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
-              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0ff] text-accent">
+            <Link href={link.href} className="flex items-center gap-3 rounded-[22px] bg-card px-4 py-3.5 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent-ink">
                 <PortalIcon name={link.icon} />
               </span>
               <span className="min-w-0 flex-1">
@@ -613,7 +615,7 @@ export async function InvitationsScreen({ notice }: { notice?: string } = {}) {
       <h2 className="mt-6 text-lg font-semibold text-navy">Pending</h2>
       <ul className="mt-3 grid gap-2">
         {outgoing.length ? outgoing.map((invite) => (
-          <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-sm">
+          <li key={invite.id} className="flex items-center justify-between gap-3 rounded-2xl bg-card px-4 py-3 text-sm">
             <span>
               <span className="block font-semibold text-navy">{String(invite.propertyName || invite.tenantName || "Invitation")}</span>
               <span className="text-muted">{labelize(String(invite.channel ?? ""))} · {String(invite.expiresAt ?? "")}</span>
@@ -621,7 +623,7 @@ export async function InvitationsScreen({ notice }: { notice?: string } = {}) {
             <form action={revokeInvitation}>
               <input type="hidden" name="id" value={String(invite.id)} />
               <input type="hidden" name="returnTo" value="/portal/invitations" />
-              <button className="font-semibold text-[#9f1239]">Revoke</button>
+              <button className="font-semibold text-notice-err">Revoke</button>
             </form>
           </li>
         )) : <li className="text-sm text-muted">No pending invitations.</li>}
@@ -644,10 +646,10 @@ export async function IdentityScreen() {
       {!documents.ok ? <Notice message={documents.message} /> : null}
       <ul className="mb-6 grid gap-2">
         {rows.length ? rows.map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
+          <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{labelize(String(row.documentType ?? ""))} · {labelize(String(row.side ?? ""))}</span>
             <span className="mt-1 block text-muted">{row.documentNumber ? String(row.documentNumber) : "Number hidden"} · {labelize(String(row.verificationStatus ?? "UNVERIFIED"))}</span>
-            <a className="mt-2 inline-block font-semibold text-accent" href={`/portal/files/identity-documents/${row.id}/download`}>Open file</a>
+            <a className="mt-2 inline-block font-semibold text-accent-ink" href={`/portal/files/identity-documents/${row.id}/download`}>Open file</a>
           </li>
         )) : <li className="text-sm text-muted">No identity document yet.</li>}
       </ul>
@@ -658,7 +660,7 @@ export async function IdentityScreen() {
           ? `${profile.emergencyContactName} · ${profile.emergencyContactRelationship ?? ""} · ${profile.emergencyContactPhone ?? ""}`
           : "Add the contact from Settings."}
       </p>
-      <Link href="/portal/settings" className="text-sm font-semibold text-accent">Edit in settings</Link>
+      <Link href="/portal/settings" className="text-sm font-semibold text-accent-ink">Edit in settings</Link>
     </Screen>
   );
 }
@@ -678,7 +680,7 @@ export async function AgreementsScreen() {
       <AgreementCreateForm tenancies={rows} />
       <ul className="mb-6 grid gap-2">
         {agreements.map((agreement) => (
-          <li key={agreement.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
+          <li key={agreement.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{money(agreement.monthlyRent)} / month</span>
             <span className="mt-1 block text-muted">Ends {String(agreement.expiryDate ?? "—")} · {labelize(String(agreement.status ?? ""))}</span>
           </li>
@@ -699,7 +701,7 @@ export async function AccountsScreen() {
       <PageTitle kicker="ACCOUNTS" title="Accounts" />
       {summary && !summary.ok ? <Notice message={summary.message} /> : null}
       {summary && summary.ok ? (
-        <dl className="mb-4 grid gap-3 rounded-[24px] bg-white p-4 text-sm">
+        <dl className="mb-4 grid gap-3 rounded-[24px] bg-card p-4 text-sm">
           <Fact label="Confirmed rent" value={money(String(summary.data.confirmedRentIncome ?? ""))} />
           <Fact label="Expenses" value={money(String(summary.data.expenses ?? ""))} />
           <Fact label="Net" value={money(String(summary.data.netIncome ?? ""))} />
@@ -726,11 +728,11 @@ export async function ChatScreen() {
       {!first ? <EmptyState title="No tenancy chat" body="Chat opens once a tenancy exists." /> : null}
       <ul className="grid gap-2">
         {asList<NamedRecord>(messages && messages.ok ? messages.data : []).map((message) => (
-          <li key={message.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">
+          <li key={message.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
             <p>{String(message.body ?? message.id)}</p>
             <div className="mt-2 flex gap-3 text-xs font-semibold">
-              <form action={markChatRead}><input type="hidden" name="id" value={message.id} /><button className="text-accent">Mark read</button></form>
-              <form action={deleteChatMessage}><input type="hidden" name="id" value={message.id} /><button className="text-[#9f1239]">Delete</button></form>
+              <form action={markChatRead}><input type="hidden" name="id" value={message.id} /><button className="text-accent-ink">Mark read</button></form>
+              <form action={deleteChatMessage}><input type="hidden" name="id" value={message.id} /><button className="text-notice-err">Delete</button></form>
             </div>
             <ChatEditForm id={message.id} body={String(message.body ?? "")} />
           </li>
@@ -765,6 +767,10 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
   return (
     <Screen>
       <PageTitle title="Settings" />
+      <h2 className="mb-3 text-lg font-semibold text-navy">Theme</h2>
+      <div className="mb-6">
+        <ThemeChoiceControl />
+      </div>
       {!me.ok ? <Notice message={me.message} /> : null}
       <SettingsForm
         phone={phone}
@@ -782,21 +788,21 @@ export async function SettingsScreen({ profile }: { profile: PortalProfile }) {
       <h2 className="mt-8 text-lg font-semibold text-navy">Sessions</h2>
       <ul className="mt-3 grid gap-2">
         {asList<NamedRecord>(sessions.ok ? sessions.data : []).map((session) => (
-          <li key={session.id} className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-sm">
+          <li key={session.id} className="flex items-center justify-between rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="text-navy">{String(session.deviceName ?? "Device")} · {String(session.platform ?? "")}</span>
             {session.revokedAt ? <span className="text-muted">Revoked</span> : (
               <form action={revokeSession}>
                 <input type="hidden" name="id" value={session.id} />
-                <button className="font-semibold text-accent">Revoke</button>
+                <button className="font-semibold text-accent-ink">Revoke</button>
               </form>
             )}
           </li>
         ))}
       </ul>
       <form action={logoutAll} className="mt-4">
-        <button className="h-11 rounded-full border border-line bg-white px-5 text-sm font-medium text-navy">Sign out of every device</button>
+        <button className="h-11 rounded-full border border-line bg-card px-5 text-sm font-medium text-navy">Sign out of every device</button>
       </form>
-      <a href="/portal/session/logout" className="mt-3 inline-flex h-11 items-center rounded-full border border-line bg-white px-5 text-sm font-medium text-navy">
+      <a href="/portal/session/logout" className="mt-3 inline-flex h-11 items-center rounded-full border border-line bg-card px-5 text-sm font-medium text-navy">
         Sign out
       </a>
       <DeactivateForm />
@@ -833,7 +839,7 @@ export async function SubscriptionScreen() {
     <Screen>
       <PageTitle kicker="SUBSCRIPTION" title="Plan and billing" />
       {!me.ok ? <Notice message={me.message} /> : (
-        <dl className="grid gap-3 rounded-[24px] bg-white p-4 text-sm">
+        <dl className="grid gap-3 rounded-[24px] bg-card p-4 text-sm">
           <Fact label="Status" value={labelize(String((me.data.subscription as NamedRecord | undefined)?.status ?? me.data.status ?? ""))} />
           <Fact label="Plan" value={String((me.data.subscription as NamedRecord | undefined)?.planCode ?? "—")} />
           <Fact label="Active units" value={String((me.data.subscription as NamedRecord | undefined)?.activeUnitCount ?? "0")} />
@@ -841,12 +847,12 @@ export async function SubscriptionScreen() {
       )}
       <div className="mt-4 flex gap-2">
         <form action={recalculateSubscription}><button className="h-11 rounded-full bg-accent px-4 text-sm font-medium text-white">Recalculate</button></form>
-        <form action={openSubscriptionInvoice}><button className="h-11 rounded-full bg-white px-4 text-sm font-medium text-navy">Open invoice</button></form>
+        <form action={openSubscriptionInvoice}><button className="h-11 rounded-full bg-card px-4 text-sm font-medium text-navy">Open invoice</button></form>
       </div>
       <h2 className="mt-5 text-lg font-semibold text-navy">Invoices</h2>
       <ul className="mt-3 grid gap-2">
         {asList<NamedRecord>(invoices.ok ? invoices.data : []).map((invoice) => (
-          <li key={invoice.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">{money(invoice.amount)} · {labelize(String(invoice.status ?? ""))}</li>
+          <li key={invoice.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">{money(invoice.amount)} · {labelize(String(invoice.status ?? ""))}</li>
         ))}
       </ul>
     </Screen>
@@ -868,8 +874,8 @@ export async function DocumentsScreen() {
       {!properties.ok ? <Notice message={properties.message} /> : null}
       <ul className="grid gap-2">
         {documents.map((doc) => (
-          <li key={doc.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
-            <a className="font-semibold text-accent" href={`/portal/files/documents/${doc.id}/download`}>{String(doc.title ?? doc.category ?? "Document")}</a>
+          <li key={doc.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
+            <a className="font-semibold text-accent-ink" href={`/portal/files/documents/${doc.id}/download`}>{String(doc.title ?? doc.category ?? "Document")}</a>
             <span className="mt-1 block text-muted">{doc.expiresAt ? `Expires ${String(doc.expiresAt)}` : "No expiry"}</span>
             <form action={extractDocument} className="mt-2">
               <input type="hidden" name="id" value={doc.id} />
@@ -897,7 +903,7 @@ export async function InsuranceScreen() {
       {!properties.ok ? <Notice message={properties.message} /> : null}
       <ul className="mb-4 grid gap-2">
         {policies.map((policy) => (
-          <li key={policy.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">
+          <li key={policy.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
             {String(policy.providerName ?? "Policy")} · {String(policy.policyNumber ?? "")}
             <span className="mt-1 block text-muted">Ends {String(policy.endDate ?? "—")}</span>
           </li>
@@ -917,13 +923,13 @@ export async function ManagersScreen({ notice }: { notice?: string } = {}) {
       {!assignments.ok ? <Notice message={assignments.message} /> : null}
       <ul className="mb-4 grid gap-2">
         {asList<NamedRecord>(assignments.ok ? assignments.data : []).map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">
+          <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
             {labelize(String(row.status ?? "pending"))}
             <form action={respondAssignment} className="mt-2 flex gap-2">
               <input type="hidden" name="id" value={row.id} />
-              <button name="intent" value="accept" className="font-semibold text-accent">Accept</button>
+              <button name="intent" value="accept" className="font-semibold text-accent-ink">Accept</button>
               <button name="intent" value="decline" className="font-semibold text-navy">Decline</button>
-              <button name="intent" value="revoke" className="font-semibold text-[#9f1239]">Revoke</button>
+              <button name="intent" value="revoke" className="font-semibold text-notice-err">Revoke</button>
             </form>
           </li>
         ))}
@@ -947,7 +953,7 @@ export async function InspectionsScreen() {
       {!properties.ok ? <Notice message={properties.message} /> : null}
       <ul className="grid gap-2">
         {rows.map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">{String(row.scheduledAt ?? row.createdAt ?? row.id)} · {labelize(String(row.status ?? "scheduled"))}</li>
+          <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">{String(row.scheduledAt ?? row.createdAt ?? row.id)} · {labelize(String(row.status ?? "scheduled"))}</li>
         ))}
       </ul>
       <InspectionForm properties={propertyRows} />
@@ -970,11 +976,11 @@ export async function HandoverScreen() {
       {!tenancies.ok ? <Notice message={tenancies.message} /> : null}
       <ul className="grid gap-2">
         {rows.map((row) => (
-          <li key={row.id} className="rounded-2xl bg-white px-4 py-3 text-sm text-navy">
+          <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
             {labelize(String(row.type ?? "handover"))} · {labelize(String(row.status ?? ""))}
             <form action={confirmHandover} className="mt-2">
               <input type="hidden" name="id" value={row.id} />
-              <button className="font-semibold text-accent">Confirm</button>
+              <button className="font-semibold text-accent-ink">Confirm</button>
             </form>
           </li>
         ))}
@@ -1006,13 +1012,13 @@ export async function NotificationsScreen() {
       {rows.length ? (
         <ul className="grid gap-3">
           {rows.map((row) => (
-            <li key={row.id} className="rounded-[22px] bg-white px-4 py-4">
+            <li key={row.id} className="rounded-[22px] bg-card px-4 py-4">
               <p className="font-semibold text-navy">{String(row.title ?? "Alert")}</p>
               <p className="mt-1 text-sm text-muted">{String(row.body ?? "")}</p>
               {row.readAt ? null : (
                 <form action={markNotificationRead} className="mt-2">
                   <input type="hidden" name="id" value={row.id} />
-                  <button className="text-sm font-semibold text-accent">Mark read</button>
+                  <button className="text-sm font-semibold text-accent-ink">Mark read</button>
                 </form>
               )}
             </li>
@@ -1031,7 +1037,7 @@ export async function SupportScreen() {
       {!result.ok ? <Notice message={result.message} /> : null}
       <ul className="mb-6 grid gap-2">
         {asList<NamedRecord>(result.ok ? result.data : []).map((ticket) => (
-          <li key={ticket.id} className="rounded-2xl bg-white px-4 py-3 text-sm">
+          <li key={ticket.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{String(ticket.subject ?? "Ticket")}</span>
             <span className="mt-1 block text-muted">{labelize(String(ticket.status ?? "open"))}</span>
           </li>
@@ -1051,7 +1057,7 @@ export async function OrganizationScreen() {
       {!result.ok ? <Notice message={result.message} /> : null}
       <ul className="mb-6 grid gap-2">
         {rows.map((organization) => (
-          <li key={organization.id} className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-navy">{String(organization.name ?? organization.id)}</li>
+          <li key={organization.id} className="rounded-2xl bg-card px-4 py-3 text-sm font-semibold text-navy">{String(organization.name ?? organization.id)}</li>
         ))}
       </ul>
       <OrganizationForms organizations={rows} />
@@ -1087,7 +1093,7 @@ function TenancyFacts({ tenancy, ownerView }: { tenancy: NamedRecord; ownerView:
             <dd key={String(document.id)} className="text-navy">
               {labelize(String(document.documentType ?? ""))} {labelize(String(document.side ?? ""))} · {labelize(String(document.verificationStatus ?? ""))}
               {" "}
-              <a className="font-semibold text-accent" href={`/portal/files/identity-documents/${document.id}/download`}>View</a>
+              <a className="font-semibold text-accent-ink" href={`/portal/files/identity-documents/${document.id}/download`}>View</a>
             </dd>
           ))}
         </div>
@@ -1102,8 +1108,8 @@ function TenancyButtons({ id, propertyId }: { id: string; propertyId: string }) 
       <input type="hidden" name="id" value={id} />
       <input type="hidden" name="propertyId" value={propertyId} />
       <button name="intent" value="activate" className="rounded-full bg-accent px-3 py-2 text-white">Activate</button>
-      <button name="intent" value="terminate" className="rounded-full bg-white px-3 py-2 text-navy">Terminate</button>
-      <button name="intent" value="complete" className="rounded-full bg-white px-3 py-2 text-navy">Complete</button>
+      <button name="intent" value="terminate" className="rounded-full bg-card px-3 py-2 text-navy">Terminate</button>
+      <button name="intent" value="complete" className="rounded-full bg-card px-3 py-2 text-navy">Complete</button>
     </form>
   );
 }
@@ -1124,7 +1130,7 @@ function PropertyPhotos({ media }: { media: unknown }) {
         const href = `/portal/files/properties/media/${row.id}/download`;
         const image = String(row.mimeType ?? "").startsWith("image/");
         return (
-          <li key={row.id} className="overflow-hidden rounded-[22px] bg-white">
+          <li key={row.id} className="overflow-hidden rounded-[22px] bg-card">
             {image ? (
               <a href={href}>
                 <PropertyPhoto src={href} alt={row.originalName || "Property photo"} />

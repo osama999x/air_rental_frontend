@@ -51,7 +51,7 @@ export async function HomePage() {
       <section>
         <Container className="grid items-center gap-10 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
           <div className="rise-in">
-            <p className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-accent shadow-sm">
+            <p className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-accent-ink shadow-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               Property tenancy
             </p>
@@ -61,7 +61,7 @@ export async function HomePage() {
             <p className="mt-5 max-w-lg text-lg leading-8 text-muted">{site.description}</p>
             <ul className="mt-6 flex flex-wrap gap-2">
               {site.serviceAreas.map((city) => (
-                <li key={city} className="rounded-full bg-[#e8f0ff] px-3 py-1 text-sm font-medium text-accent">
+                <li key={city} className="rounded-full bg-accent-soft px-3 py-1 text-sm font-medium text-accent-ink">
                   {city}
                 </li>
               ))}
@@ -81,7 +81,7 @@ export async function HomePage() {
             </div>
             <ul className="grid gap-3 p-5">
               {tenancyNotes.map((note) => (
-                <li key={note.label} className="flex items-center justify-between rounded-2xl bg-[#f4f7fb] px-4 py-3">
+                <li key={note.label} className="flex items-center justify-between rounded-2xl bg-background px-4 py-3">
                   <span className="text-sm text-muted">{note.label}</span>
                   <span className="text-sm font-semibold text-navy">{note.value}</span>
                 </li>
@@ -94,7 +94,7 @@ export async function HomePage() {
       <section className="pb-4">
         <Container>
           <div className="rise-in">
-            <p className="text-xs font-semibold tracking-[0.16em] text-accent">ROLES</p>
+            <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">ROLES</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-navy sm:text-3xl">Who uses a tenancy</h2>
           </div>
           <ul className="mt-6 grid gap-4 md:grid-cols-3">
@@ -111,7 +111,7 @@ export async function HomePage() {
       <section className="py-12">
         <Container>
           <div className="rise-in">
-            <p className="text-xs font-semibold tracking-[0.16em] text-accent">PROPERTIES</p>
+            <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">PROPERTIES</p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-navy sm:text-3xl">What you can rent</h2>
           </div>
           <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -121,12 +121,12 @@ export async function HomePage() {
                   href={`/properties?type=${type.value}`}
                   className="surface-card hover-lift flex h-full flex-col p-5"
                 >
-                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-[#e8f0ff] text-sm font-semibold text-accent">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-accent-soft text-sm font-semibold text-accent-ink">
                     {type.label.slice(0, 1)}
                   </span>
                   <h3 className="mt-4 text-lg font-semibold text-navy">{type.label}</h3>
                   <p className="mt-2 flex-1 text-sm leading-6 text-muted">{type.blurb}</p>
-                  <span className="mt-4 text-sm font-medium text-accent">See properties</span>
+                  <span className="mt-4 text-sm font-medium text-accent-ink">See properties</span>
                 </Link>
               </li>
             ))}
@@ -138,7 +138,7 @@ export async function HomePage() {
         <Container>
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold tracking-[0.16em] text-accent">VACANT</p>
+              <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">VACANT</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-navy sm:text-3xl">Open for a tenant</h2>
             </div>
             <ButtonLink href="/properties" variant="secondary">
@@ -157,7 +157,7 @@ export async function HomePage() {
 
       <section className="pb-16">
         <Container>
-          <p className="text-xs font-semibold tracking-[0.16em] text-accent">FLOW</p>
+          <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">FLOW</p>
           <h2 className="mt-2 text-2xl font-semibold tracking-tight text-navy sm:text-3xl">How a tenancy starts</h2>
           <ol className="mt-6 grid gap-4 md:grid-cols-3">
             {steps.map((step, index) => (

@@ -23,7 +23,7 @@ export function PageIntro({
 
 export function Notice({ message }: { message: string }) {
   return (
-    <p className="admin-card px-4 py-3 text-sm text-red-700" role="alert">
+    <p className="admin-card px-4 py-3 text-sm text-alert" role="alert">
       {message}
     </p>
   );
@@ -164,15 +164,15 @@ export function StatusChip({ value }: { value: string | boolean }) {
 
 function chipTone(value: string) {
   if (["ACTIVE", "ENABLED", "SUCCEEDED", "RESOLVED", "PAID", "RENTED"].includes(value)) {
-    return "bg-emerald-100 text-emerald-800";
+    return "status-ok";
   }
   if (["SUSPENDED", "FAILED", "DEAD", "PAST_DUE", "DEACTIVATED", "REJECTED"].includes(value)) {
-    return "bg-red-100 text-red-800";
+    return "status-bad";
   }
   if (["PENDING", "TRIALING", "OPEN", "IN_PROGRESS", "VACANT", "DISABLED"].includes(value)) {
-    return "bg-amber-100 text-amber-900";
+    return "status-wait";
   }
-  return "bg-[#eef3fb] text-navy";
+  return "bg-wash text-navy";
 }
 
 export function StatTile({

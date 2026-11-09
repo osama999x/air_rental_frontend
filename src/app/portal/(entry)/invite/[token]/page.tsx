@@ -43,7 +43,7 @@ async function InviteScreen({
     <AuthFrame title="Tenancy invitation" lede="Accepting adds the tenant role and marks the tenancy accepted. The property becomes rented when the owner activates it.">
       {error ? <Notice message={error} /> : null}
       {!preview.ok ? <Notice message={preview.message} /> : (
-        <div className="mb-4 rounded-[22px] bg-white p-4 text-sm text-navy">
+        <div className="mb-4 rounded-[22px] bg-card p-4 text-sm text-navy">
           <p className="text-lg font-semibold">{invite?.propertyName || "Property"}</p>
           <p className="mt-1 text-muted">{[invite?.propertyCode, invite?.tenantName].filter(Boolean).join(" · ")}</p>
           <dl className="mt-3 grid gap-2">
@@ -59,7 +59,7 @@ async function InviteScreen({
         <form action={respondToInvite} className="grid gap-3">
           <input type="hidden" name="token" value={token} />
           <button name="intent" value="accept" className="h-12 rounded-full bg-accent text-sm font-medium text-white">Accept</button>
-          <button name="intent" value="decline" className="h-12 rounded-full border border-line bg-white text-sm font-medium text-navy">Decline</button>
+          <button name="intent" value="decline" className="h-12 rounded-full border border-line bg-card text-sm font-medium text-navy">Decline</button>
         </form>
       ) : null}
       {!profile && !closed ? (
@@ -67,7 +67,7 @@ async function InviteScreen({
           <Link href={next} className="inline-flex h-12 items-center justify-center rounded-full bg-accent text-sm font-medium text-white">
             Sign in to respond
           </Link>
-          <Link href={signup} className="inline-flex h-12 items-center justify-center rounded-full border border-line bg-white text-sm font-medium text-navy">
+          <Link href={signup} className="inline-flex h-12 items-center justify-center rounded-full border border-line bg-card text-sm font-medium text-navy">
             Create an account
           </Link>
         </div>

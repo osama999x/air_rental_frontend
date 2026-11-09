@@ -25,7 +25,7 @@ export function SettingForm({
           defaultValue={settingKey}
           required
           readOnly={Boolean(settingKey)}
-          className="h-11 rounded-2xl border border-line bg-[#f4f7fb] px-3 text-sm text-foreground read-only:bg-foreground/5"
+          className="h-11 rounded-2xl border border-line bg-background px-3 text-sm text-foreground read-only:bg-foreground/5"
         />
       </label>
       <label className="grid gap-1 text-xs font-medium text-muted">
@@ -34,14 +34,14 @@ export function SettingForm({
           name="value"
           defaultValue={value}
           required
-          className="h-11 rounded-2xl border border-line bg-[#f4f7fb] px-3 text-sm text-foreground"
+          className="h-11 rounded-2xl border border-line bg-background px-3 text-sm text-foreground"
         />
       </label>
       <Button type="submit" className="h-11" disabled={pending}>
         {pending ? "Saving…" : "Save"}
       </Button>
       {state.message ? (
-        <p className={`text-xs sm:col-span-3 ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`} role="status">
+        <p className={`text-xs sm:col-span-3 ${state.status === "error" ? "text-alert" : "text-success"}`} role="status">
           {state.message}
         </p>
       ) : null}

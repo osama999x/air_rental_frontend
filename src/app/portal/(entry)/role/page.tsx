@@ -12,7 +12,7 @@ export default async function RolePage() {
   return (
     <AuthFrame step={{ label: formatStep(copy.step, 2, 4), current: 2, total: 4 }} title={copy.roleTitle} lede={copy.roleLede} copy={copy}>
       <RoleForm copy={copy} />
-      <Link href="/portal/language" className="mt-4 text-sm font-medium text-accent">
+      <Link href="/portal/language" className="mt-4 text-sm font-medium text-accent-ink">
         {copy.changeLanguage}
       </Link>
     </AuthFrame>

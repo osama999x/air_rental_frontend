@@ -64,7 +64,7 @@ async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: Port
   return (
     <Screen>
       <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
-      {!dashboard.ok ? <p className="mb-3 text-sm text-[#9f1239]">{dashboard.message}</p> : null}
+      {!dashboard.ok ? <p className="mb-3 text-sm text-notice-err">{dashboard.message}</p> : null}
       <div className="grid items-stretch gap-4 lg:grid-cols-[1.4fr_1fr]">
       <MoneyCard
         label={copy.rentCollection}
@@ -88,7 +88,7 @@ async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: Port
       </div>
       <div className="mt-6 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-navy">{copy.needsAttention}</h2>
-        <Link href="/portal/rent" className="text-sm font-medium text-accent">
+        <Link href="/portal/rent" className="text-sm font-medium text-accent-ink">
           {copy.seeAll}
         </Link>
       </div>
@@ -100,7 +100,7 @@ async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: Port
             </li>
           ))
         ) : (
-          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">{copy.nothingWaiting}</li>
+          <li className="rounded-[22px] bg-card px-4 py-4 text-sm text-muted">{copy.nothingWaiting}</li>
         )}
       </ul>
       <div className="mt-4 grid grid-cols-2 gap-2 text-sm lg:grid-cols-4">
@@ -129,7 +129,7 @@ async function TenantHome({ profile, copy, language, avatarSrc }: { profile: Por
       {incoming.length ? (
         <ul className="mb-4 grid gap-3">
           {incoming.map((invite) => (
-            <li key={invite.id} className="rounded-[22px] bg-white p-4 text-sm">
+            <li key={invite.id} className="rounded-[22px] bg-card p-4 text-sm">
               <p className="font-semibold text-navy">{String(invite.propertyName || "Tenancy invitation")}</p>
               <p className="mt-1 text-muted">{[invite.tenantName, invite.expiresAt].filter(Boolean).join(" · ")}</p>
               <form action={respondToInvite} className="mt-3 flex gap-2">
@@ -154,7 +154,7 @@ async function TenantHome({ profile, copy, language, avatarSrc }: { profile: Por
         <Quick href="/portal/agreements" label={copy.viewAgreement} icon="agreements" />
       </div>
       <ul className="mt-5 grid gap-3">
-        <li className="rounded-[22px] bg-white p-4 text-sm text-navy">
+        <li className="rounded-[22px] bg-card p-4 text-sm text-navy">
           {dashboard.ok ? (
             <CountText
               template={copy.tenantSummary}
@@ -216,7 +216,7 @@ async function ManagerHome({ profile, copy, language, avatarSrc }: { profile: Po
             </li>
           ))
         ) : (
-          <li className="rounded-[22px] bg-white px-4 py-4 text-sm text-muted">{copy.noTasks}</li>
+          <li className="rounded-[22px] bg-card px-4 py-4 text-sm text-muted">{copy.noTasks}</li>
         )}
       </ul>
     </Screen>
@@ -251,8 +251,8 @@ function Greeting({ profile, copy, language, avatarSrc }: { profile: PortalProfi
 
 function Quick({ href, label, icon }: { href: string; label: string; icon: IconName }) {
   return (
-    <Link href={href} className="flex min-h-[104px] flex-col justify-between rounded-[20px] bg-white px-4 py-4 text-sm font-semibold text-navy shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
-      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-[#e8f0ff] text-accent">
+    <Link href={href} className="flex min-h-[104px] flex-col justify-between rounded-[20px] bg-card px-4 py-4 text-sm font-semibold text-navy shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+      <span className="grid h-10 w-10 place-items-center rounded-2xl bg-accent-soft text-accent-ink">
         <PortalIcon name={icon} />
       </span>
       <span className="mt-3 leading-5">{label}</span>
@@ -262,7 +262,7 @@ function Quick({ href, label, icon }: { href: string; label: string; icon: IconN
 
 function Mini({ href, label, value }: { href: string; label: string; value: string }) {
   return (
-    <Link href={href} className="rounded-[20px] bg-white px-4 py-3 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+    <Link href={href} className="rounded-[20px] bg-card px-4 py-3 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
       <span className="block text-xs text-muted">{label}</span>
       <span className="mt-1 block font-semibold text-navy">{value}</span>
     </Link>

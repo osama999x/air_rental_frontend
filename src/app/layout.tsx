@@ -1,13 +1,14 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
+import { cookies } from "next/headers";
 import { MotionRoot } from "@/components/motion/motion-root";
-import { ThemeBoot } from "@/components/theme/theme-toggle";
+import { ThemeProvider } from "@/components/theme/theme-toggle";
 import { site } from "@/config/site";
+import { parseTheme, themeCookie, type ThemeChoice } from "@/lib/theme";
 import "./globals.css";
 
-const themeScript = `(function(){try{if(localStorage.getItem("air-theme")==="dark")document.documentElement.setAttribute("data-theme","dark")}catch(e){}})()`;
+export const instant = false;
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,35 +20,56 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: site.name,
-    template: `%s · ${site.name}`,
-  },
-  description: site.description,
-};
+async function themeChoice(): Promise<ThemeChoice> {
+  return parseTheme((await cookies()).get(themeCookie)?.value);
+}
 
-export default function RootLayout({
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: {
+      default: site.name,
+      template: `%s · ${site.name}`,
+    },
+    description: site.description,
+  };
+}
+
+export async function generateViewport(): Promise<Viewport> {
+  const choice = await themeChoice();
+  return {
+    themeColor:
+      choice === "system"
+        ? [
+            { media: "(prefers-color-scheme: light)", color: "#f4f7fb" },
+            { media: "(prefers-color-scheme: dark)", color: "#0b1426" },
+          ]
+        : choice === "dark"
+          ? "#0b1426"
+          : "#f4f7fb",
+  };
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const choice = await themeChoice();
   return (
     <html
       lang="en"
+      data-theme={choice}
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col font-sans">
-        <Script id="air-theme" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
-        <ThemeBoot />
         <div className="ambient-glow" aria-hidden="true">
           <span />
           <span />
         </div>
-        <MotionRoot>{children}</MotionRoot>
+        <ThemeProvider initial={choice}>
+          <MotionRoot>{children}</MotionRoot>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -23,7 +23,7 @@ async function SignupScreen({ searchParams }: { searchParams: Promise<{ invite?:
   return (
     <AuthFrame step={{ label: formatStep(copy.step, 4, 4), current: 4, total: 4 }} title={copy.signupTitle} lede={invite ? "Create an account, then the invitation opens again." : copy.signupLede} copy={copy}>
       <SignupForm copy={copy} invite={invite} />
-      <Link href="/portal/language" className="mt-4 text-center text-sm font-medium text-accent">
+      <Link href="/portal/language" className="mt-4 text-center text-sm font-medium text-accent-ink">
         {copy.changeLanguage}
       </Link>
     </AuthFrame>

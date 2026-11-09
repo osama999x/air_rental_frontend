@@ -99,7 +99,7 @@ export function GoogleSignIn({ copy, invite }: { copy: AuthCopy; invite?: string
       <Notice message={loadError ? copy.googleError : state.message} />
       <button
         type="button"
-        className="flex h-11 w-full items-center justify-center gap-3 rounded-full border border-line bg-white text-sm font-semibold text-navy"
+        className="flex h-11 w-full items-center justify-center gap-3 rounded-full border border-line bg-card text-sm font-semibold text-navy"
         onClick={() => {
           if (!clientRef.current) {
             setLoadError(true);

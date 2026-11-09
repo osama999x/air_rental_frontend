@@ -9,8 +9,8 @@ type Variant = "primary" | "secondary";
 
 const variants: Record<Variant, string> = {
   primary:
-    "btn-sheen bg-accent text-accent-foreground shadow-[0_10px_22px_rgba(47,107,255,0.28)] hover:bg-[#245de6]",
-  secondary: "border border-line bg-card text-navy shadow-sm hover:bg-[#eef3fb]",
+    "btn-sheen bg-accent text-accent-foreground shadow-[0_10px_22px_rgba(47,107,255,0.28)] hover:bg-accent-press",
+  secondary: "border border-line bg-card text-navy shadow-sm hover:bg-wash",
 };
 
 const base =

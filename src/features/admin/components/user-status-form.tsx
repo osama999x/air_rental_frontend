@@ -17,7 +17,7 @@ export function UserStatusForm({ id, status }: { id: string; status: UserStatus 
       <select
         name="status"
         defaultValue={status}
-        className="h-11 rounded-2xl border border-line bg-[#f4f7fb] px-3 text-sm"
+        className="h-11 rounded-2xl border border-line bg-background px-3 text-sm"
       >
         {userStatuses.map((option) => (
           <option key={option} value={option}>
@@ -30,13 +30,13 @@ export function UserStatusForm({ id, status }: { id: string; status: UserStatus 
         required
         minLength={3}
         placeholder="Reason"
-        className="h-11 rounded-2xl border border-line bg-[#f4f7fb] px-3 text-sm"
+        className="h-11 rounded-2xl border border-line bg-background px-3 text-sm"
       />
       <Button type="submit" className="h-11" disabled={pending}>
         {pending ? "Saving…" : "Update status"}
       </Button>
       {state.message ? (
-        <p className={`text-xs ${state.status === "error" ? "text-red-700" : "text-emerald-700"}`} role="status">
+        <p className={`text-xs ${state.status === "error" ? "text-alert" : "text-success"}`} role="status">
           {state.message}
         </p>
       ) : null}

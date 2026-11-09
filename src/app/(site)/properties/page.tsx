@@ -20,7 +20,7 @@ export default function PropertiesPage({
 }) {
   return (
     <Container className="rise-in py-12">
-      <p className="text-xs font-semibold tracking-[0.16em] text-accent">PROPERTIES</p>
+      <p className="text-xs font-semibold tracking-[0.16em] text-accent-ink">PROPERTIES</p>
       <h1 className="mt-2 text-4xl font-semibold tracking-tight text-navy">Properties</h1>
       <p className="mt-3 max-w-xl text-lg leading-8 text-muted">
         Vacant places with a monthly rent. A tenancy starts when the owner and tenant both accept.

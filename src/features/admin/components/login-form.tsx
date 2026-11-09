@@ -33,12 +33,12 @@ export function LoginForm({ expired }: { expired: boolean }) {
           Platform operators sign in here. Owner, tenant, and manager accounts use the portal.
         </p>
         {expired && state.status === "idle" ? (
-          <p className="mt-4 text-sm text-red-700" role="alert">
+          <p className="mt-4 text-sm text-alert" role="alert">
             Your session expired. Sign in again.
           </p>
         ) : null}
         {state.message ? (
-          <p className={`mt-4 text-sm ${state.status === "error" ? "text-red-700" : "text-muted"}`} role="status">
+          <p className={`mt-4 text-sm ${state.status === "error" ? "text-alert" : "text-muted"}`} role="status">
             {state.message}
           </p>
         ) : null}
@@ -46,7 +46,7 @@ export function LoginForm({ expired }: { expired: boolean }) {
           <form action={action} className="mt-6 grid gap-4">
             {state.otpauthUrl ? (
               <p className="rounded-2xl bg-background px-3 py-3 text-sm break-all">
-                <a className="text-accent underline" href={state.otpauthUrl}>
+                <a className="text-accent-ink underline" href={state.otpauthUrl}>
                   Open authenticator setup
                 </a>
               </p>
@@ -60,7 +60,7 @@ export function LoginForm({ expired }: { expired: boolean }) {
                 pattern="\d{6}"
                 maxLength={6}
                 required
-                className="h-12 rounded-2xl border border-line bg-[#f4f7fb] px-3 outline-none focus:border-accent"
+                className="h-12 rounded-2xl border border-line bg-background px-3 outline-none focus:border-accent"
               />
             </label>
             <Button type="submit" name="intent" value="mfa" disabled={pending}>
@@ -79,7 +79,7 @@ export function LoginForm({ expired }: { expired: boolean }) {
                 type="email"
                 autoComplete="username"
                 required
-                className="h-12 rounded-2xl border border-line bg-[#f4f7fb] px-3 outline-none focus:border-accent"
+                className="h-12 rounded-2xl border border-line bg-background px-3 outline-none focus:border-accent"
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
@@ -89,7 +89,7 @@ export function LoginForm({ expired }: { expired: boolean }) {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="h-12 rounded-2xl border border-line bg-[#f4f7fb] px-3 outline-none focus:border-accent"
+                className="h-12 rounded-2xl border border-line bg-background px-3 outline-none focus:border-accent"
               />
             </label>
             <Button type="submit" disabled={pending}>

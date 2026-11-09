@@ -62,7 +62,7 @@ async function PropertyDetail({ params }: PropertyPageProps) {
       <div className="surface-card overflow-hidden">
         <PropertyArt label={propertyTypeLabel(property.type)} />
         <div className="p-6 sm:p-8">
-          <p className="text-sm font-semibold text-accent">{propertyTypeLabel(property.type)}</p>
+          <p className="text-sm font-semibold text-accent-ink">{propertyTypeLabel(property.type)}</p>
           <h1 className="mt-2 text-4xl font-semibold tracking-tight text-navy">{property.name}</h1>
           <p className="mt-2 text-sm font-medium text-muted">
             {property.area}, {property.city}

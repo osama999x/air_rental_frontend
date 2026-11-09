@@ -54,7 +54,7 @@ export function AuthFrame({
       <section className="portal-auth-main">
         <div className="portal-auth-card rise-in">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold tracking-[0.18em] text-accent lg:hidden">AIR RENTAL</p>
+            <p className="text-xs font-semibold tracking-[0.18em] text-accent-ink lg:hidden">AIR RENTAL</p>
             <ThemeToggle className="ms-auto" />
           </div>
           <StepProgress step={step} />
@@ -174,7 +174,7 @@ export function LoginForm({ reset, copy, invite }: { reset?: boolean; copy: Auth
         <Field label={copy.password}>
           <input name="password" type="password" autoComplete="current-password" required className={fieldClass} />
         </Field>
-        <Link href="/portal/forgot" className="text-sm font-medium text-accent">
+        <Link href="/portal/forgot" className="text-sm font-medium text-accent-ink">
           {copy.forgot}
         </Link>
         <Button type="submit" disabled={pending}>
@@ -182,7 +182,7 @@ export function LoginForm({ reset, copy, invite }: { reset?: boolean; copy: Auth
         </Button>
         <p className="text-center text-sm text-muted">
           {copy.newHere}{" "}
-          <Link href={signup} className="font-medium text-accent">
+          <Link href={signup} className="font-medium text-accent-ink">
             {copy.createAccount}
           </Link>
         </p>
@@ -220,7 +220,7 @@ export function SignupForm({ copy, invite }: { copy: AuthCopy; invite?: string }
         <Button type="submit" disabled={pending}>
           {pending ? copy.creating : copy.createAccount}
         </Button>
-        <Link href={login} className="text-center text-sm font-medium text-accent">
+        <Link href={login} className="text-center text-sm font-medium text-accent-ink">
           {copy.alreadyAccount}
         </Link>
       </form>
@@ -258,7 +258,7 @@ export function VerifyForm({ email, resent = false, copy, invite }: { email: str
       <form action={resendAction} className="grid gap-2">
         <input type="hidden" name="email" value={emailValue} />
         <Notice message={resend.message} tone={resend.status === "success" ? "ok" : "error"} />
-        <button type="submit" disabled={resending || !emailValue} className="text-sm font-medium text-accent disabled:opacity-60">
+        <button type="submit" disabled={resending || !emailValue} className="text-sm font-medium text-accent-ink disabled:opacity-60">
           {resending ? copy.sending : copy.sendAgain}
         </button>
       </form>

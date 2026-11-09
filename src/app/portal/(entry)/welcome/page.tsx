@@ -15,7 +15,7 @@ export default async function WelcomePage() {
         <Link href="/portal/language" className="inline-flex h-12 items-center justify-center rounded-full bg-accent text-sm font-medium text-white">
           {copy.getStarted}
         </Link>
-        <Link href="/portal/login" className="inline-flex h-12 items-center justify-center rounded-full border border-line bg-white text-sm font-medium text-navy">
+        <Link href="/portal/login" className="inline-flex h-12 items-center justify-center rounded-full border border-line bg-card text-sm font-medium text-navy">
           {copy.haveAccount}
         </Link>
       </div>

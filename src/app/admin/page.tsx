@@ -45,7 +45,7 @@ async function DashboardPanel() {
         <p className="mt-1 max-w-md text-xs leading-5 text-muted">{data.definitions.totalUsers}</p>
         <div className="mt-5 grid grid-cols-3 gap-2">
           {spotlight.map((item) => (
-            <div key={item.key} className="rounded-2xl bg-[#f4f7fb] px-3 py-3 text-center">
+            <div key={item.key} className="rounded-2xl bg-background px-3 py-3 text-center">
               <p className="text-xl font-semibold text-navy">{data[item.key]}</p>
               <p className="text-xs text-muted">{item.label}</p>
             </div>

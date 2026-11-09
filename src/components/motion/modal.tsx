@@ -17,7 +17,7 @@ export function Modal({
       {show ? (
         <motion.div
           key="modal"
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-[#f4f7fb]/75 px-6 backdrop-blur-[6px]"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-background/75 px-6 backdrop-blur-[6px]"
           role="status"
           aria-live="polite"
           initial={{ opacity: 0 }}

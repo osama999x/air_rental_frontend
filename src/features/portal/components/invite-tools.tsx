@@ -27,10 +27,10 @@ export function InviteShare({ url, expiresAt }: { url: string; expiresAt?: strin
     return () => window.clearInterval(timer);
   }, [expiresAt]);
   return (
-    <div className="rounded-[22px] bg-white p-4">
+    <div className="rounded-[22px] bg-card p-4">
       <p className="text-sm font-semibold text-navy">Share this invite</p>
       <p className="mt-2 break-all text-sm text-muted">{url}</p>
-      {remaining ? <p className="mt-2 text-sm font-medium text-accent">{remaining}</p> : null}
+      {remaining ? <p className="mt-2 text-sm font-medium text-accent-ink">{remaining}</p> : null}
       <div className="mt-3 flex flex-wrap gap-2">
         <Button
           type="button"
@@ -43,7 +43,7 @@ export function InviteShare({ url, expiresAt }: { url: string; expiresAt?: strin
           {copied ? "Copied" : "Copy link"}
         </Button>
       </div>
-      {src ? <img src={src} alt="Invitation QR code" className="mt-4 h-40 w-40 rounded-2xl bg-white" /> : null}
+      {src ? <img src={src} alt="Invitation QR code" className="mt-4 h-40 w-40 rounded-2xl bg-card" /> : null}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import { Modal } from "@/components/motion/modal";
 export function Loader({ label }: { label: string }) {
   return (
     <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-6 text-sm text-muted" role="status">
-      <span className="h-8 w-8 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
+      <span className="h-8 w-8 animate-spin rounded-full border-2 border-track border-t-accent" />
       {label}
     </div>
   );
@@ -15,8 +15,8 @@ export function Loader({ label }: { label: string }) {
 export function BusyOverlay({ show, label }: { show: boolean; label: string }) {
   return (
     <Modal show={show}>
-      <div className="flex min-w-56 flex-col items-center gap-3 rounded-[28px] bg-white px-8 py-7 shadow-[0_20px_50px_rgba(18,48,92,0.12)]" role="status" aria-live="polite">
-        <span className="h-9 w-9 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
+      <div className="flex min-w-56 flex-col items-center gap-3 rounded-[28px] border border-line bg-raised px-8 py-7 shadow-[0_20px_50px_rgba(18,48,92,0.12)]" role="status" aria-live="polite">
+        <span className="h-9 w-9 animate-spin rounded-full border-2 border-track border-t-accent" />
         <p className="text-sm font-semibold text-navy">{label}</p>
       </div>
     </Modal>
@@ -46,16 +46,16 @@ function PhotoFrame({ src, alt }: { src: string; alt: string }) {
 
   if (!src || state === "failed") {
     return (
-      <div className="flex aspect-[4/3] items-center justify-center bg-[#eef3fb] px-3 text-center text-xs text-muted">
+      <div className="flex aspect-[4/3] items-center justify-center bg-wash px-3 text-center text-xs text-muted">
         Photo unavailable
       </div>
     );
   }
 
   return (
-    <div className="relative aspect-[4/3] overflow-hidden bg-[#eef3fb]">
+    <div className="relative aspect-[4/3] overflow-hidden bg-wash">
       {state === "loading" ? (
-        <span className="pointer-events-none absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
+        <span className="pointer-events-none absolute top-1/2 left-1/2 z-10 h-6 w-6 -translate-x-1/2 -translate-y-1/2 animate-spin rounded-full border-2 border-track border-t-accent" />
       ) : null}
       <img ref={imageRef} src={src} alt={alt} className="h-full w-full object-cover" />
     </div>
@@ -76,7 +76,7 @@ function ProfilePhotoFace({ name, src, large = false }: { name: string; src?: st
   const size = large ? "h-20 w-20 text-lg" : "h-10 w-10 text-xs";
 
   return (
-    <span className={`relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e7efff] font-semibold text-accent ${size}`}>
+    <span className={`relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-accent-faint font-semibold text-accent-ink ${size}`}>
       {src && !failed ? (
         <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" onError={() => setFailed(true)} />
       ) : (
@@ -89,9 +89,9 @@ function ProfilePhotoFace({ name, src, large = false }: { name: string; src?: st
 export function FilePicker({ name, accept, required = false }: { name: string; accept: string; required?: boolean }) {
   const [fileName, setFileName] = useState("");
   return (
-    <label className="form-wide flex h-12 cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-[#c5d4ea] bg-white px-4 text-sm">
+    <label className="form-wide flex h-12 cursor-pointer items-center justify-between gap-3 rounded-2xl border border-dashed border-line-strong bg-card px-4 text-sm">
       <span className="min-w-0 truncate font-medium text-navy">{fileName || "Choose a file"}</span>
-      <span className="shrink-0 rounded-full bg-[#e7efff] px-3 py-1 text-xs font-semibold text-accent">Browse</span>
+      <span className="shrink-0 rounded-full bg-accent-faint px-3 py-1 text-xs font-semibold text-accent-ink">Browse</span>
       <input
         name={name}
         type="file"
