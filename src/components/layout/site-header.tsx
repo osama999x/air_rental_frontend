@@ -1,4 +1,5 @@
 import { BrandMark } from "@/components/brand/brand-mark";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Container } from "./container";
 import { NavLinks } from "./nav-links";
 
@@ -7,7 +8,10 @@ export function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-line/70 bg-card/80 backdrop-blur-md">
       <Container className="flex h-[4.25rem] items-center justify-between gap-3">
         <BrandMark />
-        <NavLinks />
+        <div className="flex items-center gap-2">
+          <NavLinks />
+          <ThemeToggle />
+        </div>
       </Container>
     </header>
   );

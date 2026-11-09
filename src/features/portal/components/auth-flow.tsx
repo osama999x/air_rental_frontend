@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   chooseAccount,
@@ -52,7 +53,10 @@ export function AuthFrame({
       </aside>
       <section className="portal-auth-main">
         <div className="portal-auth-card rise-in">
-          <p className="text-xs font-semibold tracking-[0.18em] text-accent lg:hidden">AIR RENTAL</p>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="text-xs font-semibold tracking-[0.18em] text-accent lg:hidden">AIR RENTAL</p>
+            <ThemeToggle className="ms-auto" />
+          </div>
           <StepProgress step={step} />
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-navy sm:text-4xl">{title}</h1>
           {lede ? <p className="mt-3 text-sm leading-6 text-muted">{lede}</p> : null}

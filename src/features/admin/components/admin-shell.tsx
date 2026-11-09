@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { signOutAdmin } from "@/features/admin/actions";
 import { adminNav } from "@/features/admin/nav";
 import type { AdminProfile } from "@/features/admin/types";
@@ -63,6 +64,7 @@ export function AdminShell({
             <p className="text-2xl font-semibold tracking-tight text-navy">{profile.displayName}</p>
           </div>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <p className="admin-card px-4 py-2 text-sm font-medium">{today}</p>
             <form action={signOutAdmin} className="lg:hidden">
               <button type="submit" className="rounded-full bg-card px-4 py-2 text-sm font-medium shadow-sm">

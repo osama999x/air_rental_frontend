@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { submitAdminLogin } from "@/features/admin/actions";
 import type { LoginState } from "@/features/admin/types";
@@ -23,7 +24,10 @@ export function LoginForm({ expired }: { expired: boolean }) {
       </aside>
       <section className="portal-auth-main">
       <div className="admin-card w-full max-w-md p-6 sm:p-8">
-        <p className="text-sm font-bold tracking-[0.18em] text-navy">AIR RENTAL</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm font-bold tracking-[0.18em] text-navy">AIR RENTAL</p>
+          <ThemeToggle />
+        </div>
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-navy">Admin sign in</h1>
         <p className="mt-2 text-sm text-muted">
           Platform operators sign in here. Owner, tenant, and manager accounts use the portal.

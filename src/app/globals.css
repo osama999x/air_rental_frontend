@@ -8,6 +8,7 @@
   --accent: #2f6bff;
   --accent-foreground: #ffffff;
   --line: #e4ebf5;
+  --ink: #12305c;
   --motion-fast: 200ms;
   --motion-base: 280ms;
   --motion-slow: 350ms;
@@ -28,7 +29,7 @@
   --color-line: var(--line);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-navy: #12305c;
+  --color-navy: var(--ink);
 }
 
 body {
@@ -523,7 +524,7 @@ body > :not(.ambient-glow) {
     width: 17.5rem;
     flex-direction: column;
     border-right: 1px solid var(--line);
-    background: #fff;
+    background: var(--card);
   }
 
   .portal-auth {
@@ -570,7 +571,7 @@ body > :not(.ambient-glow) {
   justify-content: space-between;
   gap: 12px;
   border-radius: 22px;
-  background: white;
+  background: var(--card);
   padding: 16px;
   text-align: start;
 }
@@ -623,14 +624,6 @@ body > :not(.ambient-glow) {
 }
 
 .admin-shell {
-  --background: #f4f7fb;
-  --foreground: #12305c;
-  --muted: #6d7f98;
-  --card: #ffffff;
-  --accent: #2f6bff;
-  --accent-foreground: #ffffff;
-  --line: #e4ebf5;
-  color-scheme: light;
   background: var(--background);
   color: var(--foreground);
 }
@@ -641,7 +634,7 @@ body > :not(.ambient-glow) {
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="dark"]) {
     --background: #f4f7fb;
     --foreground: #12305c;
     --muted: #6d7f98;
@@ -649,5 +642,57 @@ body > :not(.ambient-glow) {
     --accent: #2f6bff;
     --accent-foreground: #ffffff;
     --line: #e4ebf5;
+    --ink: #12305c;
   }
+}
+
+html[data-theme="dark"] {
+  /* navy night: same hue as #12305c */
+  --background: #0e1c33;
+  --foreground: #e7eef8;
+  --ink: #e7eef8;
+  --muted: #93a4bd;
+  --card: #162844;
+  --line: #2c4268;
+  --shadow-card:
+    0 1px 2px rgba(8, 16, 36, 0.45),
+    0 14px 32px rgba(8, 16, 36, 0.4);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] body {
+  background:
+    radial-gradient(980px 460px at -8% -12%, rgba(47, 107, 255, 0.2), transparent 58%),
+    radial-gradient(720px 380px at 110% -8%, rgba(47, 107, 255, 0.08), transparent 52%),
+    var(--background);
+  color: var(--foreground);
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .to-navy {
+  --tw-gradient-to: #12305c;
+}
+
+html[data-theme="dark"] :is(.bg-white) {
+  background-color: var(--card);
+}
+
+html[data-theme="dark"] :is(.bg-white\/95) {
+  background-color: color-mix(in srgb, var(--card) 95%, transparent);
+}
+
+html[data-theme="dark"] :is(.bg-\[\#f4f7fb\], .hover\:bg-\[\#f4f7fb\]:hover) {
+  background-color: #101e36;
+}
+
+html[data-theme="dark"] :is(.bg-\[\#f4f7fb\]\/75) {
+  background-color: color-mix(in srgb, #0e1c33 78%, transparent);
+}
+
+html[data-theme="dark"] :is(.bg-\[\#eef3fb\], .bg-\[\#e8f0ff\], .hover\:bg-\[\#eef3fb\]:hover) {
+  background-color: #1a335c;
+}
+
+html[data-theme="dark"] :is(.border-\[\#c5d4ea\], .border-\[\#d5e0f0\]) {
+  border-color: var(--line);
 }

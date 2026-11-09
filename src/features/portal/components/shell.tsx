@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { switchRole } from "@/features/portal/actions";
 import { OpenInviteForm } from "@/features/portal/components/invite-tools";
 import { PortalIcon } from "@/features/portal/components/icons";
@@ -47,10 +48,11 @@ function Sidebar({ profile, language, copy, avatarSrc }: { profile: PortalProfil
         </Link>
         <div className="mt-4 flex items-center gap-3">
           <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-navy">{profile.firstName} {profile.lastName}</p>
             <p className="text-xs text-muted">{roleTitle(language, profile.activeRole)}</p>
           </div>
+          <ThemeToggle />
         </div>
       </div>
       <nav aria-label="Portal" className="min-h-0 flex-1 overflow-y-auto px-3 pb-4">
@@ -89,7 +91,9 @@ function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProf
         <Link href="/portal/home" className="text-xs font-bold tracking-[0.16em] text-navy">
           AIR RENTAL
         </Link>
-        <details className="relative">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <details className="relative">
           <summary className="cursor-pointer list-none rounded-full bg-[#e8f0ff] px-3 py-1.5 text-xs font-semibold text-accent">
             {roleTitle(language, profile.activeRole)}
           </summary>
@@ -104,6 +108,7 @@ function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProf
             <RoleSwitch profile={profile} language={language} copy={copy} />
           </div>
         </details>
+        </div>
       </div>
     </header>
   );
