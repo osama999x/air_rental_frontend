@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["airrental1.com", "airrental1.com."],
   async redirects() {
     return [
       { source: "/units", destination: "/properties", permanent: false },
@@ -10,6 +11,9 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     agentFeedback: true,
+    serverActions: {
+      allowedOrigins: ["airrental1.com", "airrental1.com."],
+    },
   },
   cacheComponents: true,
   partialPrefetching: true,
