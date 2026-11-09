@@ -12,7 +12,7 @@ import type { PortalRole, PortalUser } from "@/features/portal/types";
 const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 
 export async function GET(request: NextRequest) {
-  const login = new URL("/portal/login?expired=1", request.url);
+  const login = "/portal/login?expired=1";
   if (request.cookies.get(REFRESH_GUARD_COOKIE)?.value === "1") {
     return expire(login);
   }
@@ -51,7 +51,8 @@ export async function GET(request: NextRequest) {
     roles: roles.includes(activeRole) ? roles : [...roles, activeRole],
     activeRole,
   };
-  const response = NextResponse.redirect(new URL("/portal/home", request.url));
+  const response = NextResponse.redirect(new URL("/portal/home", request.nextUrl.origin), 307);
+  response.headers.set("Location", "/portal/home");
   response.cookies.set(ACCESS_COOKIE, renewed.accessToken, cookieBase(60 * 15));
   response.cookies.set(REFRESH_COOKIE, renewed.refreshToken, cookieBase(60 * 60 * 24 * 30));
   response.cookies.set(PROFILE_COOKIE, JSON.stringify(profile), cookieBase(60 * 60 * 24 * 30));
@@ -59,8 +60,9 @@ export async function GET(request: NextRequest) {
   return response;
 }
 
-function expire(login: URL) {
-  const response = NextResponse.redirect(login);
+function expire(login: string) {
+  const response = NextResponse.redirect(new URL(login, "http://localhost"), 303);
+  response.headers.set("Location", login);
   const expired = cookieBase(0);
   response.cookies.set(ACCESS_COOKIE, "", expired);
   response.cookies.set(REFRESH_COOKIE, "", expired);

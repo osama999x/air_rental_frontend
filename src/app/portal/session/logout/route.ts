@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const response = NextResponse.redirect(new URL("/portal/login", request.url));
+  const response = NextResponse.redirect(new URL("/portal/login", request.nextUrl.origin), 303);
+  response.headers.set("Location", "/portal/login");
   const expired = cookieBase(0);
   response.cookies.set(ACCESS_COOKIE, "", expired);
   response.cookies.set(REFRESH_COOKIE, "", expired);
