@@ -595,6 +595,8 @@ body > :not(.ambient-glow) {
   }
 
   .portal-auth-panel {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -643,10 +645,263 @@ body > :not(.ambient-glow) {
 }
 
 .choice:hover,
-.choice:focus-visible {
-  outline: 2px solid #2f6bff;
+.choice:focus-visible,
+.choice[aria-pressed="true"] {
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+}
+
+.choice[aria-pressed="true"]::after {
+  opacity: 1;
+}
+
+.hero-stage {
+  position: relative;
+}
+
+.hero-float {
+  position: absolute;
+  z-index: 0;
+  top: 1.5rem;
+  inset-inline-end: max(1rem, calc(50% - 34rem));
+  width: 240px;
+  height: 240px;
+  pointer-events: none;
+}
+
+.flip-card {
+  position: relative;
+  height: 100%;
+  perspective: 1200px;
+}
+
+.flip-inner {
+  display: grid;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.flip-face {
+  grid-area: 1 / 1;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  backface-visibility: hidden;
+  box-shadow: var(--shadow-card);
+}
+
+.flip-back {
+  transform: rotateY(180deg);
+}
+
+.flip-card.is-flipped .flip-inner {
+  transform: rotateY(180deg);
+}
+
+[dir="rtl"] .flip-back {
+  transform: rotateY(-180deg);
+}
+
+[dir="rtl"] .flip-card.is-flipped .flip-inner {
+  transform: rotateY(-180deg);
+}
+
+.flip-toggle {
+  position: absolute;
+  z-index: 2;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  display: grid;
+  height: 2rem;
+  width: 2rem;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--foreground);
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.paid-flip {
+  position: relative;
+  display: inline-grid;
+  transform-style: preserve-3d;
+  transition: transform var(--motion-base) var(--ease-out);
+}
+
+.paid-face {
+  grid-area: 1 / 1;
+  border-radius: 999px;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  backface-visibility: hidden;
+}
+
+.paid-back {
+  transform: rotateX(180deg);
+}
+
+.paid-flip.is-paid {
+  animation: paid-turn var(--motion-base) var(--ease-out) 40ms both;
+}
+
+@keyframes paid-turn {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(180deg); }
+}
+
+.coin {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  background: var(--accent);
+  animation: coin-drop var(--motion-slow) var(--ease-out) both;
+}
+
+.sparks {
+  position: relative;
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.sparks i {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 0.28rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: var(--chip-paid-fg);
+  animation: spark 0.45s var(--ease-out) both;
+}
+
+.sparks i:nth-child(odd) {
+  background: var(--accent);
+}
+
+.sparks i:nth-child(1) { --sx: 8px; --sy: -6px; }
+.sparks i:nth-child(2) { --sx: -8px; --sy: -4px; animation-delay: 40ms; }
+.sparks i:nth-child(3) { --sx: 4px; --sy: 8px; animation-delay: 80ms; }
+.sparks i:nth-child(4) { --sx: -4px; --sy: 7px; animation-delay: 20ms; }
+.sparks i:nth-child(5) { --sx: 10px; --sy: 1px; animation-delay: 60ms; }
+
+[dir="rtl"] .sparks i:nth-child(1) { --sx: -8px; }
+[dir="rtl"] .sparks i:nth-child(2) { --sx: 8px; }
+[dir="rtl"] .sparks i:nth-child(5) { --sx: -10px; }
+
+@keyframes coin-drop {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes spark {
+  from { opacity: 0.9; transform: translate3d(0, 0, 0) scale(1); }
+  to { opacity: 0; transform: translate3d(var(--sx, 8px), var(--sy, -8px), 0) scale(0.4); }
+}
+
+.stat-depth {
+  position: relative;
+  box-shadow: var(--shadow-card), 0 8px 0 var(--line);
+}
+
+.tab-indicator {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  inset-inline-start: 0;
+  width: calc((100% - (var(--tabs) - 1) * 0.25rem) / var(--tabs));
+  border-radius: 1rem;
+  background: var(--accent-soft);
+  transform: translateX(calc(var(--tab) * (100% + 0.25rem)));
+  transition: transform var(--motion-base) var(--ease-out);
+  pointer-events: none;
+}
+
+[dir="rtl"] .tab-indicator {
+  transform: translateX(calc(var(--tab) * -1 * (100% + 0.25rem)));
+}
+
+.tab-pop {
+  display: inline-grid;
+  animation: tab-pop var(--motion-base) var(--ease-out);
+}
+
+@keyframes tab-pop {
+  from { opacity: 0.4; transform: perspective(400px) rotateX(-70deg); }
+  to { opacity: 1; transform: none; }
+}
+
+.idle-bob {
+  animation: idle-bob 3.4s ease-in-out infinite;
+}
+
+@keyframes idle-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.panel-depth {
+  --px: 0;
+  --py: 0;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  perspective: 900px;
+}
+
+.panel-shape {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: transform var(--motion-base) var(--ease-out);
+}
+
+.panel-shape-a {
+  top: 10%;
+  inset-inline-start: -2.5rem;
+  width: 9rem;
+  height: 9rem;
+  transform: translate3d(calc(var(--px) * 18px), calc(var(--py) * 12px), 30px);
+}
+
+.panel-shape-b {
+  bottom: 16%;
+  inset-inline-end: 8%;
+  width: 6rem;
+  height: 6rem;
+  transform: translate3d(calc(var(--px) * -24px), calc(var(--py) * 16px), 70px);
+}
+
+.panel-shape-c {
+  top: 42%;
+  inset-inline-start: 28%;
+  width: 4rem;
+  height: 4rem;
+  transform: translate3d(calc(var(--px) * 10px), calc(var(--py) * -18px), 10px);
+}
+
+.menu-rise {
+  transform-origin: top center;
+  animation: menu-rise var(--motion-base) var(--ease-out);
+}
+
+@keyframes menu-rise {
+  from { opacity: 0; transform: perspective(700px) rotateX(-10deg); }
+  to { opacity: 1; transform: none; }
+}
+
+.notice-ok.notice-settle {
+  transform-origin: top center;
+  animation: notice-settle var(--motion-base) var(--ease-out) both;
+}
+
+@keyframes notice-settle {
+  from { opacity: 0; transform: perspective(600px) rotateX(-10deg); }
+  to { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -662,13 +917,30 @@ body > :not(.ambient-glow) {
   .chip-in,
   .chip-pulse,
   .notice-in,
+  .notice-settle,
   .field-error,
   .check-draw,
   .btn-sheen::after,
   .skeleton::after,
-  .ambient-glow span {
+  .ambient-glow span,
+  .idle-bob,
+  .tab-pop,
+  .menu-rise,
+  .coin,
+  .sparks i,
+  .panel-shape,
+  .flip-inner,
+  .tab-indicator {
     animation: none;
     transition: none;
+  }
+
+  .idle-bob,
+  .tab-pop,
+  .menu-rise,
+  .coin,
+  .sparks i,
+  .notice-settle {
     transform: none;
   }
 
@@ -678,6 +950,7 @@ body > :not(.ambient-glow) {
 
   .choice:hover,
   .choice:focus-visible,
+  .choice[aria-pressed="true"],
   .hover-lift:hover,
   .btn-press:hover,
   .btn-press:active {

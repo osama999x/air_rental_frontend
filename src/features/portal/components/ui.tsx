@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { AnimatedNumber } from "@/components/motion/animated-number";
+import { PaidChip } from "@/components/motion/paid-chip";
 import { TiltCard } from "@/components/motion/primitives";
 
 const chipTones = {
@@ -22,7 +23,16 @@ export function statusTone(status?: string): ChipTone {
   return "neutral";
 }
 
-export function Chip({ children, tone = "neutral" }: { children: ReactNode; tone?: ChipTone }) {
+export function Chip({
+  children,
+  tone = "neutral",
+  celebrate = false,
+}: {
+  children: ReactNode;
+  tone?: ChipTone;
+  celebrate?: boolean;
+}) {
+  if (celebrate && tone === "paid") return <PaidChip>{children}</PaidChip>;
   const motionClass = tone === "overdue" || tone === "due" ? "chip-pulse" : "chip-in";
   return (
     <span className={`${motionClass} inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${chipTones[tone]}`}>{children}</span>
@@ -60,7 +70,7 @@ export function PageTitle({
 export function Notice({ message, tone = "error" }: { message: string; tone?: "error" | "ok" }) {
   if (!message) return null;
   return (
-    <p className={`notice-in mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "notice-ok" : "notice-err"}`} role="status">
+    <p className={`notice-in mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "notice-ok notice-settle" : "notice-err"}`} role="status">
       {tone === "ok" ? (
         <svg viewBox="0 0 16 16" className="me-2 inline h-4 w-4 align-text-bottom" aria-hidden="true">
           <path className="check-draw" d="M3 8.5 6.2 11.5 13 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -74,6 +84,7 @@ export function Notice({ message, tone = "error" }: { message: string; tone?: "e
 export function EmptyState({ title, body, href, label }: { title: string; body: string; href?: string; label?: string }) {
   return (
     <TiltCard className="rounded-[24px] bg-card px-5 py-8 text-center">
+      <EmptyGlyph title={title} />
       <h2 className="text-lg font-semibold text-navy">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
       {href && label ? (
@@ -113,7 +124,7 @@ export function StatRow({
   return (
     <ul className={`mt-4 grid grid-cols-3 gap-2 sm:gap-3 ${className}`}>
       {items.map((item) => (
-        <li key={item.label} className="tilt-surface rounded-[22px] bg-card px-3 py-3 text-center">
+        <li key={item.label} className="tilt-surface stat-depth rounded-[22px] bg-card px-3 py-3 text-center">
           <p className="text-xl font-semibold text-navy">{typeof item.value === "number" ? <AnimatedNumber value={item.value} /> : item.value}</p>
           <p className="mt-1 text-xs text-muted">{item.label}</p>
         </li>
@@ -151,6 +162,42 @@ export function RecordLink({
         {status ? <Chip tone={statusTone(status)}>{labelize(status)}</Chip> : null}
       </span>
     </Link>
+  );
+}
+
+function EmptyGlyph({ title }: { title: string }) {
+  const kind = /doc|file|agree|proof|ident/i.test(title) ? "document" : /propert|house|home|repair|bill/i.test(title) ? "house" : "key";
+  return (
+    <span className="idle-bob mx-auto mb-4 grid h-12 w-12 place-items-center text-accent-ink">
+      {kind === "house" ? <HouseGlyph /> : kind === "document" ? <DocumentGlyph /> : <KeyGlyph />}
+    </span>
+  );
+}
+
+function KeyGlyph() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-12 w-12" fill="none" aria-hidden="true">
+      <circle cx="16" cy="20" r="8" stroke="currentColor" strokeWidth="2.4" />
+      <path d="M22 24.5 38 40M32 34h6M34 40h6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function HouseGlyph() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-12 w-12" fill="none" aria-hidden="true">
+      <path d="M8 22 24 8l16 14v16a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V22Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M20 40V28h8v12" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DocumentGlyph() {
+  return (
+    <svg viewBox="0 0 48 48" className="h-12 w-12" fill="none" aria-hidden="true">
+      <path d="M14 8h14l8 8v24a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M28 8v8h8M18 26h12M18 32h8" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
   );
 }
 

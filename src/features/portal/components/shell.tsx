@@ -97,7 +97,7 @@ function MobileBar({ profile, language, copy, avatarSrc }: { profile: PortalProf
           <summary className="cursor-pointer list-none rounded-full bg-accent-soft px-3 py-1.5 text-xs font-semibold text-accent-ink">
             {roleTitle(language, profile.activeRole)}
           </summary>
-          <div className="absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-raised p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
+          <div className="menu-rise absolute right-0 z-30 mt-2 w-64 rounded-2xl border border-line bg-raised p-3 shadow-[0_16px_40px_rgba(18,48,92,0.12)]">
             <div className="mb-2 flex items-center gap-2 px-1">
               <ProfilePhoto name={`${profile.firstName} ${profile.lastName}`} src={avatarSrc} />
               <p className="text-sm font-semibold text-navy">
@@ -118,19 +118,25 @@ function TabBar({ role, copy }: { role: PortalRole; copy: PortalCopy }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Portal" className="sticky bottom-0 z-20 border-t border-line bg-raised/95 px-2 py-2 backdrop-blur lg:hidden">
-      <ul className={`grid gap-1 ${tabs[role].length === 5 ? "grid-cols-5" : "grid-cols-4"}`}>
+      <ul
+        className={`relative grid gap-1 ${tabs[role].length === 5 ? "grid-cols-5" : "grid-cols-4"}`}
+        style={{ ["--tabs" as string]: tabs[role].length, ["--tab" as string]: Math.max(0, tabs[role].findIndex((tab) => isActive(pathname, tab.href, tab.exact))) }}
+      >
+        <li className="tab-indicator" aria-hidden="true" />
         {tabs[role].map((tab) => {
           const active = isActive(pathname, tab.href, tab.exact);
           return (
-            <li key={tab.href}>
+            <li key={tab.href} className="relative z-[1]">
               <Link
                 href={tab.href}
                 aria-current={active ? "page" : undefined}
-                className={`flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold leading-none transition ${
-                  active ? "bg-accent-soft text-accent-ink" : "text-muted"
+                className={`flex h-14 flex-col items-center justify-center gap-1 rounded-2xl text-[11px] font-semibold leading-none ${
+                  active ? "text-accent-ink" : "text-muted"
                 }`}
               >
-                <PortalIcon name={tab.icon} className="h-[22px] w-[22px]" />
+                <span className={active ? "tab-pop" : undefined}>
+                  <PortalIcon name={tab.icon} className="h-[22px] w-[22px]" />
+                </span>
                 {tabLabel(tab.href, role, copy)}
               </Link>
             </li>

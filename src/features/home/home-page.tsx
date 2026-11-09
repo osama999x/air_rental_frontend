@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { HeroCanvas } from "@/features/home/hero-canvas";
 import { ButtonLink } from "@/components/ui/button";
 import { site } from "@/config/site";
 import { PropertyCard } from "@/features/catalog/components/property-card";
@@ -48,8 +49,9 @@ export async function HomePage() {
 
   return (
     <>
-      <section>
-        <Container className="grid items-center gap-10 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
+      <section className="hero-stage">
+        <HeroCanvas />
+        <Container className="relative z-[1] grid items-center gap-10 py-12 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
           <div className="rise-in">
             <p className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-accent-ink shadow-sm">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />

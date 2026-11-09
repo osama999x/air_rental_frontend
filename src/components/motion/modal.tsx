@@ -17,7 +17,7 @@ export function Modal({
       {show ? (
         <motion.div
           key="modal"
-          className="fixed inset-0 z-[80] flex items-center justify-center bg-background/75 px-6 backdrop-blur-[6px]"
+          className="fixed inset-0 z-[80] flex items-center justify-center bg-background/75 px-6 backdrop-blur-[6px] [perspective:800px]"
           role="status"
           aria-live="polite"
           initial={{ opacity: 0 }}
@@ -26,7 +26,7 @@ export function Modal({
           transition={{ duration: reduce ? 0.01 : duration.fast }}
         >
           <motion.div
-            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12, scale: 0.98 }}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 12, rotateX: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: 8 }}
             transition={reduce ? { duration: 0.01 } : spring}

@@ -319,7 +319,7 @@ export async function RentDetailScreen({ id, role, notice }: { id: string; role:
         <p className="text-3xl font-semibold text-navy">{money(row.amount)}</p>
         <p className="mt-1 text-sm text-muted">Remaining {money(row.remaining)} · due {String(row.dueDate ?? "")}</p>
         <div className="mt-3">
-          <Chip tone={statusTone(String(row.status ?? ""))}>{labelize(String(row.status ?? ""))}</Chip>
+          <Chip tone={statusTone(String(row.status ?? ""))} celebrate={String(row.status ?? "").toUpperCase().includes("PAID")}>{labelize(String(row.status ?? ""))}</Chip>
         </div>
       </div>
       {role === "OWNER" ? (
@@ -544,7 +544,7 @@ export async function MoreScreen({ profile }: { profile: PortalProfile }) {
       <ul className="grid gap-2">
         {linksFor(profile.activeRole).map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="flex items-center gap-3 rounded-[22px] bg-card px-4 py-3.5 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
+            <Link href={link.href} className="tilt-surface flex items-center gap-3 rounded-[22px] bg-card px-4 py-3.5 shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent-soft text-accent-ink">
                 <PortalIcon name={link.icon} />
               </span>
@@ -680,7 +680,7 @@ export async function AgreementsScreen() {
       <AgreementCreateForm tenancies={rows} />
       <ul className="mb-6 grid gap-2">
         {agreements.map((agreement) => (
-          <li key={agreement.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
+          <li key={agreement.id} className="tilt-surface rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{money(agreement.monthlyRent)} / month</span>
             <span className="mt-1 block text-muted">Ends {String(agreement.expiryDate ?? "—")} · {labelize(String(agreement.status ?? ""))}</span>
           </li>
@@ -874,7 +874,7 @@ export async function DocumentsScreen() {
       {!properties.ok ? <Notice message={properties.message} /> : null}
       <ul className="grid gap-2">
         {documents.map((doc) => (
-          <li key={doc.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
+          <li key={doc.id} className="tilt-surface rounded-2xl bg-card px-4 py-3 text-sm">
             <a className="font-semibold text-accent-ink" href={`/portal/files/documents/${doc.id}/download`}>{String(doc.title ?? doc.category ?? "Document")}</a>
             <span className="mt-1 block text-muted">{doc.expiresAt ? `Expires ${String(doc.expiresAt)}` : "No expiry"}</span>
             <form action={extractDocument} className="mt-2">

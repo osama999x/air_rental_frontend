@@ -1,11 +1,27 @@
 import { PropertyArt } from "@/components/brand/property-art";
+import { FlipCard } from "@/components/motion/flip-card";
 import { ButtonLink } from "@/components/ui/button";
 import { formatPkr } from "@/lib/format";
 import { propertyTypeLabel, type RentalProperty } from "../types";
 
 export function PropertyCard({ property }: { property: RentalProperty }) {
   return (
-    <article className="surface-card hover-lift flex h-full flex-col overflow-hidden">
+    <FlipCard
+      back={
+        <div className="flex h-full flex-col justify-between bg-card p-5">
+          <div>
+            <p className="text-xs text-muted">Monthly rent</p>
+            <p className="mt-1 text-2xl font-semibold text-navy">{formatPkr(property.monthlyRent)}</p>
+            <p className="mt-4 text-sm font-semibold text-navy">{property.sizeLabel}</p>
+            <p className="mt-1 text-sm text-muted">
+              {property.area}, {property.city}
+            </p>
+          </div>
+          <ButtonLink href={`/properties/${property.slug}`}>View property</ButtonLink>
+        </div>
+      }
+    >
+    <article className="flex h-full flex-col overflow-hidden bg-card">
       <PropertyArt label={propertyTypeLabel(property.type)} />
       <div className="flex flex-1 flex-col p-5">
         <h2 className="text-lg font-semibold tracking-tight text-navy">{property.name}</h2>
@@ -25,5 +41,6 @@ export function PropertyCard({ property }: { property: RentalProperty }) {
         </ButtonLink>
       </div>
     </article>
+    </FlipCard>
   );
 }

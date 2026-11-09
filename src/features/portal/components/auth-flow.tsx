@@ -17,6 +17,7 @@ import {
 } from "@/features/portal/actions";
 import { authCopy, type AuthCopy } from "@/features/portal/i18n";
 import { idleForm } from "@/features/portal/types";
+import { PanelDepth } from "./panel-depth";
 import { GoogleSignIn } from "./google-sign-in";
 import { BusyOverlay } from "./loader";
 import { Field, Notice, fieldClass } from "./ui";
@@ -38,12 +39,13 @@ export function AuthFrame({
   return (
     <div className="portal-auth">
       <aside className="portal-auth-panel">
-        <div>
+        <PanelDepth />
+        <div className="relative z-[1]">
           <p className="text-xs font-semibold tracking-[0.2em] text-white/80">AIR RENTAL</p>
           <h2 className="mt-6 max-w-md text-4xl font-semibold tracking-tight">{text.panelTitle}</h2>
           <p className="mt-4 max-w-sm text-sm leading-6 text-white/80">{text.panelBody}</p>
         </div>
-        <ul className="grid gap-3 text-sm">
+        <ul className="relative z-[1] grid gap-3 text-sm">
           {text.points.map((item) => (
             <li key={item} className="rounded-2xl bg-white/10 px-4 py-3">
               {item}
