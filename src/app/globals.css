@@ -763,51 +763,6 @@ html[data-theme="dark"] {
   --shadow-card: inset 0 1px 0 rgba(232, 238, 249, 0.08), inset 0 0 0 1px #243555;
 }
 
-@media (prefers-color-scheme: dark) {
-  html[data-theme="system"] {
-    color-scheme: dark;
-    --background: #0b1426;
-    --foreground: #e8eef9;
-    --ink: #e8eef9;
-    --muted: #8fa3c0;
-    --card: #12203a;
-    --raised: #172846;
-    --accent-ink: #7aa2ff;
-    --line: #243555;
-    --line-strong: #243555;
-    --track: #243555;
-    --wash: #172846;
-    --accent-soft: rgba(47, 107, 255, 0.18);
-    --accent-faint: rgba(47, 107, 255, 0.14);
-    --alert: #ff6b86;
-    --alert-soft: rgba(209, 38, 74, 0.18);
-    --notice-err: #ff6b86;
-    --notice-err-bg: rgba(209, 38, 74, 0.18);
-    --notice-ok: #4ade80;
-    --notice-ok-bg: rgba(21, 128, 61, 0.2);
-    --success: #4ade80;
-    --chip-overdue-bg: rgba(209, 38, 74, 0.18);
-    --chip-overdue-fg: #ff6b86;
-    --chip-pending-bg: rgba(122, 63, 242, 0.18);
-    --chip-pending-fg: #b794ff;
-    --chip-paid-bg: rgba(21, 128, 61, 0.2);
-    --chip-paid-fg: #4ade80;
-    --chip-due-bg: rgba(47, 107, 255, 0.18);
-    --chip-due-fg: #7aa2ff;
-    --chip-neutral-bg: #243555;
-    --chip-neutral-fg: #c5d4ea;
-    --status-ok-bg: rgba(21, 128, 61, 0.2);
-    --status-ok-fg: #4ade80;
-    --status-bad-bg: rgba(209, 38, 74, 0.18);
-    --status-bad-fg: #ff6b86;
-    --status-wait-bg: rgba(122, 63, 242, 0.18);
-    --status-wait-fg: #b794ff;
-    --photo: 0.9;
-    --glow-opacity: 0.35;
-    --shadow-card: inset 0 1px 0 rgba(232, 238, 249, 0.08), inset 0 0 0 1px #243555;
-  }
-}
-
 html[data-theme="dark"] body,
 html[data-theme="system"] body {
   color: var(--foreground);
@@ -818,23 +773,6 @@ html[data-theme="dark"] body {
     radial-gradient(980px 460px at -8% -12%, rgba(47, 107, 255, 0.08), transparent 58%),
     radial-gradient(720px 380px at 110% -8%, rgba(47, 107, 255, 0.04), transparent 52%),
     var(--background);
-}
-
-@media (prefers-color-scheme: dark) {
-  html[data-theme="system"] body {
-    background:
-      radial-gradient(980px 460px at -8% -12%, rgba(47, 107, 255, 0.08), transparent 58%),
-      radial-gradient(720px 380px at 110% -8%, rgba(47, 107, 255, 0.04), transparent 52%),
-      var(--background);
-  }
-
-  html[data-theme="system"] .portal-auth-main {
-    background: var(--card);
-  }
-
-  html[data-theme="system"] img {
-    filter: brightness(0.9);
-  }
 }
 
 html[data-theme="dark"] .portal-auth-main {

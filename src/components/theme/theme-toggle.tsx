@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from "react";
 import { parseTheme, themeCookie, type ThemeChoice } from "@/lib/theme";
 
 const themeEvent = "air-theme-change";
@@ -13,13 +13,6 @@ export function ThemeProvider({
   initial: ThemeChoice;
   children: ReactNode;
 }) {
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const notify = () => window.dispatchEvent(new Event(themeEvent));
-    media.addEventListener("change", notify);
-    return () => media.removeEventListener("change", notify);
-  }, []);
-
   return <ThemeContext.Provider value={initial}>{children}</ThemeContext.Provider>;
 }
 
@@ -70,22 +63,9 @@ function useResolvedDark() {
   return useSyncExternalStore(subscribe, resolvedDark, () => initial === "dark");
 }
 
-let systemSettled = false;
-
 function subscribe(onStoreChange: () => void) {
-  const notify = () => {
-    systemSettled = true;
-    onStoreChange();
-  };
-  window.addEventListener(themeEvent, notify);
-  const media = window.matchMedia("(prefers-color-scheme: dark)");
-  media.addEventListener("change", notify);
-  const frame = window.setTimeout(notify, 0);
-  return () => {
-    window.clearTimeout(frame);
-    window.removeEventListener(themeEvent, notify);
-    media.removeEventListener("change", notify);
-  };
+  window.addEventListener(themeEvent, onStoreChange);
+  return () => window.removeEventListener(themeEvent, onStoreChange);
 }
 
 function readChoice(): ThemeChoice {
@@ -93,11 +73,7 @@ function readChoice(): ThemeChoice {
 }
 
 function resolvedDark() {
-  const choice = readChoice();
-  if (choice === "dark") return true;
-  if (choice === "light") return false;
-  if (!systemSettled) return false;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+  return readChoice() === "dark";
 }
 
 export function applyTheme(choice: ThemeChoice) {

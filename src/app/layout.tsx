@@ -37,15 +37,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export async function generateViewport(): Promise<Viewport> {
   const choice = await themeChoice();
   return {
-    themeColor:
-      choice === "system"
-        ? [
-            { media: "(prefers-color-scheme: light)", color: "#f4f7fb" },
-            { media: "(prefers-color-scheme: dark)", color: "#0b1426" },
-          ]
-        : choice === "dark"
-          ? "#0b1426"
-          : "#f4f7fb",
+    themeColor: choice === "dark" ? "#0b1426" : "#f4f7fb",
   };
 }
 
