@@ -151,6 +151,7 @@ export function PropertyEditForm({ property }: { property: NamedRecord }) {
       <Field label="Name"><input name="name" required defaultValue={String(property.name ?? "")} className={fieldClass} /></Field>
       <input type="hidden" name="countryId" value={String(property.countryId ?? "")} />
       <Field label="Address"><input name="addressLine" required defaultValue={String(property.addressLine ?? "")} className={fieldClass} /></Field>
+      <Field label="Unit or shop number"><input name="unit" defaultValue={String(property.unit ?? "")} className={fieldClass} /></Field>
       <Field label="Area"><input name="area" defaultValue={String(property.area ?? "")} className={fieldClass} /></Field>
       <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Save property"}</Button>
     </form>

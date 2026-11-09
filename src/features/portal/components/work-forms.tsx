@@ -107,6 +107,9 @@ export function PropertyForm({
       <Field label="Address">
         <input name="addressLine" required className={fieldClass} />
       </Field>
+      <Field label="Unit or shop number">
+        <input name="unit" className={fieldClass} placeholder="Optional" />
+      </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Size">
           <input name="sizeValue" inputMode="decimal" className={fieldClass} />
@@ -175,6 +178,12 @@ export function InviteForm({ properties }: { properties: NamedRecord[] }) {
       </Field>
       <Field label="End date">
         <input name="endDate" type="date" className={fieldClass} />
+      </Field>
+      <Field label="Monthly rent">
+        <input name="monthlyRent" inputMode="decimal" className={fieldClass} placeholder="Optional" />
+      </Field>
+      <Field label="Note for the tenant">
+        <input name="notes" className={fieldClass} placeholder="Optional" />
       </Field>
       <Field label="Tenant email">
         <input name="email" type="email" className={fieldClass} placeholder="Required for a contact invite by email" />

@@ -252,6 +252,7 @@ export async function createProperty(_previous: FormState, formData: FormData): 
       cityId: text(formData, "cityId") || undefined,
       area: text(formData, "area") || undefined,
       addressLine: text(formData, "addressLine"),
+      unit: text(formData, "unit") || undefined,
       sizeValue: text(formData, "sizeValue") || undefined,
       measurementUnitCode: text(formData, "measurementUnitCode") || undefined,
       currencyCode: text(formData, "currencyCode") || "PKR",
@@ -272,6 +273,7 @@ export async function createTenancyInvite(_previous: FormState, formData: FormDa
       propertyId: text(formData, "propertyId"),
       startDate: text(formData, "startDate"),
       endDate: text(formData, "endDate") || undefined,
+      monthlyRent: text(formData, "monthlyRent") || undefined,
       currencyCode: "PKR",
     },
   });
@@ -283,6 +285,7 @@ export async function createTenancyInvite(_previous: FormState, formData: FormDa
       email: text(formData, "email") || undefined,
       phone: text(formData, "phone") || undefined,
       tenantName: text(formData, "tenantName") || undefined,
+      notes: text(formData, "notes") || undefined,
       channel,
     },
   });
@@ -689,6 +692,7 @@ export async function updateProperty(_previous: FormState, formData: FormData): 
       cityId: text(formData, "cityId") || undefined,
       area: text(formData, "area") || undefined,
       addressLine: text(formData, "addressLine"),
+      unit: text(formData, "unit") || null,
       sizeValue: text(formData, "sizeValue") || undefined,
       measurementUnitCode: text(formData, "measurementUnitCode") || undefined,
       currencyCode: text(formData, "currencyCode") || "PKR",
