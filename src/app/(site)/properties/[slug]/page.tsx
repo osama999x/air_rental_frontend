@@ -42,9 +42,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 function PropertyDetailFallback() {
   return (
     <Container className="py-12">
-      <div className="h-4 w-24 animate-pulse rounded-full bg-line" />
-      <div className="mt-4 h-10 w-72 max-w-full animate-pulse rounded-full bg-line" />
-      <div className="mt-8 h-40 animate-pulse rounded-2xl bg-line" />
+      <div className="skeleton h-4 w-24 rounded-full" />
+      <div className="skeleton mt-4 h-10 w-72 max-w-full rounded-full" />
+      <div className="skeleton mt-8 h-40 rounded-2xl" />
     </Container>
   );
 }

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { connection } from "next/server";
+import { CountText } from "@/components/motion/animated-number";
 import { respondToInvite } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
 import { OpenInviteForm } from "@/features/portal/components/invite-tools";
@@ -154,13 +155,18 @@ async function TenantHome({ profile, copy, language, avatarSrc }: { profile: Por
       </div>
       <ul className="mt-5 grid gap-3">
         <li className="rounded-[22px] bg-white p-4 text-sm text-navy">
-          {dashboard.ok
-            ? fillTemplate(copy.tenantSummary, {
+          {dashboard.ok ? (
+            <CountText
+              template={copy.tenantSummary}
+              values={{
                 tenancies: dashboard.data.tenancies,
                 messages: dashboard.data.unreadMessages,
                 alerts: dashboard.data.unreadNotifications,
-              })
-            : dashboard.message}
+              }}
+            />
+          ) : (
+            dashboard.message
+          )}
         </li>
         {asList<NamedRecord>(bills.ok ? bills.data : []).slice(0, 3).map((bill) => (
           <li key={bill.id}>

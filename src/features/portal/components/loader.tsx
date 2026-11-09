@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Modal } from "@/components/motion/modal";
 
 export function Loader({ label }: { label: string }) {
   return (
@@ -12,14 +13,13 @@ export function Loader({ label }: { label: string }) {
 }
 
 export function BusyOverlay({ show, label }: { show: boolean; label: string }) {
-  if (!show) return null;
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-[#f4f7fb]/75 px-6" role="status" aria-live="polite">
-      <div className="flex min-w-56 flex-col items-center gap-3 rounded-[28px] bg-white px-8 py-7 shadow-[0_20px_50px_rgba(18,48,92,0.12)]">
+    <Modal show={show}>
+      <div className="flex min-w-56 flex-col items-center gap-3 rounded-[28px] bg-white px-8 py-7 shadow-[0_20px_50px_rgba(18,48,92,0.12)]" role="status" aria-live="polite">
         <span className="h-9 w-9 animate-spin rounded-full border-2 border-[#d5e0f0] border-t-accent" />
         <p className="text-sm font-semibold text-navy">{label}</p>
       </div>
-    </div>
+    </Modal>
   );
 }
 
@@ -67,13 +67,13 @@ export function PropertyPhoto({ src, alt }: { src: string; alt: string }) {
 }
 
 export function ProfilePhoto({ name, src, large = false }: { name: string; src?: string | null; large?: boolean }) {
+  return <ProfilePhotoFace key={src ?? ""} name={name} src={src} large={large} />;
+}
+
+function ProfilePhotoFace({ name, src, large = false }: { name: string; src?: string | null; large?: boolean }) {
   const [failed, setFailed] = useState(false);
   const initials = name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("") || "A";
   const size = large ? "h-20 w-20 text-lg" : "h-10 w-10 text-xs";
-
-  useEffect(() => {
-    setFailed(false);
-  }, [src]);
 
   return (
     <span className={`relative inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-[#e7efff] font-semibold text-accent ${size}`}>

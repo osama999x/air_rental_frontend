@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AnimatedNumber } from "@/components/motion/animated-number";
+import { TiltCard } from "@/components/motion/primitives";
 
 const chipTones = {
   overdue: "bg-[#ffe8ea] text-[#d1264a]",
@@ -21,14 +23,15 @@ export function statusTone(status?: string): ChipTone {
 }
 
 export function Chip({ children, tone = "neutral" }: { children: ReactNode; tone?: ChipTone }) {
+  const motionClass = tone === "overdue" || tone === "due" ? "chip-pulse" : "chip-in";
   return (
-    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${chipTones[tone]}`}>{children}</span>
+    <span className={`${motionClass} inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${chipTones[tone]}`}>{children}</span>
   );
 }
 
 export function Screen({ children }: { children: ReactNode }) {
   return (
-    <div className="portal-canvas rise-in mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-5 pb-24 sm:px-6 lg:px-8 lg:pt-8 lg:pb-12">
+    <div className="portal-canvas mx-auto flex w-full max-w-7xl flex-1 flex-col px-4 pt-5 pb-24 sm:px-6 lg:px-8 lg:pt-8 lg:pb-12">
       {children}
     </div>
   );
@@ -57,7 +60,12 @@ export function PageTitle({
 export function Notice({ message, tone = "error" }: { message: string; tone?: "error" | "ok" }) {
   if (!message) return null;
   return (
-    <p className={`mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "bg-[#e5f8ee] text-[#166534]" : "bg-[#ffe8ea] text-[#9f1239]"}`} role="status">
+    <p className={`notice-in mb-4 rounded-2xl px-4 py-3 text-sm ${tone === "ok" ? "bg-[#e5f8ee] text-[#166534]" : "bg-[#ffe8ea] text-[#9f1239]"}`} role="status">
+      {tone === "ok" ? (
+        <svg viewBox="0 0 16 16" className="me-2 inline h-4 w-4 align-text-bottom" aria-hidden="true">
+          <path className="check-draw" d="M3 8.5 6.2 11.5 13 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : null}
       {message}
     </p>
   );
@@ -65,7 +73,7 @@ export function Notice({ message, tone = "error" }: { message: string; tone?: "e
 
 export function EmptyState({ title, body, href, label }: { title: string; body: string; href?: string; label?: string }) {
   return (
-    <div className="rounded-[24px] bg-white px-5 py-8 text-center shadow-[0_10px_30px_rgba(18,48,92,0.06)]">
+    <TiltCard className="rounded-[24px] bg-white px-5 py-8 text-center">
       <h2 className="text-lg font-semibold text-navy">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
       {href && label ? (
@@ -73,7 +81,7 @@ export function EmptyState({ title, body, href, label }: { title: string; body: 
           {label}
         </Link>
       ) : null}
-    </div>
+    </TiltCard>
   );
 }
 
@@ -87,7 +95,7 @@ export function MoneyCard({
   detail: string;
 }) {
   return (
-    <section className="rounded-[28px] bg-gradient-to-br from-[#16356a] to-[#0d2248] p-5 text-white shadow-[0_16px_40px_rgba(18,48,92,0.22)]">
+    <section className="tilt-surface money-card rounded-[28px] bg-gradient-to-br from-[#16356a] to-[#0d2248] p-5 text-white">
       <p className="text-xs font-semibold tracking-[0.16em] text-white/70">{label}</p>
       <p className="mt-3 text-4xl font-semibold tracking-tight">{amount}</p>
       <p className="mt-2 text-sm text-white/80">{detail}</p>
@@ -105,8 +113,8 @@ export function StatRow({
   return (
     <ul className={`mt-4 grid grid-cols-3 gap-2 sm:gap-3 ${className}`}>
       {items.map((item) => (
-        <li key={item.label} className="rounded-[22px] bg-white px-3 py-3 text-center shadow-[0_8px_24px_rgba(18,48,92,0.05)]">
-          <p className="text-xl font-semibold text-navy">{item.value}</p>
+        <li key={item.label} className="tilt-surface rounded-[22px] bg-white px-3 py-3 text-center">
+          <p className="text-xl font-semibold text-navy">{typeof item.value === "number" ? <AnimatedNumber value={item.value} /> : item.value}</p>
           <p className="mt-1 text-xs text-muted">{item.label}</p>
         </li>
       ))}
@@ -130,7 +138,7 @@ export function RecordLink({
   status?: string;
 }) {
   return (
-    <Link href={href} className="record-link flex items-center gap-3 rounded-[22px] bg-white p-3 shadow-[0_8px_24px_rgba(18,48,92,0.05)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_rgba(18,48,92,0.1)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+    <Link href={href} className="record-link hover-lift flex items-center gap-3 rounded-[22px] bg-white p-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[#e8f0ff] text-sm font-semibold text-accent">
         {mark.slice(0, 1)}
       </span>
@@ -170,7 +178,7 @@ export function Field({
 }
 
 export const fieldClass =
-  "h-12 w-full rounded-2xl border border-line bg-white px-4 text-sm font-normal text-navy outline-none transition focus:border-accent focus:ring-4 focus:ring-[#2f6bff]/10";
+  "field-control h-12 w-full rounded-2xl border border-line bg-white px-4 text-sm font-normal text-navy outline-none focus:border-accent";
 
 export function BackLink({ href, label = "Back" }: { href: string; label?: string }) {
   return (

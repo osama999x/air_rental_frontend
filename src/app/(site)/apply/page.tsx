@@ -34,7 +34,7 @@ export default function ApplyPage({
           </ul>
         </div>
       </div>
-      <Suspense fallback={<div className="h-96 animate-pulse rounded-2xl bg-line" />}>
+      <Suspense fallback={<div className="skeleton h-96 rounded-2xl" />}>
         <TenancyRequest searchParams={searchParams} />
       </Suspense>
     </Container>

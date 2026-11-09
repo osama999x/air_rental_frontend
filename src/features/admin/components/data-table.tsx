@@ -71,7 +71,7 @@ export function RecordList({
   if (count === 0) {
     return <p className="admin-card px-4 py-10 text-center text-sm text-muted">{empty}</p>;
   }
-  return <div className="grid gap-3">{children}</div>;
+  return <div className="stagger-list grid gap-3">{children}</div>;
 }
 
 export function RecordCard({
@@ -88,7 +88,7 @@ export function RecordCard({
   action?: ReactNode;
 }) {
   return (
-    <article className="admin-card p-4 sm:p-5">
+    <article className="admin-card tilt-surface p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {eyebrow ? <p className="text-xs font-medium text-muted">{eyebrow}</p> : null}
@@ -148,9 +148,9 @@ function PageLink({ href, label }: { href?: string; label: string }) {
 export function PanelSkeleton() {
   return (
     <div className="grid gap-3">
-      <div className="h-8 w-48 animate-pulse rounded-full bg-line" />
-      <div className="h-40 animate-pulse rounded-3xl bg-line" />
-      <div className="h-28 animate-pulse rounded-3xl bg-line" />
+      <div className="skeleton h-8 w-48 rounded-full" />
+      <div className="skeleton h-40 rounded-3xl" />
+      <div className="skeleton h-28 rounded-3xl" />
     </div>
   );
 }

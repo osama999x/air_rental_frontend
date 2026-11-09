@@ -129,7 +129,7 @@ export function BookingForm({
 }
 
 const inputClass =
-  "w-full rounded-2xl border border-line bg-[#f4f7fb] px-3 py-3 text-sm font-normal text-foreground outline-none transition focus:border-accent";
+  "field-control w-full rounded-2xl border border-line bg-[#f4f7fb] px-3 py-3 text-sm font-normal text-foreground outline-none focus:border-accent";
 
 function Field({
   label,
@@ -164,7 +164,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   }
 
   return (
-    <span id={id} className="text-sm font-normal text-red-700">
+    <span id={id} className="field-error text-sm font-normal text-red-700">
       {message}
     </span>
   );
