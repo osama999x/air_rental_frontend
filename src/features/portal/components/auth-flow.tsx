@@ -159,7 +159,7 @@ export function LoginForm({ reset, copy, invite }: { reset?: boolean; copy: Auth
   const signup = invite ? `/portal/signup?invite=${encodeURIComponent(invite)}` : "/portal/language";
   return (
     <div className="grid gap-4">
-      <GoogleSignIn copy={copy} />
+      <GoogleSignIn copy={copy} invite={invite} />
       <form action={action} className="grid gap-4">
         {invite ? <input type="hidden" name="invite" value={invite} /> : null}
         {reset ? <Notice message={copy.passwordUpdated} tone="ok" /> : null}
@@ -192,7 +192,7 @@ export function SignupForm({ copy, invite }: { copy: AuthCopy; invite?: string }
   const login = invite ? `/portal/login?invite=${encodeURIComponent(invite)}` : "/portal/login";
   return (
     <div className="grid gap-4">
-      <GoogleSignIn copy={copy} />
+      <GoogleSignIn copy={copy} invite={invite} />
       <form action={action} className="grid gap-4">
         {invite ? <input type="hidden" name="invite" value={invite} /> : null}
         <Notice message={state.message} />

@@ -150,7 +150,7 @@ export async function NewPropertyScreen() {
   );
 }
 
-export async function PropertyDetailScreen({ id }: { id: string }) {
+export async function PropertyDetailScreen({ id, notice }: { id: string; notice?: string }) {
   const profile = await readPortalProfile();
   const [property, tenancies, invitations] = await Promise.all([
     portalCall<NamedRecord>(`/properties/${id}`),
@@ -177,6 +177,7 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
   return (
     <Screen>
       <BackLink href="/portal/properties" />
+      {notice ? <Notice message={notice} /> : null}
       <p className="text-xs font-semibold tracking-[0.16em] text-accent">{String(item.visibleCode ?? item.propertyType ?? "")}</p>
       <h1 className="mt-1 text-2xl font-semibold text-navy">{String(item.name ?? "Property")}</h1>
       <div className="mt-3">
@@ -214,7 +215,7 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
               <Chip tone={statusTone(String(tenancy.status ?? ""))}>{labelize(String(tenancy.status ?? ""))}</Chip>
             </div>
             <TenancyFacts tenancy={tenancy} ownerView={ownerView} />
-            {ownerView ? <TenancyButtons id={String(tenancy.id)} /> : null}
+            {ownerView ? <TenancyButtons id={String(tenancy.id)} propertyId={id} /> : null}
           </li>
         )) : <li className="text-sm text-muted">No tenancy on this property yet.</li>}
       </ul>
@@ -230,6 +231,7 @@ export async function PropertyDetailScreen({ id }: { id: string }) {
                 </span>
                 <form action={revokeInvitation}>
                   <input type="hidden" name="id" value={String(invite.id)} />
+                  <input type="hidden" name="returnTo" value={`/portal/properties/${id}`} />
                   <button className="font-semibold text-[#9f1239]">Revoke</button>
                 </form>
               </li>
@@ -295,7 +297,7 @@ export async function RentScreen() {
   );
 }
 
-export async function RentDetailScreen({ id, role }: { id: string; role: PortalProfile["activeRole"] }) {
+export async function RentDetailScreen({ id, role, notice }: { id: string; role: PortalProfile["activeRole"]; notice?: string }) {
   const result = await portalCall<unknown>("/rent/obligations");
   const row = asList<NamedRecord>(result.ok ? result.data : []).find((item) => item.id === id);
   if (!result.ok || !row) {
@@ -310,6 +312,7 @@ export async function RentDetailScreen({ id, role }: { id: string; role: PortalP
   return (
     <Screen>
       <BackLink href="/portal/rent" />
+      {notice ? <Notice message={notice} /> : null}
       <PageTitle title="Rent transaction" kicker={`${monthName(row.periodMonth)} ${row.periodYear ?? ""}`} />
       <div className="rounded-[24px] bg-white p-4">
         <p className="text-3xl font-semibold text-navy">{money(row.amount)}</p>
@@ -406,7 +409,7 @@ export async function NewBillScreen() {
   );
 }
 
-export async function BillDetailScreen({ id, role }: { id: string; role: PortalProfile["activeRole"] }) {
+export async function BillDetailScreen({ id, role, notice }: { id: string; role: PortalProfile["activeRole"]; notice?: string }) {
   const [result, paymentStatus] = await Promise.all([
     portalCall<NamedRecord>(`/bills/${id}`),
     portalCall<{ provider?: string; live?: boolean; message?: string }>("/payments/status", { auth: false }),
@@ -419,6 +422,7 @@ export async function BillDetailScreen({ id, role }: { id: string; role: PortalP
   return (
     <Screen>
       <BackLink href="/portal/bills" />
+      {notice ? <Notice message={notice} /> : null}
       <PageTitle title={labelize(String(bill.category ?? "Bill"))} />
       <div className="rounded-[24px] bg-white p-4">
         <p className="text-3xl font-semibold text-navy">{money(bill.amount)}</p>
@@ -485,7 +489,7 @@ export async function NewRepairScreen() {
   );
 }
 
-export async function RepairDetailScreen({ id, role }: { id: string; role: PortalProfile["activeRole"] }) {
+export async function RepairDetailScreen({ id, role, notice }: { id: string; role: PortalProfile["activeRole"]; notice?: string }) {
   const result = await portalCall<NamedRecord>(`/maintenance/${id}`);
   if (!result.ok) return <Screen><BackLink href="/portal/repairs" /><Notice message={result.message} /></Screen>;
   const item = result.data;
@@ -493,6 +497,7 @@ export async function RepairDetailScreen({ id, role }: { id: string; role: Porta
   return (
     <Screen>
       <BackLink href="/portal/repairs" />
+      {notice ? <Notice message={notice} /> : null}
       <PageTitle title="Repair detail" />
       <p className="text-sm leading-6 text-navy">{String(item.description ?? "")}</p>
       <div className="mt-3"><Chip tone={statusTone(String(item.status ?? ""))}>{labelize(String(item.status ?? "NEW"))}</Chip></div>
@@ -592,7 +597,7 @@ export async function SimpleListScreen({
   );
 }
 
-export async function InvitationsScreen() {
+export async function InvitationsScreen({ notice }: { notice?: string } = {}) {
   const [invitations, properties] = await Promise.all([
     portalCall<unknown>("/tenancies/invitations"),
     portalCall<unknown>("/properties"),
@@ -601,6 +606,7 @@ export async function InvitationsScreen() {
   return (
     <Screen>
       <PageTitle kicker="INVITE" title="Invitations" />
+      {notice ? <Notice message={notice} /> : null}
       <p className="mb-4 text-sm leading-6 text-muted">Send a contact invite, or share a secure link and its QR code. A pending invite can be revoked. Accept marks the tenancy accepted. The property becomes rented when you activate it.</p>
       {!invitations.ok ? <Notice message={invitations.message} /> : null}
       <InviteForm properties={asList(properties.ok ? properties.data : [])} />
@@ -614,6 +620,7 @@ export async function InvitationsScreen() {
             </span>
             <form action={revokeInvitation}>
               <input type="hidden" name="id" value={String(invite.id)} />
+              <input type="hidden" name="returnTo" value="/portal/invitations" />
               <button className="font-semibold text-[#9f1239]">Revoke</button>
             </form>
           </li>
@@ -901,11 +908,12 @@ export async function InsuranceScreen() {
   );
 }
 
-export async function ManagersScreen() {
+export async function ManagersScreen({ notice }: { notice?: string } = {}) {
   const [assignments, properties] = await Promise.all([portalCall<unknown>("/managers/assignments"), portalCall<unknown>("/properties")]);
   return (
     <Screen>
       <PageTitle title="Managers" />
+      {notice ? <Notice message={notice} /> : null}
       {!assignments.ok ? <Notice message={assignments.message} /> : null}
       <ul className="mb-4 grid gap-2">
         {asList<NamedRecord>(assignments.ok ? assignments.data : []).map((row) => (
@@ -1088,10 +1096,11 @@ function TenancyFacts({ tenancy, ownerView }: { tenancy: NamedRecord; ownerView:
   );
 }
 
-function TenancyButtons({ id }: { id: string }) {
+function TenancyButtons({ id, propertyId }: { id: string; propertyId: string }) {
   return (
     <form action={changeTenancy} className="mt-2 flex flex-wrap gap-2 text-xs font-semibold">
       <input type="hidden" name="id" value={id} />
+      <input type="hidden" name="propertyId" value={propertyId} />
       <button name="intent" value="activate" className="rounded-full bg-accent px-3 py-2 text-white">Activate</button>
       <button name="intent" value="terminate" className="rounded-full bg-white px-3 py-2 text-navy">Terminate</button>
       <button name="intent" value="complete" className="rounded-full bg-white px-3 py-2 text-navy">Complete</button>

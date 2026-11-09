@@ -100,7 +100,8 @@ export async function submitGoogle(_previous: FormState, formData: FormData): Pr
   });
   if (!result.ok) return { status: "error", message: result.message };
   await finishSignIn(result.data);
-  redirect("/portal/home");
+  const invite = text(formData, "invite");
+  redirect(invite ? `/portal/invite/${encodeURIComponent(invite)}` : "/portal/home");
 }
 
 export async function submitLogin(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -305,7 +306,9 @@ export async function openInvite(formData: FormData) {
 
 export async function revokeInvitation(formData: FormData) {
   const id = text(formData, "id");
-  await portalCall(`/tenancies/invitations/${id}/revoke`, { method: "POST", body: {} });
+  const back = text(formData, "returnTo") || "/portal/invitations";
+  const result = await portalCall(`/tenancies/invitations/${id}/revoke`, { method: "POST", body: {} });
+  if (!result.ok) redirect(`${back}?error=${encodeURIComponent(result.message)}`);
   revalidatePath("/portal/invitations");
   revalidatePath("/portal/properties");
 }
@@ -352,7 +355,8 @@ export async function respondToInvite(formData: FormData) {
 
 export async function remindRent(formData: FormData) {
   const id = text(formData, "id");
-  await portalCall(`/rent/obligations/${id}/remind`, { method: "POST", body: {} });
+  const result = await portalCall(`/rent/obligations/${id}/remind`, { method: "POST", body: {} });
+  if (!result.ok) redirect(`/portal/rent/${id}?error=${encodeURIComponent(result.message)}`);
   revalidatePath(`/portal/rent/${id}`);
 }
 
@@ -361,11 +365,14 @@ export async function decideProof(formData: FormData) {
   const obligationId = text(formData, "obligationId");
   const approve = formData.get("intent") === "approve";
   const notes = text(formData, "notes");
-  if (!approve && !notes) return;
-  await portalCall(`/rent/proofs/${id}/${approve ? "approve" : "reject"}`, {
+  if (!approve && !notes) {
+    redirect(`/portal/rent/${obligationId}?error=${encodeURIComponent("A note is required when rejecting a proof.")}`);
+  }
+  const result = await portalCall(`/rent/proofs/${id}/${approve ? "approve" : "reject"}`, {
     method: "POST",
     body: { notes: notes || undefined },
   });
+  if (!result.ok) redirect(`/portal/rent/${obligationId}?error=${encodeURIComponent(result.message)}`);
   revalidatePath(`/portal/rent/${obligationId}`);
 }
 
@@ -433,10 +440,11 @@ export async function createRepair(_previous: FormState, formData: FormData): Pr
 
 export async function transitionRepair(formData: FormData) {
   const id = text(formData, "id");
-  await portalCall(`/maintenance/${id}/status`, {
+  const result = await portalCall(`/maintenance/${id}/status`, {
     method: "POST",
     body: { status: text(formData, "status"), note: text(formData, "note") || undefined },
   });
+  if (!result.ok) redirect(`/portal/repairs/${id}?error=${encodeURIComponent(result.message)}`);
   revalidatePath(`/portal/repairs/${id}`);
 }
 
@@ -606,11 +614,14 @@ export async function decideBillProof(formData: FormData) {
   const billId = text(formData, "billId");
   const approve = formData.get("intent") === "approve";
   const notes = text(formData, "notes");
-  if (!approve && !notes) return;
-  await portalCall(`/bills/proofs/${id}/${approve ? "approve" : "reject"}`, {
+  if (!approve && !notes) {
+    redirect(`/portal/bills/${billId}?error=${encodeURIComponent("A note is required when rejecting a proof.")}`);
+  }
+  const result = await portalCall(`/bills/proofs/${id}/${approve ? "approve" : "reject"}`, {
     method: "POST",
     body: { notes: notes || undefined },
   });
+  if (!result.ok) redirect(`/portal/bills/${billId}?error=${encodeURIComponent(result.message)}`);
   revalidatePath(`/portal/bills/${billId}`);
 }
 
@@ -740,12 +751,16 @@ export async function generateRent(_previous: FormState, formData: FormData): Pr
 
 export async function changeTenancy(formData: FormData) {
   const id = text(formData, "id");
+  const propertyId = text(formData, "propertyId");
   const intent = text(formData, "intent");
   const path =
     intent === "terminate" ? "terminate" : intent === "complete" ? "complete" : "activate";
-  await portalCall(`/tenancies/${id}/${path}`, { method: "POST", body: {} });
+  const result = await portalCall(`/tenancies/${id}/${path}`, { method: "POST", body: {} });
+  const back = propertyId ? `/portal/properties/${propertyId}` : "/portal/properties";
+  if (!result.ok) redirect(`${back}?error=${encodeURIComponent(result.message)}`);
   revalidatePath("/portal/invitations");
   revalidatePath("/portal/properties");
+  revalidatePath(back);
 }
 
 export async function addInspectionItem(_previous: FormState, formData: FormData): Promise<FormState> {
@@ -804,7 +819,8 @@ export async function respondAssignment(formData: FormData) {
   const id = text(formData, "id");
   const intent = text(formData, "intent");
   const path = intent === "accept" ? "accept" : intent === "decline" ? "decline" : "revoke";
-  await portalCall(`/managers/assignments/${id}/${path}`, { method: "POST", body: {} });
+  const result = await portalCall(`/managers/assignments/${id}/${path}`, { method: "POST", body: {} });
+  if (!result.ok) redirect(`/portal/managers?error=${encodeURIComponent(result.message)}`);
   revalidatePath("/portal/managers");
 }
 
