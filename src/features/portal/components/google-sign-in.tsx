@@ -99,7 +99,7 @@ export function GoogleSignIn({ copy }: { copy: AuthCopy }) {
       <BusyOverlay show={pending} label={copy.signingIn} />
       <input type="hidden" name="idToken" />
       <Notice message={loadError ? copy.googleError : state.message} />
-      <div ref={host} className={`flex min-h-11 justify-center ${pending ? "pointer-events-none opacity-60" : ""}`} />
+      <div ref={host} className={`google-signin-host ${pending ? "pointer-events-none opacity-60" : ""}`} />
       <div className="flex items-center gap-3 text-xs font-medium text-muted">
         <span className="h-px flex-1 bg-line" />
         {copy.or}
