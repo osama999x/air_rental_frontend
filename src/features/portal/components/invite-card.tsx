@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { respondToInvite } from "@/features/portal/actions";
+import { respondToInvite, reviewInvitation } from "@/features/portal/actions";
 import { Notice } from "./ui";
 
 const typeLabels: Record<string, string> = {
@@ -32,6 +32,8 @@ export type InvitePreview = {
   startDate?: string | null;
   endDate?: string | null;
   status?: string | null;
+  id?: string | null;
+  reviewMessage?: string | null;
 };
 
 export function InviteCard({
@@ -52,6 +54,7 @@ export function InviteCard({
   signupHref: string;
 }) {
   const [step, setStep] = useState<"cover" | "detail">(closed ? "detail" : "cover");
+  const [reviewing, setReviewing] = useState(false);
   const owner = invite.invitedBy || "The property owner";
   const property = invite.propertyName || "Property";
   const address = [invite.propertyAddress, invite.propertyCity].filter(Boolean).join(", ");
@@ -101,28 +104,48 @@ export function InviteCard({
             <Fact label="Owner phone" value={invite.invitedByPhone || ""} />
           </dl>
           {closedNote ? <div className="mt-4"><Notice message={closedNote} /></div> : null}
+          {invite.reviewMessage ? (
+            <p className="mt-4 rounded-2xl bg-wash px-4 py-3 text-sm text-navy">Sent to the owner: {invite.reviewMessage}</p>
+          ) : null}
           {!closed && signedIn ? (
-            <form action={respondToInvite} className="mt-6 grid gap-3">
-              <input type="hidden" name="token" value={token} />
-              <button name="intent" value="accept" className="h-12 rounded-full bg-accent text-sm font-medium text-white">
-                Accept Invitation
-              </button>
-              <a href="#invitation-facts" className="inline-flex h-12 items-center justify-center rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
-                Review
-              </a>
-              <button name="intent" value="decline" className="h-12 rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
-                Decline
-              </button>
-            </form>
+            <div className="mt-6 grid gap-3">
+              <form action={respondToInvite}>
+                <input type="hidden" name="token" value={token} />
+                <button name="intent" value="accept" className="h-12 w-full rounded-full bg-accent text-sm font-medium text-white">
+                  Accept Invitation
+                </button>
+              </form>
+              {reviewing ? (
+                <form action={reviewInvitation} className="grid gap-3">
+                  <input type="hidden" name="token" value={token} />
+                  <input type="hidden" name="id" value={invite.id || ""} />
+                  <label className="grid gap-2 text-sm font-medium text-navy">
+                    What should the owner check or correct?
+                    <textarea name="message" required maxLength={2000} className="min-h-24 rounded-2xl border border-line bg-card px-3 py-3" />
+                  </label>
+                  <button className="h-12 rounded-full bg-[#3a3a3a] text-sm font-medium text-white">Send review</button>
+                </form>
+              ) : (
+                <button type="button" onClick={() => setReviewing(true)} className="h-12 rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
+                  Review
+                </button>
+              )}
+              <form action={respondToInvite}>
+                <input type="hidden" name="token" value={token} />
+                <button name="intent" value="decline" className="h-12 w-full rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
+                  Decline
+                </button>
+              </form>
+            </div>
           ) : null}
           {!closed && !signedIn ? (
             <div className="mt-6 grid gap-3">
               <Link href={loginHref} className="inline-flex h-12 items-center justify-center rounded-full bg-accent text-sm font-medium text-white">
                 Accept Invitation
               </Link>
-              <a href="#invitation-facts" className="inline-flex h-12 items-center justify-center rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
+              <Link href={loginHref} className="inline-flex h-12 items-center justify-center rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
                 Review
-              </a>
+              </Link>
               <Link href={loginHref} className="inline-flex h-12 items-center justify-center rounded-full bg-[#3a3a3a] text-sm font-medium text-white">
                 Decline
               </Link>

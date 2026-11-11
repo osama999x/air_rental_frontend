@@ -14,7 +14,7 @@ export default function InvitePage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ error?: string | string[] }>;
+  searchParams: Promise<{ error?: string | string[]; reviewed?: string | string[] }>;
 }) {
   return (
     <Suspense fallback={<p className="p-6 text-sm text-muted">Loading invitation…</p>}>
@@ -28,10 +28,12 @@ async function InviteScreen({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ error?: string | string[] }>;
+  searchParams: Promise<{ error?: string | string[]; reviewed?: string | string[] }>;
 }) {
   const { token } = await params;
-  const error = readParam((await searchParams).error);
+  const query = await searchParams;
+  const error = readParam(query.error);
+  const reviewed = readParam(query.reviewed) === "1";
   const preview = await portalCall<InvitePreview>(`/invitations/${token}`, { auth: false });
   const profile = await readPortalProfile();
   const invite = preview.ok ? preview.data : null;
@@ -41,6 +43,7 @@ async function InviteScreen({
   return (
     <AuthFrame title="Invitation">
       {error ? <Notice message={error} /> : null}
+      {reviewed ? <Notice message="The owner has your note. This invitation stays open." tone="ok" /> : null}
       {!preview.ok || !invite ? <Notice message={preview.ok ? "This invitation could not be opened." : preview.message} /> : (
         <InviteCard
           token={token}

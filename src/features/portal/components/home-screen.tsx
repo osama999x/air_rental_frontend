@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { CountText } from "@/components/motion/animated-number";
-import { respondToInvite } from "@/features/portal/actions";
+import { respondToInvite, reviewInvitation } from "@/features/portal/actions";
 import { asList, portalCall } from "@/features/portal/api";
 import { OpenInviteForm } from "@/features/portal/components/invite-tools";
 import { readAvatarDataUrl } from "@/features/portal/avatar";
@@ -10,14 +10,14 @@ import { readOnboarding } from "@/features/portal/session";
 import type { NamedRecord, OwnerDashboard, PortalProfile } from "@/features/portal/types";
 import { PortalIcon, type IconName } from "./icons";
 import { ProfilePhoto } from "./loader";
-import { Chip, MoneyCard, PageTitle, RecordLink, Screen, StatRow } from "./ui";
+import { Chip, MoneyCard, Notice, PageTitle, RecordLink, Screen, StatRow } from "./ui";
 
-export async function HomeScreen({ profile }: { profile: PortalProfile }) {
+export async function HomeScreen({ profile, notice }: { profile: PortalProfile; notice?: string }) {
   await connection();
   const { language } = await readOnboarding();
   const copy = portalCopy(language);
   const avatarSrc = await readAvatarDataUrl();
-  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
+  if (profile.activeRole === "TENANT") return <TenantHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} notice={notice} />;
   if (profile.activeRole === "MANAGER") return <ManagerHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
   return <OwnerHome profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />;
 }
@@ -113,7 +113,7 @@ async function OwnerHome({ profile, copy, language, avatarSrc }: { profile: Port
   );
 }
 
-async function TenantHome({ profile, copy, language, avatarSrc }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null }) {
+async function TenantHome({ profile, copy, language, avatarSrc, notice }: { profile: PortalProfile; copy: PortalCopy; language: string; avatarSrc: string | null; notice?: string }) {
   const [dashboard, rent, bills, invitations] = await Promise.all([
     portalCall<{ rentedProperties: number; tenancies: number; unreadMessages: number; unreadNotifications: number }>("/dashboards/tenant"),
     portalCall<unknown>("/rent/obligations"),
@@ -126,6 +126,7 @@ async function TenantHome({ profile, copy, language, avatarSrc }: { profile: Por
   return (
     <Screen>
       <Greeting profile={profile} copy={copy} language={language} avatarSrc={avatarSrc} />
+      {notice ? <Notice message={notice} tone={notice.startsWith("The owner") ? "ok" : "error"} /> : null}
       {incoming.length ? (
         <ul className="mb-4 grid gap-3">
           {incoming.map((invite) => (
@@ -137,6 +138,12 @@ async function TenantHome({ profile, copy, language, avatarSrc }: { profile: Por
                 <button name="intent" value="accept" className="h-10 rounded-full bg-accent px-4 text-sm font-medium text-white">Accept</button>
                 <button name="intent" value="decline" className="h-10 rounded-full border border-line px-4 text-sm font-medium text-navy">Decline</button>
               </form>
+              <form action={reviewInvitation} className="mt-3 grid gap-2">
+                <input type="hidden" name="id" value={String(invite.id)} />
+                <input name="message" required maxLength={2000} placeholder="What should the owner check or correct?" className="h-11 rounded-2xl border border-line px-3" />
+                <button className="h-10 rounded-full bg-[#3a3a3a] px-4 text-sm font-medium text-white">Review</button>
+              </form>
+              {invite.reviewMessage ? <p className="mt-2 text-navy">Sent to the owner: {String(invite.reviewMessage)}</p> : null}
             </li>
           ))}
         </ul>

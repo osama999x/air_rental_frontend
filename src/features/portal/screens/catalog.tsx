@@ -229,6 +229,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
                 <span>
                   <span className="block font-semibold text-navy">{String(invite.tenantName || invite.channel || "Invite")}</span>
                   <span className="text-muted">{String(invite.expiresAt ?? "")}</span>
+                  {invite.reviewMessage ? <span className="mt-1 block text-navy">Tenant asked to check: {String(invite.reviewMessage)}</span> : null}
                 </span>
                 <form action={revokeInvitation}>
                   <input type="hidden" name="id" value={String(invite.id)} />
@@ -619,6 +620,7 @@ export async function InvitationsScreen({ notice }: { notice?: string } = {}) {
             <span>
               <span className="block font-semibold text-navy">{String(invite.propertyName || invite.tenantName || "Invitation")}</span>
               <span className="text-muted">{labelize(String(invite.channel ?? ""))} · {String(invite.expiresAt ?? "")}</span>
+              {invite.reviewMessage ? <span className="mt-1 block text-navy">Tenant asked to check: {String(invite.reviewMessage)}</span> : null}
             </span>
             <form action={revokeInvitation}>
               <input type="hidden" name="id" value={String(invite.id)} />

@@ -336,6 +336,23 @@ export async function uploadIdentity(_previous: FormState, formData: FormData): 
   return { status: "success", message: "Identity document saved. Status stays unverified until it is reviewed." };
 }
 
+export async function reviewInvitation(formData: FormData) {
+  const token = text(formData, "token");
+  const id = text(formData, "id");
+  const message = text(formData, "message");
+  const back = token ? `/portal/invite/${encodeURIComponent(token)}` : "/portal/home";
+  if (!message) redirect(`${back}?error=${encodeURIComponent("Say what should be checked or corrected.")}`);
+  const result = await portalCall(`/tenancies/invitations/${id}/review`, {
+    method: "POST",
+    body: { message, token: token || undefined },
+  });
+  if (!result.ok) redirect(`${back}?error=${encodeURIComponent(result.message)}`);
+  revalidatePath("/portal/invitations");
+  revalidatePath("/portal/home");
+  revalidatePath("/portal/properties");
+  redirect(token ? `${back}?reviewed=1` : "/portal/home?reviewed=1");
+}
+
 export async function respondToInvite(formData: FormData) {
   const token = text(formData, "token");
   const id = text(formData, "id");
