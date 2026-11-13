@@ -58,6 +58,7 @@ import {
   InspectionForm,
   IdentityForm,
   InsuranceForm,
+  TenantIdentityForm,
   InviteForm,
   ManagerForm,
   PaymentForm,
@@ -216,6 +217,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
               <Chip tone={statusTone(String(tenancy.status ?? ""))}>{labelize(String(tenancy.status ?? ""))}</Chip>
             </div>
             <TenancyFacts tenancy={tenancy} ownerView={ownerView} />
+            {ownerView && tenancy.tenant ? <TenantIdentityForm tenancyId={String(tenancy.id)} propertyId={id} /> : null}
             {ownerView ? <TenancyButtons id={String(tenancy.id)} propertyId={id} /> : null}
           </li>
         )) : <li className="text-sm text-muted">No tenancy on this property yet.</li>}

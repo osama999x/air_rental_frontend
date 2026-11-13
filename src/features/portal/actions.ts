@@ -322,6 +322,32 @@ export async function revokeInvitation(formData: FormData) {
   revalidatePath("/portal/properties");
 }
 
+function identityReference(documentType: string) {
+  const prefix = documentType === "DRIVING_LICENSE" ? "DL" : documentType === "NATIONAL_ID" ? "NID" : "CNIC";
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const bytes = crypto.getRandomValues(new Uint8Array(8));
+  const suffix = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join("");
+  return `${prefix}-${suffix}`;
+}
+
+export async function uploadTenantIdentity(_previous: FormState, formData: FormData): Promise<FormState> {
+  const tenancyId = text(formData, "tenancyId");
+  const propertyId = text(formData, "propertyId");
+  const documentType = text(formData, "documentType") || "CNIC";
+  const body = new FormData();
+  body.set("documentType", documentType);
+  body.set("side", text(formData, "side") || "FRONT");
+  body.set("documentNumber", identityReference(documentType));
+  const file = formData.get("file");
+  if (!(file instanceof Blob) || file.size === 0) return { status: "error", message: "Choose the front or back file." };
+  body.set("file", file, file instanceof File && file.name ? file.name : "identity");
+  const result = await portalCall(`/tenancies/${tenancyId}/identity-documents`, { method: "POST", form: body });
+  if (!result.ok) return { status: "error", message: result.message };
+  revalidatePath("/portal/properties");
+  if (propertyId) revalidatePath(`/portal/properties/${propertyId}`);
+  return { status: "success", message: "Saved on the tenant's account. Status stays unverified." };
+}
+
 export async function uploadIdentity(_previous: FormState, formData: FormData): Promise<FormState> {
   const body = new FormData();
   body.set("documentType", text(formData, "documentType"));

@@ -24,6 +24,7 @@ import {
   updateReminders,
   updateSettings,
   uploadIdentity,
+  uploadTenantIdentity,
 } from "@/features/portal/actions";
 import { propertyTypeOptions } from "@/features/portal/nav";
 import { idleForm, type NamedRecord, type PortalProfile } from "@/features/portal/types";
@@ -195,6 +196,37 @@ export function InviteForm({ properties }: { properties: NamedRecord[] }) {
         {pending ? "Sending…" : "Send invitation"}
       </Button>
       {state.link ? <InviteShare url={state.link} expiresAt={state.expiresAt} /> : null}
+    </form>
+  );
+}
+
+export function TenantIdentityForm({ tenancyId, propertyId }: { tenancyId: string; propertyId: string }) {
+  const [state, action, pending] = useActionState(uploadTenantIdentity, idleForm);
+  return (
+    <form action={action} className="mt-4 grid gap-3 border-t border-line pt-4">
+      <h3 className="text-sm font-semibold text-navy">Upload tenant ID</h3>
+      <Notice message={state.message} tone={state.status === "success" ? "ok" : "error"} />
+      <input type="hidden" name="tenancyId" value={tenancyId} />
+      <input type="hidden" name="propertyId" value={propertyId} />
+      <Field label="Document">
+        <select name="documentType" className={fieldClass} defaultValue="CNIC">
+          <option value="CNIC">CNIC</option>
+          <option value="NATIONAL_ID">National ID</option>
+          <option value="DRIVING_LICENSE">Driving license</option>
+        </select>
+      </Field>
+      <Field label="Side">
+        <select name="side" className={fieldClass} defaultValue="FRONT">
+          <option value="FRONT">Front</option>
+          <option value="BACK">Back</option>
+        </select>
+      </Field>
+      <Field label="Photo or PDF">
+        <FilePicker name="file" accept="image/jpeg,image/png,image/webp,application/pdf" />
+      </Field>
+      <Button type="submit" disabled={pending}>
+        {pending ? "Saving…" : "Save on tenant account"}
+      </Button>
     </form>
   );
 }
