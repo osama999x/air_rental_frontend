@@ -56,6 +56,7 @@ import {
   ExpenseForm,
   HandoverForm,
   InspectionForm,
+  IdentityDecisionForm,
   IdentityForm,
   InsuranceForm,
   TenantIdentityForm,
@@ -216,7 +217,7 @@ export async function PropertyDetailScreen({ id, notice }: { id: string; notice?
               <p className="font-semibold text-navy">{labelize(String(tenancy.status ?? "Tenancy"))}</p>
               <Chip tone={statusTone(String(tenancy.status ?? ""))}>{labelize(String(tenancy.status ?? ""))}</Chip>
             </div>
-            <TenancyFacts tenancy={tenancy} ownerView={ownerView} />
+            <TenancyFacts tenancy={tenancy} ownerView={ownerView} propertyId={id} />
             {ownerView && tenancy.tenant ? <TenantIdentityForm tenancyId={String(tenancy.id)} propertyId={id} /> : null}
             {ownerView ? <TenancyButtons id={String(tenancy.id)} propertyId={id} /> : null}
           </li>
@@ -653,6 +654,7 @@ export async function IdentityScreen() {
           <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{labelize(String(row.documentType ?? ""))} · {labelize(String(row.side ?? ""))}</span>
             <span className="mt-1 block text-muted">{row.documentNumber ? String(row.documentNumber) : "Number hidden"} · {labelize(String(row.verificationStatus ?? "UNVERIFIED"))}</span>
+            {row.rejectionReason ? <span className="mt-1 block text-navy">{String(row.rejectionReason)}</span> : null}
             <a className="mt-2 inline-block font-semibold text-accent-ink" href={`/portal/files/identity-documents/${row.id}/download`}>Open file</a>
           </li>
         )) : <li className="text-sm text-muted">No identity document yet.</li>}
@@ -1077,7 +1079,7 @@ function textOf(value: unknown) {
   return typeof value === "string" || typeof value === "number" ? String(value) : "";
 }
 
-function TenancyFacts({ tenancy, ownerView }: { tenancy: NamedRecord; ownerView: boolean }) {
+function TenancyFacts({ tenancy, ownerView, propertyId }: { tenancy: NamedRecord; ownerView: boolean; propertyId: string }) {
   const person = (ownerView ? tenancy.tenant : tenancy.owner) as NamedRecord | null | undefined;
   const emergency = [person?.emergencyContactName, person?.emergencyContactRelationship, person?.emergencyContactPhone].filter(Boolean).join(" · ");
   const documents = Array.isArray(tenancy.identityDocuments) ? tenancy.identityDocuments as NamedRecord[] : [];
@@ -1098,6 +1100,8 @@ function TenancyFacts({ tenancy, ownerView }: { tenancy: NamedRecord; ownerView:
               {labelize(String(document.documentType ?? ""))} {labelize(String(document.side ?? ""))} · {labelize(String(document.verificationStatus ?? ""))}
               {" "}
               <a className="font-semibold text-accent-ink" href={`/portal/files/identity-documents/${document.id}/download`}>View</a>
+              {document.rejectionReason ? <span className="mt-1 block text-navy">{String(document.rejectionReason)}</span> : null}
+              <IdentityDecisionForm documentId={String(document.id)} propertyId={propertyId} />
             </dd>
           ))}
         </div>

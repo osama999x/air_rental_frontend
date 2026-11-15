@@ -25,6 +25,7 @@ import {
   updateSettings,
   uploadIdentity,
   uploadTenantIdentity,
+  verifyIdentity,
 } from "@/features/portal/actions";
 import { propertyTypeOptions } from "@/features/portal/nav";
 import { idleForm, type NamedRecord, type PortalProfile } from "@/features/portal/types";
@@ -196,6 +197,18 @@ export function InviteForm({ properties }: { properties: NamedRecord[] }) {
         {pending ? "Sending…" : "Send invitation"}
       </Button>
       {state.link ? <InviteShare url={state.link} expiresAt={state.expiresAt} /> : null}
+    </form>
+  );
+}
+
+export function IdentityDecisionForm({ documentId, propertyId }: { documentId: string; propertyId: string }) {
+  return (
+    <form action={verifyIdentity} className="mt-2 flex flex-wrap items-center gap-2">
+      <input type="hidden" name="id" value={documentId} />
+      <input type="hidden" name="propertyId" value={propertyId} />
+      <button name="status" value="VERIFIED" className="rounded-full bg-accent px-3 py-2 text-xs font-semibold text-white">Verify</button>
+      <input name="reason" maxLength={200} placeholder="Reason if rejecting" className="h-9 min-w-40 flex-1 rounded-2xl border border-line bg-card px-3 text-xs" />
+      <button name="status" value="REJECTED" className="rounded-full bg-card px-3 py-2 text-xs font-semibold text-navy">Reject</button>
     </form>
   );
 }

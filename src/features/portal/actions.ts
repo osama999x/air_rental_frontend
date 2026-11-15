@@ -330,6 +330,22 @@ function identityReference(documentType: string) {
   return `${prefix}-${suffix}`;
 }
 
+export async function verifyIdentity(formData: FormData) {
+  const id = text(formData, "id");
+  const propertyId = text(formData, "propertyId");
+  const status = text(formData, "status");
+  const reason = text(formData, "reason").trim().slice(0, 200);
+  const back = propertyId ? `/portal/properties/${propertyId}` : "/portal/properties";
+  const result = await portalCall(`/identity-documents/${id}/verification`, {
+    method: "PATCH",
+    body: status === "REJECTED" && reason ? { status, reason } : { status },
+  });
+  if (!result.ok) redirect(`${back}?error=${encodeURIComponent(result.message)}`);
+  revalidatePath("/portal/properties");
+  revalidatePath(back);
+  revalidatePath("/portal/identity");
+}
+
 export async function uploadTenantIdentity(_previous: FormState, formData: FormData): Promise<FormState> {
   const tenancyId = text(formData, "tenancyId");
   const propertyId = text(formData, "propertyId");
