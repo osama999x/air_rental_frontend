@@ -547,21 +547,28 @@ export function ManagerForm({ properties }: { properties: NamedRecord[] }) {
       <Field label="Manager email">
         <input name="email" type="email" required className={fieldClass} />
       </Field>
-      <Field label="Assigned by">
-        <select name="side" className={fieldClass} defaultValue="OWNER">
-          <option value="OWNER">Owner</option>
-          <option value="TENANT">Tenant</option>
-        </select>
+      <Field label="Name">
+        <input name="name" className={fieldClass} placeholder="Optional" />
       </Field>
       <fieldset className="grid gap-2 text-sm text-navy">
         <legend className="font-medium">Permissions</legend>
-        {["PROPERTY_VIEW", "RENT_VIEW", "BILL_VIEW", "MAINTENANCE_CREATE", "INSPECTION_MANAGE", "CHAT", "DOCUMENT_VIEW"].map((permission) => (
+        {[
+          ["TENANT_DETAILS", "Tenant details"],
+          ["MANAGE_PROPERTY", "Manage property"],
+          ["INVITE_TENANTS", "Invite tenants"],
+          ["VIEW_AGREEMENTS", "View agreements"],
+          ["MANAGE_AGREEMENTS", "Manage agreements"],
+          ["RENT", "Rent"],
+          ["REPAIRS", "Repairs"],
+          ["OWNER_FINANCES", "Owner finances"],
+        ].map(([permission, label]) => (
           <label key={permission} className="flex items-center gap-2">
-            <input type="checkbox" name="permissions" value={permission} defaultChecked={permission === "PROPERTY_VIEW"} />
-            {permission.replaceAll("_", " ").toLowerCase()}
+            <input type="checkbox" name="permissions" value={permission} defaultChecked={permission === "TENANT_DETAILS"} />
+            {label}
           </label>
         ))}
       </fieldset>
+      <p className="text-sm text-muted">The current portal decides the side. A tenant can grant view agreements, rent, and repairs on a property they actively rent.</p>
       <Button type="submit" disabled={pending}>
         {pending ? "Sending…" : "Assign manager"}
       </Button>

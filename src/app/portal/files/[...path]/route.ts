@@ -3,7 +3,7 @@ import { ACCESS_COOKIE, readAccessToken, readPortalProfile } from "@/features/po
 
 const API_URL = process.env.API_URL ?? "http://localhost:3009/api/v1";
 const allowed =
-  /^(documents\/[0-9a-f-]{36}\/download|identity-documents\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
+  /^(documents\/[0-9a-f-]{36}\/download|identity-documents\/[0-9a-f-]{36}\/download|agreements\/[0-9a-f-]{36}\/download|maintenance\/attachments\/[0-9a-f-]{36}\/download|bills\/proofs\/[0-9a-f-]{36}\/download|properties\/media\/[0-9a-f-]{36}\/download|users\/me\/avatar)$/i;
 
 export async function GET(request: NextRequest, context: { params: Promise<{ path: string[] }> }) {
   await connection();

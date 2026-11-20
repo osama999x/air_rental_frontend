@@ -672,23 +672,35 @@ export async function IdentityScreen() {
 }
 
 export async function AgreementsScreen() {
-  const tenancies = await portalCall<unknown>("/tenancies");
-  const rows = asList<NamedRecord>(tenancies.ok ? tenancies.data : []);
+  const tenancies = await portalCall<unknown>("/tenancies?expiringWithinDays=60");
+  const allTenancies = await portalCall<unknown>("/tenancies");
+  const rows = asList<NamedRecord>(allTenancies.ok ? allTenancies.data : []);
   const agreements: NamedRecord[] = [];
   for (const tenancy of rows.slice(0, 8)) {
     const result = await portalCall<unknown>(`/tenancies/${tenancy.id}/agreements`);
     agreements.push(...asList<NamedRecord>(result.ok ? result.data : []));
   }
+  const due = asList<NamedRecord>(tenancies.ok ? tenancies.data : []);
   return (
     <Screen>
       <PageTitle kicker="AGREEMENT" title="Agreements" />
       {!tenancies.ok ? <Notice message={tenancies.message} /> : null}
+      <h2 className="mb-3 text-lg font-semibold text-navy">Agreement renewals</h2>
+      <ul className="mb-6 grid gap-2">
+        {due.length ? due.map((agreement) => (
+          <li key={agreement.id} className="rounded-2xl bg-card px-4 py-3 text-sm">
+            <span className="font-semibold text-navy">{String(agreement.propertyCode || agreement.propertyName || "Property")}</span>
+            <span className="mt-1 block text-muted">Ends {String(agreement.endDate ?? "—")} · {money(typeof agreement.monthlyRent === "string" || typeof agreement.monthlyRent === "number" ? agreement.monthlyRent : agreement.rent as string | number | undefined)} / month</span>
+          </li>
+        )) : <li className="text-sm text-muted">No agreement expires in the next two months.</li>}
+      </ul>
       <AgreementCreateForm tenancies={rows} />
       <ul className="mb-6 grid gap-2">
         {agreements.map((agreement) => (
           <li key={agreement.id} className="tilt-surface rounded-2xl bg-card px-4 py-3 text-sm">
             <span className="font-semibold text-navy">{money(agreement.monthlyRent)} / month</span>
             <span className="mt-1 block text-muted">Ends {String(agreement.expiryDate ?? "—")} · {labelize(String(agreement.status ?? ""))}</span>
+            {agreement.file ? <a className="mt-2 inline-block font-semibold text-accent-ink" href={`/portal/files/agreements/${agreement.id}/download`}>Open file</a> : null}
           </li>
         ))}
       </ul>
@@ -921,16 +933,49 @@ export async function InsuranceScreen() {
 }
 
 export async function ManagersScreen({ notice }: { notice?: string } = {}) {
-  const [assignments, properties] = await Promise.all([portalCall<unknown>("/managers/assignments"), portalCall<unknown>("/properties")]);
+  const profile = await readPortalProfile();
+  const managerPortal = profile?.activeRole === "MANAGER";
+  const [assignments, properties, mine, activity] = await Promise.all([
+    portalCall<unknown>("/managers/assignments"),
+    portalCall<unknown>("/properties"),
+    managerPortal ? portalCall<NamedRecord>("/managers/me") : Promise.resolve(null),
+    managerPortal ? Promise.resolve(null) : portalCall<unknown>("/managers/activity"),
+  ]);
+  const portal = mine && mine.ok ? mine.data : null;
+  const assigned = Array.isArray(portal?.properties) ? portal.properties as NamedRecord[] : [];
+  const tasks = Array.isArray(portal?.tasks) ? portal.tasks as NamedRecord[] : [];
   return (
     <Screen>
       <PageTitle title="Managers" />
       {notice ? <Notice message={notice} /> : null}
+      {managerPortal ? (
+        <>
+          <h2 className="mb-3 text-lg font-semibold text-navy">Assigned properties</h2>
+          <ul className="mb-6 grid gap-2">
+            {assigned.length ? assigned.map((property) => (
+              <li key={property.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">{String(property.visibleCode || property.name || property.id)}</li>
+            )) : <li className="text-sm text-muted">No property is assigned yet.</li>}
+          </ul>
+          <h2 className="mb-3 text-lg font-semibold text-navy">Tasks</h2>
+          <ul className="mb-6 grid gap-2">
+            {tasks.length ? tasks.map((task) => (
+              <li key={task.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
+                {labelize(String(task.category ?? "Task"))}
+                <span className="mt-1 block text-muted">{labelize(String(task.status ?? ""))} · {String(task.description ?? "")}</span>
+              </li>
+            )) : <li className="text-sm text-muted">No open task on your properties.</li>}
+          </ul>
+        </>
+      ) : null}
       {!assignments.ok ? <Notice message={assignments.message} /> : null}
       <ul className="mb-4 grid gap-2">
-        {asList<NamedRecord>(assignments.ok ? assignments.data : []).map((row) => (
+        {asList<NamedRecord>(assignments.ok ? assignments.data : []).map((row) => {
+          const manager = row.manager as NamedRecord | undefined;
+          return (
           <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
-            {labelize(String(row.status ?? "pending"))}
+            <span className="font-semibold">{String(manager?.email || "Manager")}</span>
+            <span className="mt-1 block text-muted">{labelize(String(row.side ?? ""))} · {labelize(String(row.status ?? "pending"))}</span>
+            <span className="mt-1 block text-muted">{Array.isArray(row.permissions) ? row.permissions.join(", ") : ""}</span>
             <form action={respondAssignment} className="mt-2 flex gap-2">
               <input type="hidden" name="id" value={row.id} />
               <button name="intent" value="accept" className="font-semibold text-accent-ink">Accept</button>
@@ -938,8 +983,22 @@ export async function ManagersScreen({ notice }: { notice?: string } = {}) {
               <button name="intent" value="revoke" className="font-semibold text-notice-err">Revoke</button>
             </form>
           </li>
-        ))}
+          );
+        })}
       </ul>
+      {activity && activity.ok ? (
+        <>
+          <h2 className="mb-3 text-lg font-semibold text-navy">Manager activity</h2>
+          <ul className="mb-6 grid gap-2">
+            {asList<NamedRecord>(activity.data).length ? asList<NamedRecord>(activity.data).map((row) => (
+              <li key={row.id} className="rounded-2xl bg-card px-4 py-3 text-sm text-navy">
+                {String(row.action ?? "Update")}
+                <span className="mt-1 block text-muted">{String(row.entityType ?? "")} · {String(row.createdAt ?? "")}</span>
+              </li>
+            )) : <li className="text-sm text-muted">No manager activity yet.</li>}
+          </ul>
+        </>
+      ) : null}
       <ManagerForm properties={asList(properties.ok ? properties.data : [])} />
     </Screen>
   );

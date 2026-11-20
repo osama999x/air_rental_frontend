@@ -208,6 +208,9 @@ export function AgreementCreateForm({ tenancies }: { tenancies: NamedRecord[] })
       <Field label="Monthly rent"><input name="monthlyRent" required className={fieldClass} /></Field>
       <Field label="Security deposit"><input name="securityDeposit" defaultValue="0" className={fieldClass} /></Field>
       <Field label="Rent due day (1–28)"><input name="rentDueDay" type="number" min={1} max={28} defaultValue={5} className={fieldClass} /></Field>
+      <Field label="Renewal terms"><input name="renewalTerms" className={fieldClass} placeholder="Optional" /></Field>
+      <Field label="Other terms"><input name="additionalTerms" className={fieldClass} placeholder="Optional" /></Field>
+      <Field label="Agreement file"><FilePicker name="file" accept="image/jpeg,image/png,image/webp,application/pdf" /></Field>
       <Button type="submit" disabled={pending}>{pending ? "Saving…" : "Create agreement"}</Button>
     </form>
   );

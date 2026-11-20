@@ -566,10 +566,10 @@ export async function assignManager(_previous: FormState, formData: FormData): P
   const result = await portalCall("/managers/assignments", {
     method: "POST",
     body: {
-      managerEmail: text(formData, "email"),
-      side: text(formData, "side") || "OWNER",
+      email: text(formData, "email"),
+      name: text(formData, "name") || undefined,
       propertyIds: [text(formData, "propertyId")],
-      permissions: permissions.length ? permissions : ["PROPERTY_VIEW", "RENT_VIEW", "MAINTENANCE_CREATE", "CHAT"],
+      permissions: permissions.length ? permissions : ["TENANT_DETAILS"],
     },
   });
   if (!result.ok) return { status: "error", message: result.message };
@@ -785,20 +785,37 @@ export async function transferProperty(_previous: FormState, formData: FormData)
   return { status: "success", message: "Ownership transferred. The previous owner stays in the history." };
 }
 
+function agreementForm(fields: Record<string, string | undefined>, file: Blob) {
+  const body = new FormData();
+  for (const [key, value] of Object.entries(fields)) {
+    if (value) body.set(key, value);
+  }
+  body.set("file", file, file instanceof File && file.name ? file.name : "agreement");
+  return body;
+}
+
 export async function createAgreement(_previous: FormState, formData: FormData): Promise<FormState> {
   const tenancyId = text(formData, "tenancyId");
-  const result = await portalCall(`/tenancies/${tenancyId}/agreements`, {
-    method: "POST",
-    body: {
-      startDate: text(formData, "startDate"),
-      expiryDate: text(formData, "expiryDate"),
-      monthlyRent: text(formData, "monthlyRent"),
-      currencyCode: "PKR",
-      securityDeposit: text(formData, "securityDeposit") || "0",
-      rentDueDay: Number(text(formData, "rentDueDay") || 5),
-      renewalTerms: text(formData, "renewalTerms") || undefined,
-    },
-  });
+  const fields = {
+    startDate: text(formData, "startDate"),
+    expiryDate: text(formData, "expiryDate"),
+    monthlyRent: text(formData, "monthlyRent"),
+    currencyCode: "PKR",
+    securityDeposit: text(formData, "securityDeposit") || "0",
+    rentDueDay: text(formData, "rentDueDay") || "5",
+    renewalTerms: text(formData, "renewalTerms") || undefined,
+    additionalTerms: text(formData, "additionalTerms") || undefined,
+  };
+  const file = formData.get("file");
+  const result = file instanceof Blob && file.size > 0
+    ? await portalCall(`/tenancies/${tenancyId}/agreements`, {
+        method: "POST",
+        form: agreementForm(fields, file),
+      })
+    : await portalCall(`/tenancies/${tenancyId}/agreements`, {
+        method: "POST",
+        body: { ...fields, rentDueDay: Number(fields.rentDueDay) },
+      });
   if (!result.ok) return { status: "error", message: result.message };
   revalidatePath("/portal/agreements");
   return { status: "success", message: "Agreement created. The previous version stays in the history when you renew." };
